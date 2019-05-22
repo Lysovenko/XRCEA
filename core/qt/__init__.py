@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+"""start from here"""
+# XRCEA (C) 2019 Serhii Lysovenko
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or (at
+# your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+from .core import (main, show_vi, print_status, copy_to_clipboard,
+                   register_dialog)
+from .frame import new_frame
+from .dialog import run_dialog, print_information, print_error, ask_question
+from .idialog import input_dialog
