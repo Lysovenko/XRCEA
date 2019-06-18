@@ -30,11 +30,10 @@ class DMenuItem:
 class DMenu:
     """Dynamic menu"""
     def __init__(self):
-        self.other = None
         self.root = {}
 
-    def get_items(self, path):
-        if self.other is not None:
+    def get_items(self, path, other=None):
+        if other is not None:
             o_con = self.other.get_container(path, {})
         else:
             o_con = {}

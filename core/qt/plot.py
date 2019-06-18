@@ -40,10 +40,13 @@ from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QMainWindow,
                              QMessageBox, QSizePolicy)
 import matplotlib
+matplotlib.use('Qt5Agg')
+
+
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg \
     as FigureCanvas
 from matplotlib.figure import Figure
-matplotlib.use('Qt5Agg')
+# from .core import _DATA, Face, clearLayout
 
 
 class Canvas(FigureCanvas):
@@ -74,7 +77,7 @@ class PlotWindow(QMainWindow):
         # self.createActions()
         # self.createMenus()
         # self.createToolBars()
-        self.createStatusBar()
+        # self.createStatusBar()
 
         # self.readSettings()
 
@@ -91,7 +94,17 @@ class PlotWindow(QMainWindow):
 
 
 def show_plot_window(vi_obj):
-    pass
+    # if vi_obj.gui_functions:
+    #     vi_obj.gui_functions["%SubWindow%"].raise_()
+    #     return
+    # if vi_obj.class_name is not None:
+    #     sw.after_close.append(lambda x:  _DATA["Settings"].setValue(
+    #         vi_obj.class_name+'_geometry', x.saveGeometry()))
+    plt = PlotWindow(vi_obj)
+    print("plt created")
+    plt.show()
+    plt.raise_()
+    print("plt shown")
 
 
 if __name__ == '__main__':

@@ -19,15 +19,12 @@
 import sys
 from threading import Lock
 from time import time
-from ..application import APPLICATION, icon_file
+from ..application import APPLICATION
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtCore import Qt, QSettings, QTimer, QSignalMapper
 from PyQt5.QtWidgets import (QMainWindow, QMessageBox, QApplication,
-                             QShortcut, QWidget,
-                             QMdiSubWindow, QMdiArea)
+                             QShortcut, QWidget, QTextEdit)
 from PyQt5.QtGui import QIcon
-from .menu import MDIMenu
-from ..vi import Plot
 _DATA = {}
 _DIALOGS = []
 _TASKS = []
@@ -53,76 +50,7 @@ def _get_dialog():
     return rv
 
 
-class Face(QMainWindow):
-
-    def __init__(self):
-        super().__init__()
-        _DATA["MDI area"] = self.mdiArea = QMdiArea()
-        _DATA["Main window"] = self
-        self.just_created = True
-        self.mdiArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.mdiArea.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.setCentralWidget(self.mdiArea)
-        self.windowMapper = QSignalMapper(self)
-        self.windowMapper.mapped[QWidget].connect(self.setActiveSubWindow)
-        self.statusbar = self.statusBar()
-        self.initUI()
-        _DATA["Settings"] = self.settings = QSettings('XRCEA', 'XRCEA')
-        geometry = self.settings.value('geometry', b'')
-        self.restoreGeometry(geometry)
-        self.setWindowIcon(QIcon(icon_file("logo")))
-        self.show()
-
-    def initUI(self):
-        self.menu = MDIMenu(self, self.mdiArea)
-        # self.toolbar = self.addToolBar('Exit')
-        mdi = self.mdiArea
-        self.setCentralWidget(mdi)
-        self.setGeometry(300, 300, 250, 150)
-        self.setWindowTitle("HvosTiSol")
-
-    def closeEvent(self, event):
-        self.mdiArea.closeAllSubWindows()
-        if self.mdiArea.currentSubWindow():
-            event.ignore()
-        else:
-            self.writeSettings()
-            try:
-                self.t_dialogs.stop()
-            except RuntimeError:
-                pass
-            else:
-                self.t_dialogs.deleteLater()
-            event.accept()
-
-    def writeSettings(self):
-        geometry = self.saveGeometry()
-        self.settings.setValue('geometry', geometry)
-
-    def toggleMenu(self, state):
-        if state:
-            self.statusbar.show()
-        else:
-            self.statusbar.hide()
-
-    def showEvent(self, event):
-        if self.just_created:
-            self.just_created = False
-            for e in APPLICATION.on_start:
-                e()
-
-    def setActiveSubWindow(self, window):
-        if window:
-            self.mdiArea.setActiveSubWindow(window)
-
-    def activeMdiChild(self):
-        activeSubWindow = self.mdiArea.activeSubWindow()
-        if activeSubWindow:
-            return activeSubWindow.widget()
-        return None
-
-
-def _check_dialogs(self):
+def _check_dialogs():
     dlg = _get_dialog()
     while dlg is not None:
         dlg()
@@ -132,7 +60,9 @@ def _check_dialogs(self):
 def main():
     app = QApplication(sys.argv)
     APPLICATION.compman.introduce()
-    Face()
+    for e in APPLICATION.on_start:
+        print(e)
+        e()
     t_dialogs = QTimer()
     t_dialogs.start(250)
     t_dialogs.timeout.connect(_check_dialogs)
@@ -140,56 +70,12 @@ def main():
     APPLICATION.compman.terminate(True)
     APPLICATION.settings.save()
     sys.exit(outcode)
-# http://zetcode.com/gui/pyqt5/firstprograms/
 
 
 def show_vi(vi_obj):
     if isinstance(vi_obj, Plot):
         from .plot import show_plot_window
         show_plot_window(vi_obj)
-
-
-class MDISubWindow(QMdiSubWindow):
-    def __init__(self, vi_obj):
-        QMdiSubWindow.__init__(self)
-        self.vi_obj = vi_obj
-        if vi_obj.name:
-            self.setWindowTitle(vi_obj.name)
-        self.setAttribute(Qt.WA_DeleteOnClose)
-        self.after_close = []
-        for i in ("set_name", "set_icon", "add_shortcut", "is_active"):
-            vi_obj.gui_functions[i] = getattr(self, i)
-        vi_obj.gui_functions["%SubWindow%"] = self
-
-    def set_name(self, name):
-        self.setWindowTitle(name)
-
-    def set_icon(self, icon):
-        self.setWindowIcon(QIcon(icon))
-
-    def closeEvent(self, event):
-        stop_close = False
-        if getattr(self.vi_obj, "close_lock", None):
-            if QMessageBox.warning(
-                    self, self.vi_obj.close_lock.title,
-                    self.vi_obj.close_lock.question,
-                    QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
-                stop_close = True
-        if stop_close:
-            event.ignore()
-        else:
-            self.vi_obj.gui_functions.clear()
-            for i in self.after_close:
-                i(self)
-            self.vi_obj.currently_alive = False
-            event.accept()
-
-    def add_shortcut(self, key, func):
-        sk = QShortcut(QKeySequence(key), self)
-        sk.activated.connect(func)
-
-    def is_active(self):
-        return self.isActiveWindow()
 
 
 def clearLayout(layout):
@@ -202,11 +88,8 @@ def clearLayout(layout):
 
 
 def print_status(status):
-    try:
-        _DATA["Main window"].statusbar.showMessage(str(status))
-    except KeyError:
-        print(status)
-        pass
+    # DODO: implement
+    pass
 
 
 def copy_to_clipboard(text):

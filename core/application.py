@@ -33,7 +33,14 @@ class Application:
         self.settings = Settings()
         self.compman = CompMan(self)
         self.runtime_data = dict()
-        self.on_start = []
+        self.on_start = [draw_plot]
+
+
+def draw_plot():
+    # TODO: this is for test. Do not leave so.
+    from .vi import Plot
+    p = Plot("test")
+    p.show()
 
 
 def start():
@@ -90,6 +97,15 @@ def register_dialog(dlg):
 
 
 APPLICATION = Application()
+
+
+def icon_file(name):
+    """Returns icon filename
+    arguments:
+    name - name of icon"""
+    return join(
+        dirname(dirname(realpath(__file__))),
+        "data", "icons", name + ".png")
 
 
 def _introduce_menu():
