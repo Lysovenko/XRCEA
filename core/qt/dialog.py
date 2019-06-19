@@ -48,20 +48,20 @@ def run_dialog(puzzle):
 
 
 def print_information(title, info):
-    parent = _DATA["Main window"]
+    parent = None
     return QMessageBox.information(parent, title, info) == QMessageBox.Ok
 
 
 def print_error(title, info):
     try:
-        parent = _DATA["Main window"]
+        parent = None
         return QMessageBox.critical(parent, title, info) == QMessageBox.Ok
     except KeyError:
         print(title, "\n", info, file=stderr)
 
 
 def ask_question(title, question):
-    parent = _DATA["Main window"]
+    parent = None
     return QMessageBox.question(
         parent, title, question,
         QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes

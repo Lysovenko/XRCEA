@@ -60,6 +60,7 @@ def _check_dialogs():
 
 def main():
     app = QApplication(sys.argv)
+    app.setApplicationName("XRCEA")
     APPLICATION.compman.introduce()
     for e in APPLICATION.on_start:
         e()
