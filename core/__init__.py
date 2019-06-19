@@ -21,7 +21,7 @@ import logging
 from os.path import dirname, join, isdir, pardir
 from argparse import ArgumentParser
 from .application import APPLICATION
-VERSION = '0.0.1'
+VERSION = '0.0.0'
 
 
 def install_gt():

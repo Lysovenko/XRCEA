@@ -94,17 +94,15 @@ class PlotWindow(QMainWindow):
 
 
 def show_plot_window(vi_obj):
-    # if vi_obj.gui_functions:
-    #     vi_obj.gui_functions["%SubWindow%"].raise_()
-    #     return
+    if vi_obj.gui_functions:
+        vi_obj.gui_functions["%Window%"].raise_()
+        return
     # if vi_obj.class_name is not None:
     #     sw.after_close.append(lambda x:  _DATA["Settings"].setValue(
     #         vi_obj.class_name+'_geometry', x.saveGeometry()))
     plt = PlotWindow(vi_obj)
-    print("plt created")
+    vi_obj.gui_functions["%Window%"] = plt
     plt.show()
-    plt.raise_()
-    print("plt shown")
 
 
 if __name__ == '__main__':

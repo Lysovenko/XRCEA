@@ -25,6 +25,7 @@ from PyQt5.QtCore import Qt, QSettings, QTimer, QSignalMapper
 from PyQt5.QtWidgets import (QMainWindow, QMessageBox, QApplication,
                              QShortcut, QWidget, QTextEdit)
 from PyQt5.QtGui import QIcon
+from ..vi import Plot
 _DATA = {}
 _DIALOGS = []
 _TASKS = []
@@ -61,7 +62,6 @@ def main():
     app = QApplication(sys.argv)
     APPLICATION.compman.introduce()
     for e in APPLICATION.on_start:
-        print(e)
         e()
     t_dialogs = QTimer()
     t_dialogs.start(250)
