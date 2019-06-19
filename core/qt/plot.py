@@ -109,8 +109,9 @@ if __name__ == '__main__':
     class vi_obj:
         def __init__(self):
             self.title = 'hello world'
+            self.gui_functions = {}
     import sys
     app = QApplication(sys.argv)
-    mainWin = PlotWindow(vi_obj())
-    mainWin.show()
+    v = vi_obj()
+    show_plot_window(v)
     sys.exit(app.exec_())
