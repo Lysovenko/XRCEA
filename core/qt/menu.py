@@ -35,11 +35,6 @@ class SDIMenu:
         self.update_menu()
 
     def update_menu(self):
-        child = self.frame.activeMdiChild()
-        if child is None:
-            self.menu.other = None
-        else:
-            self.menu.other = child.vi_obj.menu
         items = self.menu.get_items((), self.frame.vi_obj.menu)
         iset = set(i[0] for i in items)
         if iset != self.main_menu_set:
@@ -49,8 +44,6 @@ class SDIMenu:
                 smenu = menubar.addMenu(i[0])
                 smenu.aboutToShow.connect(lambda p=(i[0],), s=smenu:
                                           self.show_path(p, s))
-            self.window_menu = menubar.addMenu(_("&Window"))
-            self.window_menu.aboutToShow.connect(self.update_window_menu)
 
     def show_path(self, path, smenu):
         smenu.clear()

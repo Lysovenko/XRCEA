@@ -46,6 +46,7 @@ matplotlib.use('Qt5Agg')
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg \
     as FigureCanvas
 from matplotlib.figure import Figure
+from .menu import SDIMenu
 # from .core import _DATA, Face, clearLayout
 
 
@@ -74,6 +75,8 @@ class PlotWindow(QMainWindow):
         self.setWindowTitle(vi_obj.title)
         self.canvas = Canvas(self)
         self.setCentralWidget(self.canvas)
+        self.vi_obj = vi_obj
+        self.menu = SDIMenu(self)
         # self.createActions()
         # self.createMenus()
         # self.createToolBars()

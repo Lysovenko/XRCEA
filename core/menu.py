@@ -34,7 +34,7 @@ class DMenu:
 
     def get_items(self, path, other=None):
         if other is not None:
-            o_con = self.other.get_container(path, {})
+            o_con = other.get_container(path, {})
         else:
             o_con = {}
         t_con = self.get_container(path, {})
