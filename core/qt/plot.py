@@ -39,12 +39,8 @@ from PyQt5.QtCore import (QFile, QFileInfo, QPoint, QSettings, QSize, Qt,
 from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QMainWindow,
                              QMessageBox, QSizePolicy)
-import matplotlib
-matplotlib.use('Qt5Agg')
-
-
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg \
-    as FigureCanvas
+from matplotlib.backends.backend_qt5agg import (
+    FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 from .menu import SDIMenu
 # from .core import _DATA, Face, clearLayout
@@ -54,8 +50,8 @@ class Canvas(FigureCanvas):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
 
     def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
+        self.figure = fig = Figure(figsize=(width, height), dpi=dpi)
+        self.mk_axes()
 
         # self.compute_initial_figure()
 
@@ -67,32 +63,32 @@ class Canvas(FigureCanvas):
                                    QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
+    def mk_axes(self):
+        self.axes1 = self.figure.add_subplot(111)
+        self.axes1.grid(True)
+        self.axes2 = None
+        self.axes1.set_xlabel(r'$s,\, \AA^{-1}$')
+        self.axes1.set_ylabel('Intensity')
+        self.I_plot = None
+        self.p_plot = None
+        self.p_plots = []
+
 
 class PlotWindow(QMainWindow):
+    """Plot and toolbar"""
     def __init__(self, vi_obj):
         super(PlotWindow, self).__init__()
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.setWindowTitle(vi_obj.title)
         self.canvas = Canvas(self)
+        self.toolbar = NavigationToolbar(self.canvas, self)
+        self.addToolBar(self.toolbar)
         self.setCentralWidget(self.canvas)
         self.vi_obj = vi_obj
         self.menu = SDIMenu(self)
-        # self.createActions()
-        # self.createMenus()
-        # self.createToolBars()
-        # self.createStatusBar()
-
-        # self.readSettings()
-
-        # self.textEdit.document().contentsChanged.connect(self.documentWasModified)
         self.vi_obj = vi_obj
 
     def closeEvent(self, event):
-        # if self.maybeSave():
-        #     self.writeSettings()
-        #     event.accept()
-        # else:
-        #     event.ignore()
         pass
 
 
@@ -100,9 +96,6 @@ def show_plot_window(vi_obj):
     if vi_obj.gui_functions:
         vi_obj.gui_functions["%Window%"].raise_()
         return
-    # if vi_obj.class_name is not None:
-    #     sw.after_close.append(lambda x:  _DATA["Settings"].setValue(
-    #         vi_obj.class_name+'_geometry', x.saveGeometry()))
     plt = PlotWindow(vi_obj)
     vi_obj.gui_functions["%Window%"] = plt
     plt.show()
