@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Wrap a GUI dashboard"""
-# hvostisol (C) 2018 Serhii Lysovenko
+# XRCEA (C) 2019 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,9 +34,20 @@ class Plot(DialogsMixin):
         self.class_name = class_name
         self.shortcuts = {}
         self.menu = DMenu()
+        self.plots = {}
 
     def show(self):
         show_vi(self)
+
+    def draw(self, pl_name):
+        """Try to draw a plot"""
+        try:
+            self.gui_functions["draw"](self.plots[pl_name])
+        except KeyError:
+            pass
+
+    def add_plot(self, pl_name, plt):
+        self.plots[pl_name] = plt
 
     def set_close_lock(self, close_lock):
         self.close_lock = close_lock
@@ -48,32 +59,12 @@ class Plot(DialogsMixin):
         if "set_icon" in self.gui_functions:
             self.gui_functions["set_icon"](icon)
 
-    def add_timer(self, seconds, func):
-        try:
-            self.gui_functions["add_timer"](seconds, func)
-        except KeyError:
-            raise RuntimeError("Show GUI before adding timer")
-
     def add_shortcut(self, key, func):
         self.shortcuts[key] = func
         try:
             self.gui_functions["add_shortcut"](key, func)
         except KeyError:
             pass
-
-    def set_form(self, form, which=0, is_editable=True):
-        """Sets fotrm. <form> is a list of tuples: (name/action, value)"""
-        try:
-            self.gui_functions["set_form"](form, which, is_editable)
-        except KeyError:
-            pass
-
-    def get_form_values(self, which):
-        """returns list of values"""
-        try:
-            return self.gui_functions["get_form_values"](which)
-        except KeyError:
-            return ()
 
     def __bool__(self):
         return self.currently_alive

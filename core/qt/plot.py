@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""start from here"""
+"""Display plots"""
 # XRCEA (C) 2019 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
@@ -69,9 +69,34 @@ class Canvas(FigureCanvas):
         self.axes2 = None
         self.axes1.set_xlabel(r'$s,\, \AA^{-1}$')
         self.axes1.set_ylabel('Intensity')
-        self.I_plot = None
-        self.p_plot = None
-        self.p_plots = []
+
+    def draw(self, dset):
+        self.figure.clear()
+        self.axes1 = self.figure.add_subplot(111)
+        self.axes1.grid(True)
+        if any("y2" in p for p in dset.get("plots", ())):
+            self.axes2 = self.axes1.twinx()
+        else:
+            self.axes2 = None
+        if "x1label" in dset:
+            self.axes1.set_xlabel(
+                dset["x1label"], fontdict={"family": "serif"})
+        if "y1label" in dset:
+            self.axes1.set_ylabel(
+                dset["y1label"], fontdict={"family": "serif"})
+        for plot in dset["plots"]:
+            ltype = plot.get("type", "-")
+            color = plot.get("color")
+            if "y2" in plot:
+                a2p = self.axes2
+            else:
+                a2p = self.axes1
+            if ltype == "pulse":
+                a2p.bar(plot["x1"], plot.get("y1", plot.get("y2")),
+                        edgecolor=color, align="center")
+            else:
+                a2p.plot(plot["x1"], plot.get("y1", plot.get("y2")), ltype,
+                         color=color, picker=plot.get("picker"))
 
 
 class PlotWindow(QMainWindow):
@@ -91,6 +116,12 @@ class PlotWindow(QMainWindow):
     def closeEvent(self, event):
         pass
 
+    def set_icon(self, icon):
+        self.setWindowIcon(QIcon(icon))
+
+    def draw(self, plt):
+        self.canvas.draw(plt)
+
 
 def show_plot_window(vi_obj):
     if vi_obj.gui_functions:
@@ -98,6 +129,10 @@ def show_plot_window(vi_obj):
         return
     plt = PlotWindow(vi_obj)
     vi_obj.gui_functions["%Window%"] = plt
+    if vi_obj.icon is not None:
+        plt.set_icon(vi_obj.icon)
+    vi_obj.gui_functions["set_icon"] = plt.set_icon
+    vi_obj.gui_functions["draw"] = plt.draw
     plt.show()
 
 

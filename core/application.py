@@ -39,7 +39,7 @@ class Application:
 def draw_plot():
     # TODO: this is for test. Do not leave so.
     from .vi import Plot
-    p = Plot("test")
+    APPLICATION.runtime_data["MainWindow"] = p = Plot("XRCEA")
     p.show()
 
 
