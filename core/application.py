@@ -50,50 +50,8 @@ def start():
     _ACTUAL_INTERFACE.main()
 
 
-def new_frame(user_data, xml_file, frame_name):
-    f = Frames(xml_file)
-    puzzle = f.get(frame_name)
-    puzzle.set_data(user_data)
-    return _ACTUAL_INTERFACE.new_frame(puzzle)
-
-
-def run_dialog(user_data, xml_file, frame_name):
-    f = Frames(xml_file)
-    puzzle = f.get(frame_name)
-    puzzle.set_data(user_data)
-    return _ACTUAL_INTERFACE.run_dialog(puzzle)
-
-
-def show_vi(vi_obj):
-    return _ACTUAL_INTERFACE.show_vi(vi_obj)
-
-
-def input_dialog(*args, **kwargs):
-    return _ACTUAL_INTERFACE.input_dialog(*args, **kwargs)
-
-
-def print_information(*args, **kwargs):
-    return _ACTUAL_INTERFACE.print_information(*args, **kwargs)
-
-
-def print_error(*args, **kwargs):
-    return _ACTUAL_INTERFACE.print_error(*args, **kwargs)
-
-
-def ask_question(*args, **kwargs):
-    return _ACTUAL_INTERFACE.ask_question(*args, **kwargs)
-
-
-def print_status(*args, **kwargs):
-    return _ACTUAL_INTERFACE.print_status(*args, **kwargs)
-
-
-def copy_to_clipboard(text):
-    return _ACTUAL_INTERFACE.copy_to_clipboard(text)
-
-
-def register_dialog(dlg):
-    return _ACTUAL_INTERFACE.register_dialog(dlg)
+def get_actual_interface():
+    return _ACTUAL_INTERFACE
 
 
 APPLICATION = Application()

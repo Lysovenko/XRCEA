@@ -18,7 +18,7 @@
 
 
 from sys import stderr
-from PyQt5.QtWidgets import QDialog, QMessageBox
+from PyQt5.QtWidgets import QDialog, QMessageBox, QFileDialog
 from PyQt5.QtCore import Qt
 from .frame import VFrame, QPushButton
 from .core import _DATA
@@ -65,3 +65,20 @@ def ask_question(title, question):
     return QMessageBox.question(
         parent, title, question,
         QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes
+
+
+def ask_open_filename(title, filename, masks):
+    fltr = ";;".join("{1} ({0})".format(*md) for md in masks)
+    fname, h = QFileDialog.getOpenFileName(
+        None, title, filename, fltr)
+    if fname:
+        return fname
+
+
+def ask_save_filename(title, filename, masks):
+    fltr = ";;".join("{1} ({0})".format(*md) for md in masks)
+    fname, h = QFileDialog.getSaveFileName(
+        None, title, filename, fltr)
+    if fname:
+        return fname
+

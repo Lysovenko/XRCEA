@@ -17,3 +17,46 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from .plot import Plot
+from ..application import get_actual_interface
+
+
+def new_frame(user_data, xml_file, frame_name):
+    f = Frames(xml_file)
+    puzzle = f.get(frame_name)
+    puzzle.set_data(user_data)
+    return get_actual_interface().new_frame(puzzle)
+
+
+def run_dialog(user_data, xml_file, frame_name):
+    f = Frames(xml_file)
+    puzzle = f.get(frame_name)
+    puzzle.set_data(user_data)
+    return get_actual_interface().run_dialog(puzzle)
+
+
+def input_dialog(*args, **kwargs):
+    return get_actual_interface().input_dialog(*args, **kwargs)
+
+
+def print_information(*args, **kwargs):
+    return get_actual_interface().print_information(*args, **kwargs)
+
+
+def print_error(*args, **kwargs):
+    return get_actual_interface().print_error(*args, **kwargs)
+
+
+def ask_question(*args, **kwargs):
+    return get_actual_interface().ask_question(*args, **kwargs)
+
+
+def print_status(*args, **kwargs):
+    return get_actual_interface().print_status(*args, **kwargs)
+
+
+def copy_to_clipboard(text):
+    return get_actual_interface().copy_to_clipboard(text)
+
+
+def register_dialog(dlg):
+    return get_actual_interface().register_dialog(dlg)

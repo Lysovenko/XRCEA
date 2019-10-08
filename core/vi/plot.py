@@ -16,8 +16,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-
-from ..application import show_vi
+from ..application import get_actual_interface
 from ..menu import DMenu
 from .mixins import DialogsMixin
 
@@ -36,7 +35,7 @@ class Plot(DialogsMixin):
         self.menu = DMenu()
 
     def show(self):
-        show_vi(self)
+         get_actual_interface().show_vi(self)
 
     def set_close_lock(self, close_lock):
         self.close_lock = close_lock
