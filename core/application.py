@@ -17,6 +17,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from importlib import import_module
+from os.path import join, dirname, realpath
 from .compman import CompMan
 from .settings import Settings
 from .menu import DMenu
@@ -34,6 +35,10 @@ class Application:
         self.compman = CompMan(self)
         self.runtime_data = dict()
         self.on_start = [draw_plot]
+
+    @property
+    def visual(self):
+        return _ACTUAL_INTERFACE
 
 
 def draw_plot():
@@ -68,9 +73,11 @@ def icon_file(name):
 
 def _introduce_menu():
     from .sett_dialogs import edit_components
+    from .idata import introduce_input
     mappend = APPLICATION.menu.append_item
     _edit = _("&Edit")
     mappend((), _("&File"), {}, None)
     mappend((), _edit, {}, None)
     mappend((_edit,), _("Components..."),
             edit_components, None, None)
+    introduce_input()

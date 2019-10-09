@@ -16,7 +16,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-
+import os
 from PyQt5.QtWidgets import (
     QVBoxLayout, QDialog, QDialogButtonBox, QLabel, QComboBox, QFileDialog,
     QFormLayout, QLineEdit, QCheckBox, QMessageBox)
@@ -184,15 +184,21 @@ class DialogsMixin:
 
     def ask_save_filename(self, filename, masks):
         fltr = ";;".join("{1} ({0})".format(*md) for md in masks)
+        options = QFileDialog.Options()
+        if os.name == "posix":
+            options |= QFileDialog.DontUseNativeDialog
         fname, h = QFileDialog.getSaveFileName(
-            self.parent, self.vi_obj.name, filename, fltr)
+            self.parent, self.vi_obj.name, filename, fltr, options=options)
         if fname:
             return fname
 
     def ask_open_filename(self, filename, masks):
         fltr = ";;".join("{1} ({0})".format(*md) for md in masks)
+        options = QFileDialog.Options()
+        if os.name == "posix":
+            options |= QFileDialog.DontUseNativeDialog
         fname, h = QFileDialog.getOpenFileName(
-            self.parent, self.vi_obj.name, filename, fltr)
+            self.parent, self.vi_obj.name, filename, fltr, options=options)
         if fname:
             return fname
 

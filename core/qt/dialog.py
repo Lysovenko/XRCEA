@@ -16,7 +16,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-
+import os
 from sys import stderr
 from PyQt5.QtWidgets import QDialog, QMessageBox, QFileDialog
 from PyQt5.QtCore import Qt
@@ -69,16 +69,22 @@ def ask_question(title, question):
 
 def ask_open_filename(title, filename, masks):
     fltr = ";;".join("{1} ({0})".format(*md) for md in masks)
+    options = QFileDialog.Options()
+    if os.name == "posix":
+        options |= QFileDialog.DontUseNativeDialog
     fname, h = QFileDialog.getOpenFileName(
-        None, title, filename, fltr)
+        None, title, filename, fltr, options=options)
     if fname:
         return fname
 
 
 def ask_save_filename(title, filename, masks):
     fltr = ";;".join("{1} ({0})".format(*md) for md in masks)
+    options = QFileDialog.Options()
+    if os.name == "posix":
+        options |= QFileDialog.DontUseNativeDialog
     fname, h = QFileDialog.getSaveFileName(
-        None, title, filename, fltr)
+        None, title, filename, fltr, options=options)
     if fname:
         return fname
 
