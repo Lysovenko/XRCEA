@@ -17,6 +17,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import numpy as np
+from json import loads
 from .application import APPLICATION as APP, icon_file
 from .vi import Plot
 
@@ -32,22 +33,14 @@ class XrayData:
     loaders = []
 
     def __init__(self, fname=None):
-        self.contains = None
-        self.density = None
         self.__sample = None
         self.__dict = {}
-        self.x_data = None
-        self.y_data = None
-        self.wavel = None
-        # diffraction angle of monochromer
-        self.alpha = None
-        self.x_axis = None
-        self.lambda1 = None
-        self.lambda2 = None
-        self.lambda3 = None
-        self.sm_pars = None
-        self.I2 = .5
-        self.I3 = .2
+        for i in ("contains", "density", "x_data", "y_data",
+                  # diffraction angle of monochromer
+                  "alpha",
+                  "x_units", "lambda1", "lambda2", "lambda3",
+                  "I2", "I3"):
+            setattr(self, i, None)
         if not XrayData.loaders:
             XrayData.loaders.append(XrayData.open_xrd)
         if fname is not None:
@@ -56,61 +49,26 @@ class XrayData:
 
     def from_dict(self, dct):
         self.__dict.update(dct)
-        if 'lambda1' in dct:
+        for i in ("lambda1", "lambda2", "lambda3", "alpha", "I2", "I3",
+                  "density"):
             try:
-                self.lambda1 = float(dct['lambda1'])
-            except ValueError:
+                setattr(self, i, float(dct[i]))
+            except(ValueError, KeyError):
                 pass
-        if 'lambda2' in dct:
-            try:
-                self.lambda2 = float(dct['lambda2'])
-            except ValueError:
-                pass
-        if 'lambda3' in dct:
-            try:
-                self.lambda3 = float(dct['lambda3'])
-            except ValueError:
-                pass
-        if 'lambda' in dct:
-            try:
-                self.wavel = float(dct['lambda'])
-            except ValueError:
-                pass
-        if 'alpha' in dct:
-            try:
-                self.alpha = float(dct['alpha']) * np.pi / 180.
-            except ValueError:
-                pass
-        if 'I2' in dct:
-            try:
-                self.I2 = float(dct['I2'])
-            except ValueError:
-                pass
-        if 'I3' in dct:
-            try:
-                self.I3 = float(dct['I3'])
-            except ValueError:
-                pass
-        if 'x_axis' in dct:
-            if dct['x_axis'] in ['2\\theta', "\\theta", "q"]:
-                self.x_axis = dct['x_axis']
+        if 'x_units' in dct:
+            if dct['x_units'] in ['2theta', "theta", "q"]:
+                self.x_units = dct['x_units']
             else:
-                self.x_axis = None
-        if 'elements' in dct:
+                self.x_units = None
+        if 'contains' in dct:
             try:
-                self.elements = eval(dct['elements'])
-            except SyntaxError:
-                self.elements = None
-        if 'rho0' in dct:
-            self.rho0 = float(dct['rho0'])
+                self.contains = loads(dct['contains'])
+            except:
+                self.contains = None
         if 'sample' in dct:
             self.__sample = dct['sample'].lower()
         if 'name' in dct:
             self.name = dct['name']
-        if not self.wavel:
-            self.wavel = self.lambda1
-        if not self.lambda1:
-            self.lambda1 = self.wavel
 
     @staticmethod
     def open_xrd(fname):
@@ -153,6 +111,12 @@ class XrayData:
     def __bool__(self):
         return self.x_data is not None and self.y_data is not None
 
+    def make_plot(self):
+        x_label = {"theta": "$\\theta$", "2theta": "$2\\theta$",
+                   "q": "q", None: _("Unknown")}[self.x_units]
+        return {"plots": [{"x1": self.x_data, "y1": self.y_data}],
+                "x1label": x_label, "y1label": _("pps")}
+
 
 def open_xrd():
     """Open x-ray data file"""
@@ -162,8 +126,6 @@ def open_xrd():
         xrd = XrayData(fn)
         if xrd:
             plt = Plot(xrd.name, "exp_plot")
-            plt.add_plot("exp_data", {
-                "plots": ({"x1": xrd.x_data, "y1": xrd.y_data},),
-                "x1label": xrd.x_axis, "y1label": _("pps")})
+            plt.add_plot("exp_data", xrd.make_plot())
             plt.show()
             plt.draw("exp_data")
