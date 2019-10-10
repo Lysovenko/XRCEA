@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Wrap a GUI dashboard"""
+"""Wrap a GUI plot"""
 # XRCEA (C) 2019 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
@@ -36,7 +36,7 @@ class Plot(DialogsMixin):
         self.plots = {}
 
     def show(self):
-         get_actual_interface().show_vi(self)
+        get_actual_interface().show_vi(self)
 
     def draw(self, pl_name):
         """Try to draw a plot"""
@@ -46,6 +46,15 @@ class Plot(DialogsMixin):
             pass
 
     def add_plot(self, pl_name, plt):
+        """ adds plot with name, where plt is:
+        {"plots": [{"type": "-" ("pulse" or MathPlotLib types),
+        "color": None,
+        "x1": Array(),
+        "y1": Array(),
+        "y2": Array() (optionally replaces y1)}],
+        "x1label": "X axis title",
+        "y1label": "Y axis title",
+        "picker": None}"""
         self.plots[pl_name] = plt
 
     def set_close_lock(self, close_lock):

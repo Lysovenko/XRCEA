@@ -18,65 +18,7 @@
 
 import numpy as np
 from .application import APPLICATION as APP, icon_file
-
-
-class DataSet:
-    """required by Plot class"""
-    def __init__(self, plots, x_label=None, y_label=None, x_units='A^{-1}'):
-        self.x_label = x_label
-        self.y_label = y_label
-        self.x_units = x_units
-        self.plots = plots
-        self.fresh = True
-        self.ax1 = False
-        self.ax2 = False
-        self.only_last = False
-        self.picker = None
-        self.info = None
-        self.journal = Journal()
-        self.tech_info = {}
-        self.discards = set()
-        for a in zip(*self.plots)[2]:
-            if a == 1:
-                self.ax1 = True
-            elif a == 2:
-                self.ax2 = True
-
-    def get_units(self):
-        return self.x_units
-
-    def clone(self):
-        cln = DataSet(list(self.plots), self.x_label, self.y_label, self.x_units)
-        cln.picker = self.picker
-        cln.tech_info.update(self.tech_info)
-        cln.journal.set_parent(self.journal)
-        return cln
-
-    def append(self, plt):
-        self.plots.append(plt)
-        a = plt[2]
-        if a == 1:
-            self.ax1 = True
-        elif a == 2:
-            self.ax2 = True
-
-    def replace_last(self, plt):
-        """insecure replace last plot"""
-        if type(plt) == tuple:
-            pplt = self.plots[-1]
-            self.plots[-1] = plt + pplt[len(plt):]
-            self.only_last = 1
-        else:
-            for i, pl in enumerate(plt, len(self.plots) - len(plt)):
-                pplt = self.plots[i]
-                self.plots[i] = pl + pplt[len(pl):]
-            self.only_last = len(plt)
-
-    def set_picker(self, picker):
-        self.picker = picker
-
-    def set_info(self, info):
-        self.info = info
+from .vi import Plot
 
 
 def introduce_input():
@@ -176,15 +118,15 @@ class XrayData:
         odict = {}
         fobj = open(fname)
         with fobj:
-            for l in fobj:
-                l = l.strip()
-                if l.startswith('#'):
-                    n, p, v = (i.strip() for i in l[1:].partition(':'))
+            for line in fobj:
+                line = line.strip()
+                if line.startswith('#'):
+                    n, p, v = (i.strip() for i in line[1:].partition(':'))
                     if p:
                         odict[n] = v
                     continue
                 try:
-                    x, y = map(float, l.split()[:2])
+                    x, y = map(float, line.split()[:2])
                     arr.append((x, y))
                 except ValueError:
                     pass
@@ -203,15 +145,25 @@ class XrayData:
                 x, y, dct = loader(fname)
             except IOError:
                 return
-            if None not in (x, y):
+            if x is not None:
                 self.x_data = x
                 self.y_data = y
                 return self.from_dict(dct)
-                
+
+    def __bool__(self):
+        return self.x_data is not None and self.y_data is not None
+
 
 def open_xrd():
     """Open x-ray data file"""
-    fn = APP.visual.ask_open_filename(_("Data"), "", [("*.xrd", _("Difractograms"))])
+    fn = APP.visual.ask_open_filename(
+        _("Data"), "", [("*.xrd", _("Difractograms"))])
     if fn is not None:
-        fn = XrayData(fn)
-    print("Hello world", fn)
+        xrd = XrayData(fn)
+        if xrd:
+            plt = Plot(xrd.name, "exp_plot")
+            plt.add_plot("exp_data", {
+                "plots": ({"x1": xrd.x_data, "y1": xrd.y_data},),
+                "x1label": xrd.x_axis, "y1label": _("pps")})
+            plt.show()
+            plt.draw("exp_data")
