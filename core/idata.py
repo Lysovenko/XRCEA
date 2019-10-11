@@ -17,7 +17,11 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import numpy as np
-from json import loads
+try:
+    from lxml.etree import Element, SubElement
+except ImportError:
+    from xml.etree.ElementTree import Element, SubElement
+from json import loads, dumps
 from .application import APPLICATION as APP, icon_file
 from .vi import Plot
 
@@ -116,6 +120,28 @@ class XrayData:
                    "q": "q", None: _("Unknown")}[self.x_units]
         return {"plots": [{"x1": self.x_data, "y1": self.y_data}],
                 "x1label": x_label, "y1label": _("pps")}
+
+    def get_xml(self):
+        """represent the object in xml"""
+        xrd = Element('xrd')
+        for i in ("density", "alpha", "lambda1", "lambda2", "lambda3",
+                  "I2", "I3", "contains", "name", "x_units"):
+            v = getattr(self, i, None)
+            if v is not None:
+                SubElement(xrd, i).text = dumps(v, ensure_ascii=False)
+        for i in ("x_data", "y_data"):
+            v = getattr(self, i, None)
+            if v is not None:
+                SubElement(xrd, i).text = dumps(list(map(float, v)))
+        return xrd
+
+    def from_xml(self, xrd):
+        for e in xrd:
+            if e.tag in {"density", "alpha", "lambda1", "lambda2", "lambda3",
+                         "I2", "I3", "contains", "name", "x_units"}:
+                setattr(self, e.tag, loads(e.text))
+            if e.tag in {"x_data", "y_data"}:
+                setattr(self, e.tag, np.array(loads(e.text)))
 
 
 def open_xrd():
