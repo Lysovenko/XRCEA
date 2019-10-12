@@ -18,9 +18,17 @@
 
 from zipfile import ZipFile, ZIP_DEFLATED
 try:
-    from lxml.etree import fromstring, tostring
+    from lxml.etree import fromstring, tostring, Element, SubElement
 except ImportError:
-    from xml.etree.ElementTree import fromstring, tostring
+    from xml.etree.ElementTree import fromstring, tostring, Element, SubElement
+
+
+def xml_string(xml):
+    try:
+        res = tostring(xml, encoding="utf8", xml_declaration=True)
+    except TypeError:
+        res = tostring(xml, encoding="utf8")
+    return res
 
 
 class Project:
@@ -28,6 +36,7 @@ class Project:
 
     def __init__(self, filename=None):
         self._compounds = []
+        self._about = {"name": _("New")}
         if filename:
             self.read(filename)
 
@@ -36,25 +45,33 @@ class Project:
         assert treater.xmlroot not in self.__TREATERS
         self.__TREATERS[treater.xmlroot] = treater
 
+    def _about_xml(self):
+        about = Element("about")
+        for k, v in self._about.items():
+            SubElement(about, k).text = v
+        return about
+
+    def _about_from_xml(self, xml):
+        assert xml.tag == "about"
+        self._about.update((i.tag, i.text) for i in xml)
+
     def save(self, filename):
         with ZipFile(filename, "w", compression=ZIP_DEFLATED) as zipf:
             for i, c in enumerate(self._compounds):
                 xml = c.get_xml()
-                try:
-                    xml = tostring(xml, encoding="utf8", xml_declaration=True)
-                except TypeError:
-                    xml = tostring(xml, encoding="utf8")
-                zipf.writestr("item%d" % i, xml)
+                zipf.writestr("item%d" % i, xml_string(xml))
+            zipf.writestr("about", xml_string(self._about_xml()))
 
     def read(self, filename):
         with ZipFile(filename, "r") as zipf:
-            for i in zipf.namelist():
+            for i in filter(lambda x: x.startswith("item"), zipf.namelist()):
                 xml = fromstring(zipf.read(i))
                 try:
                     self._compounds.append(
                         self.__TREATERS[xml.tag]().from_xml(xml))
                 except KeyError:
                     pass
+            self._about_from_xml(fromstring(zipf.read("about")))
 
     def add_compound(self, compound):
         if compound not in self._compounds:
@@ -62,3 +79,8 @@ class Project:
 
     def compounds(self):
         return iter(self._compounds)
+
+    def name(self, name=None):
+        if name is None:
+            return self._about.get("name")
+        self._about["name"] = str(name)
