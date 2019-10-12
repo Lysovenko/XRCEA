@@ -29,9 +29,9 @@ from .vi import Plot
 
 def introduce_input():
     """Add to menu "open" item"""
-    APP.menu.append_item(
-        (_("&File"),), _("&Open"), open_xrd, None, None,
-        icon_file("open"))
+    from .project import Project
+    APP.register_treater(XrayData)
+    APP.register_opener(".xrd", open_xrd, _("Difractograms"))
 
 
 class XrayData:
@@ -149,14 +149,11 @@ class XrayData:
         return self
 
 
-def open_xrd():
+def open_xrd(fname):
     """Open x-ray data file"""
-    fn = APP.visual.ask_open_filename(
-        _("Data"), "", [("*.xrd", _("Difractograms"))])
-    if fn is not None:
-        xrd = XrayData(fn)
-        if xrd:
-            plt = Plot(xrd.name, "exp_plot")
-            plt.add_plot("exp_data", xrd.make_plot())
-            plt.show()
-            plt.draw("exp_data")
+    xrd = XrayData(fname)
+    if xrd:
+        plt = Plot(xrd.name, "exp_plot")
+        plt.add_plot("exp_data", xrd.make_plot())
+        plt.show()
+        plt.draw("exp_data")

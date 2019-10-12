@@ -75,7 +75,10 @@ class CompMan:
     def set_active(self, id_set=None):
         if id_set is None:
             id_set = self.application().settings.get("comps_ids", "{0}")
-            id_set = set(map(int, id_set[1:-1].split(',')))
+            try:
+                id_set = set(map(int, id_set[1:-1].split(',')))
+            except ValueError:
+                id_set = set()
         for desc in self.descriptions:
             desc['isactive'] = desc['id'] in id_set
 

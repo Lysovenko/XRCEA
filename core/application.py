@@ -17,11 +17,12 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from importlib import import_module
-from os.path import join, dirname, realpath
+from os.path import join, dirname, realpath, splitext, normcase
 from .compman import CompMan
 from .settings import Settings
 from .menu import DMenu
 from .frameparser import Frames
+from .project import Project
 
 _ACTUAL_INTERFACE = None
 
@@ -35,10 +36,16 @@ class Application:
         self.compman = CompMan(self)
         self.runtime_data = dict()
         self.on_start = [draw_plot]
+        self.register_treater = Project.add_treater
+        self.projects = []
+        self.register_opener = Opener.register_opener
 
     @property
     def visual(self):
         return _ACTUAL_INTERFACE
+
+    def open_project(self, fname):
+        self.projects.append(Project(fname))
 
 
 def draw_plot():
@@ -59,6 +66,28 @@ def get_actual_interface():
     return _ACTUAL_INTERFACE
 
 
+class Opener:
+    _openers = {}
+    _descriptions = {}
+
+    @classmethod
+    def register_opener(self, ext, how, descr):
+        self._openers[ext] = how
+        self._descriptions['*' + ext] = descr
+
+    @classmethod
+    def run_dialog(self):
+        fname = APPLICATION.visual.ask_open_filename(
+            _("Open file"), "", [(" ".join(self._descriptions.keys()),
+                                 _("All known files"))] +
+            sorted(self._descriptions.items()))
+        if fname is not None:
+            ext = splitext(normcase(fname))[1]
+            if ext not in self._openers:
+                return
+            self._openers[ext](fname)
+
+
 APPLICATION = Application()
 
 
@@ -76,8 +105,13 @@ def _introduce_menu():
     from .idata import introduce_input
     mappend = APPLICATION.menu.append_item
     _edit = _("&Edit")
-    mappend((), _("&File"), {}, None)
+    _file = _("&File")
+    mappend((), _file, {}, None)
     mappend((), _edit, {}, None)
     mappend((_edit,), _("Components..."),
             edit_components, None, None)
+    mappend((_file,), _("&Open"), Opener.run_dialog, None, None,
+            icon_file("open"))
+    APPLICATION.register_opener(".xrp", APPLICATION.open_project,
+                                _("XRCEA projects"))
     introduce_input()
