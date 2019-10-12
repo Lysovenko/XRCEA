@@ -21,6 +21,7 @@ try:
     from lxml.etree import Element, SubElement
 except ImportError:
     from xml.etree.ElementTree import Element, SubElement
+from os.path import basename
 from json import loads, dumps
 from .application import APPLICATION as APP, icon_file
 from .vi import Plot
@@ -35,13 +36,14 @@ def introduce_input():
 
 class XrayData:
     loaders = []
+    xmlroot = "xrd"
 
     def __init__(self, fname=None):
         self.__sample = None
         self.__dict = {}
         for i in ("contains", "density", "x_data", "y_data",
                   # diffraction angle of monochromer
-                  "alpha",
+                  "alpha", "name",
                   "x_units", "lambda1", "lambda2", "lambda3",
                   "I2", "I3"):
             setattr(self, i, None)
@@ -49,7 +51,6 @@ class XrayData:
             XrayData.loaders.append(XrayData.open_xrd)
         if fname is not None:
             self.open(fname)
-            self.name = str(fname)
 
     def from_dict(self, dct):
         self.__dict.update(dct)
@@ -107,10 +108,12 @@ class XrayData:
                 x, y, dct = loader(fname)
             except IOError:
                 return
-            if x is not None:
+            if all(i is not None for i in (x, y, dct)):
                 self.x_data = x
                 self.y_data = y
-                return self.from_dict(dct)
+                self.from_dict(dct)
+                if self.name is None:
+                    self.name = basename(fname)
 
     def __bool__(self):
         return self.x_data is not None and self.y_data is not None
@@ -123,7 +126,7 @@ class XrayData:
 
     def get_xml(self):
         """represent the object in xml"""
-        xrd = Element('xrd')
+        xrd = Element(self.xmlroot)
         for i in ("density", "alpha", "lambda1", "lambda2", "lambda3",
                   "I2", "I3", "contains", "name", "x_units"):
             v = getattr(self, i, None)
@@ -136,12 +139,14 @@ class XrayData:
         return xrd
 
     def from_xml(self, xrd):
+        assert xrd.tag == self.xmlroot
         for e in xrd:
             if e.tag in {"density", "alpha", "lambda1", "lambda2", "lambda3",
                          "I2", "I3", "contains", "name", "x_units"}:
                 setattr(self, e.tag, loads(e.text))
             if e.tag in {"x_data", "y_data"}:
                 setattr(self, e.tag, np.array(loads(e.text)))
+        return self
 
 
 def open_xrd():
