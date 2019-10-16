@@ -64,8 +64,7 @@ class VisualList(QTreeView):
         self.setRootIsDecorated(False)
         self.setAlternatingRowColors(True)
         self.ncols = len(colnames)
-        model = QStandardItemModel(0, self.ncols, parent)
-        self.model = model
+        self.model = model = QStandardItemModel(0, self.ncols, parent)
         for i, name in enumerate(colnames):
             model.setHeaderData(i, Qt.Horizontal, name)
         self.setModel(model)
@@ -85,10 +84,10 @@ class VisualList(QTreeView):
             else:
                 self.choicer(self.value.get()[model_index.row()])
 
-    def add_item(model, itup):
-        model.insertRow(0)
+    def add_item(self, itup):
+        self.insertRow(0)
         for i, value in enumerate(itup):
-            model.setData(model.index(0, i), value)
+            self.setData(self.index(0, i), value)
 
     def update_rows(self, self_value):
         model = self.model
