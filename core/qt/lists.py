@@ -56,6 +56,38 @@ class CheckedList(QListWidget):
             item.setBackground(QColor("#ffffff"))
 
 
+class VisualListModel(QStandardItemModel):
+    def __init__(self, colnames, value, styles, parent):
+        super().__init__(0, len(colnames), parent)
+        for i, name in enumerate(colnames):
+            self.setHeaderData(i, Qt.Horizontal, name)
+        self.value = value
+        self.styles = styles
+
+    def data(self, index, role):
+        if role == Qt.DisplayRole:
+            return self.value.get()[index.row()][index.column()]
+        if role == Qt.BackgroundRole or role == Qt.ForegroundRole:
+            tup = self.value.get()[index.row()]
+            style = tup[self.columnCount()]
+            if isinstance(style, (tuple, list)):
+                style = style[index.column()]
+            if not isinstance(style, set):
+                style = {style}
+            for s in in style:
+                fg, bg = self.styles.get(s, (None, None))
+                if fg is not None and role == Qt.ForegroundRole:
+                    return QColor(fg)
+                if bg is not None and role == Qt.BackgroundRole:
+                    return QColor(bg)
+        return super().data(index, role)
+
+    def rowCount(self):
+        return len(self.value.get())
+
+    
+
+
 class VisualList(QTreeView):
     def __init__(self, parent, colnames, value, styles={}):
         super().__init__(parent)
@@ -64,9 +96,7 @@ class VisualList(QTreeView):
         self.setRootIsDecorated(False)
         self.setAlternatingRowColors(True)
         self.ncols = len(colnames)
-        self.model = model = QStandardItemModel(0, self.ncols, parent)
-        for i, name in enumerate(colnames):
-            model.setHeaderData(i, Qt.Horizontal, name)
+        self.model = model = VisualListModel(colnames, value, styles, parent)
         self.setModel(model)
         self.update_rows(value.get())
         value.set_updater(self.update_rows)
