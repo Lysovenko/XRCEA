@@ -16,7 +16,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QModelIndex, QAbstractItemModel
 from PyQt5.QtWidgets import QListWidget, QTreeView, QAbstractItemView, QMenu
 from PyQt5.QtGui import (QStandardItem, QStandardItemModel, QColor)
 
@@ -56,15 +56,23 @@ class CheckedList(QListWidget):
             item.setBackground(QColor("#ffffff"))
 
 
-class VisualListModel(QStandardItemModel):
+class VisualListModel(QAbstractItemModel):
     def __init__(self, colnames, value, styles, parent):
-        super().__init__(0, len(colnames), parent)
+        super().__init__(parent)
+        self.colnames = colnames
         for i, name in enumerate(colnames):
             self.setHeaderData(i, Qt.Horizontal, name)
         self.value = value
+        value.set_updater(self.updater)
         self.styles = styles
 
+    def headerData(self, section, orientation, role):
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            return self.colnames[section]
+        return None
+
     def data(self, index, role):
+        print("________________________data")
         if role == Qt.DisplayRole:
             return self.value.get()[index.row()][index.column()]
         if role == Qt.BackgroundRole or role == Qt.ForegroundRole:
@@ -74,7 +82,7 @@ class VisualListModel(QStandardItemModel):
                 style = style[index.column()]
             if not isinstance(style, set):
                 style = {style}
-            for s in in style:
+            for s in style:
                 fg, bg = self.styles.get(s, (None, None))
                 if fg is not None and role == Qt.ForegroundRole:
                     return QColor(fg)
@@ -82,9 +90,31 @@ class VisualListModel(QStandardItemModel):
                     return QColor(bg)
         return super().data(index, role)
 
-    def rowCount(self):
+    def rowCount(self, *dummy):
+        print("rowCount", len(self.value.get()), dummy)
         return len(self.value.get())
 
+    def columnCount(self, parent):
+        print("columnCount")
+        return len(self.colnames)
+    
+    def updater(self):
+        print("someone called", __name__)
+        self.layoutChanged.emit()
+
+    def flags(self, index):
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+
+    def index(self,  row, column, parent=QModelIndex()):
+        print("index", row, column)
+        if not self.hasIndex(row, column, parent):
+            return QModelIndex()
+        return QModelIndex()
+
+    def parent(self, child):
+        rv = super().parent(child)
+        print("parent", child, rv)
+        return rv
     
 
 
@@ -96,10 +126,8 @@ class VisualList(QTreeView):
         self.setRootIsDecorated(False)
         self.setAlternatingRowColors(True)
         self.ncols = len(colnames)
-        self.model = model = VisualListModel(colnames, value, styles, parent)
+        self.model = model = VisualListModel(colnames, value, styles, self)
         self.setModel(model)
-        self.update_rows(value.get())
-        value.set_updater(self.update_rows)
         self.activated.connect(self.on_activated)
         self.choicer = None
         self.context_menu = None
@@ -113,32 +141,6 @@ class VisualList(QTreeView):
                              model_index.column())
             else:
                 self.choicer(self.value.get()[model_index.row()])
-
-    def add_item(self, itup):
-        self.insertRow(0)
-        for i, value in enumerate(itup):
-            self.setData(self.index(0, i), value)
-
-    def update_rows(self, self_value):
-        model = self.model
-        ncols = self.ncols
-        model.removeRows(0, model.rowCount())
-        for itup in reversed(self_value):
-            model.insertRow(0)
-            try:
-                style = itup[ncols]
-            except IndexError:
-                style = None
-            for i, value in enumerate(itup[:ncols]):
-                itm = QStandardItem(str(value))
-                itm.setFlags(itm.flags() & ~Qt.ItemIsEditable)
-                if isinstance(style, str):
-                    self.set_style(style, itm)
-                elif isinstance(style, (tuple, list)):
-                    self.set_style(style[i], itm)
-                model.setItem(0, i, itm)
-        for i in range(ncols):
-            self.resizeColumnToContents(i)
 
     def set_style(self, style, cell):
         if isinstance(style, set):
