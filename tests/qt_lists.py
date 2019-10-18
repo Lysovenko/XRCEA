@@ -7,6 +7,7 @@ from core.qt.lists import VisualList
 if __name__ == '__main__':
     import sys
     val = Value(list)
+
     def choicer(arg):
         lst = val.get()
         lst.insert(0, lst.pop(lst.index(arg)))
@@ -16,8 +17,8 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     v = QMainWindow()
     v.setWindowTitle("Test VisualList")
-    val.update([("1", "2", "3", None), ("4", "5", "6", "one"),
-                ("7", "8", "9", "two")])
+    val.update([tuple(map(str, range(i, i + 3))) +
+                ((None, "one", "two")[i % 3],) for i in range(1, 300)])
     vl = VisualList(v, ("a", "b", "c"), val, styles)
     vl.set_choicer(choicer)
     v.setCentralWidget(vl)

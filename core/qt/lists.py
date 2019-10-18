@@ -16,7 +16,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-from PyQt5.QtCore import Qt, QModelIndex, QAbstractItemModel
+from PyQt5.QtCore import Qt, QModelIndex, QAbstractTableModel
 from PyQt5.QtWidgets import QListWidget, QTreeView, QAbstractItemView, QMenu
 from PyQt5.QtGui import (QStandardItem, QStandardItemModel, QColor)
 
@@ -56,7 +56,7 @@ class CheckedList(QListWidget):
             item.setBackground(QColor("#ffffff"))
 
 
-class VisualListModel(QAbstractItemModel):
+class VisualListModel(QAbstractTableModel):
     def __init__(self, colnames, value, styles, parent):
         super().__init__(parent)
         self.colnames = colnames
@@ -66,13 +66,15 @@ class VisualListModel(QAbstractItemModel):
         value.set_updater(self.updater)
         self.styles = styles
 
+    def updater(self, lst):
+        self.layoutChanged.emit()
+
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return self.colnames[section]
         return None
 
     def data(self, index, role):
-        print("________________________data")
         if role == Qt.DisplayRole:
             return self.value.get()[index.row()][index.column()]
         if role == Qt.BackgroundRole or role == Qt.ForegroundRole:
@@ -88,34 +90,23 @@ class VisualListModel(QAbstractItemModel):
                     return QColor(fg)
                 if bg is not None and role == Qt.BackgroundRole:
                     return QColor(bg)
-        return super().data(index, role)
+        return None
 
     def rowCount(self, *dummy):
-        print("rowCount", len(self.value.get()), dummy)
-        return len(self.value.get())
+        return len(self.value.value)
 
-    def columnCount(self, parent):
-        print("columnCount")
+    def columnCount(self, parent=None):
         return len(self.colnames)
-    
-    def updater(self):
-        print("someone called", __name__)
-        self.layoutChanged.emit()
 
     def flags(self, index):
+        if not index.isValid():
+            return Qt.NoItemFlags
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
-    def index(self,  row, column, parent=QModelIndex()):
-        print("index", row, column)
-        if not self.hasIndex(row, column, parent):
+    def index(self, row, column, parent=None):
+        if not self.hasIndex(row, column, parent) or parent.isValid():
             return QModelIndex()
-        return QModelIndex()
-
-    def parent(self, child):
-        rv = super().parent(child)
-        print("parent", child, rv)
-        return rv
-    
+        return self.createIndex(row, column, None)
 
 
 class VisualList(QTreeView):
