@@ -21,7 +21,6 @@ from os.path import join, dirname, realpath, splitext, normcase
 from .compman import CompMan
 from .settings import Settings
 from .menu import DMenu
-from .frameparser import Frames
 from .project import Project
 
 _ACTUAL_INTERFACE = None
