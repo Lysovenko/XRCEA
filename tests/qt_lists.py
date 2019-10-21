@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QApplication, QMainWindow)
 from sys import path
 path.insert(0, '..')
-from core.value import Value
+from core.vi.value import Value
 from core.qt.lists import VisualList
 
 if __name__ == '__main__':

@@ -20,7 +20,7 @@ from importlib import import_module
 from os.path import join, dirname, realpath, splitext, normcase
 from .compman import CompMan
 from .settings import Settings
-from .menu import DMenu
+from .vi.menu import DMenu
 from .project import Project
 
 _ACTUAL_INTERFACE = None

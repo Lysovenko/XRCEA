@@ -17,8 +17,7 @@
 """Wrap a GUI listings"""
 
 
-from ..application import get_actual_interface
-from ..menu import DMenu
+from .menu import DMenu
 from .mixins import DialogsMixin
 
 
@@ -40,6 +39,7 @@ class Lister (DialogsMixin):
         self.menu = DMenu()
 
     def show(self):
+        from ..application import get_actual_interface
         get_actual_interface().show_vi(self)
 
     def set_choicer(self, choicer, separate_items=False, holder=None):

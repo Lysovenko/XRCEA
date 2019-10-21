@@ -3,7 +3,7 @@ path.insert(0, '..')
 from core import initialize
 from core.vi.lister import Lister
 from core.application import APPLICATION as APP, start
-from core.value import Value
+from core.vi.value import Value
 
 def test():
     styles = {"one": (None, "red"), "two": ("blue", None)}

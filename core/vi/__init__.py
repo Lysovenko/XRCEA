@@ -18,32 +18,36 @@
 
 from .plot import Plot
 from .lister import Lister
-from ..application import get_actual_interface
+
+
+def _actual():
+    from ..application import get_actual_interface
+    return get_actual_interface()
 
 
 def input_dialog(*args, **kwargs):
-    return get_actual_interface().input_dialog(*args, **kwargs)
+    return _actual().input_dialog(*args, **kwargs)
 
 
 def print_information(*args, **kwargs):
-    return get_actual_interface().print_information(*args, **kwargs)
+    return _actual().print_information(*args, **kwargs)
 
 
 def print_error(*args, **kwargs):
-    return get_actual_interface().print_error(*args, **kwargs)
+    return _actual().print_error(*args, **kwargs)
 
 
 def ask_question(*args, **kwargs):
-    return get_actual_interface().ask_question(*args, **kwargs)
+    return _actual().ask_question(*args, **kwargs)
 
 
 def print_status(*args, **kwargs):
-    return get_actual_interface().print_status(*args, **kwargs)
+    return _actual().print_status(*args, **kwargs)
 
 
 def copy_to_clipboard(text):
-    return get_actual_interface().copy_to_clipboard(text)
+    return _actual().copy_to_clipboard(text)
 
 
 def register_dialog(dlg):
-    return get_actual_interface().register_dialog(dlg)
+    return _actual().register_dialog(dlg)
