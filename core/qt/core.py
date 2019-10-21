@@ -25,7 +25,7 @@ from PyQt5.QtCore import Qt, QSettings, QTimer, QSignalMapper
 from PyQt5.QtWidgets import (QMainWindow, QMessageBox, QApplication,
                              QShortcut, QWidget, QTextEdit)
 from PyQt5.QtGui import QIcon
-from ..vi import Plot
+from ..vi import Plot, Lister
 _DATA = {}
 _DIALOGS = []
 _TASKS = []
@@ -77,6 +77,9 @@ def show_vi(vi_obj):
     if isinstance(vi_obj, Plot):
         from .plot import show_plot_window
         show_plot_window(vi_obj)
+    if isinstance(vi_obj, Lister):
+        from .lister import show_lister
+        show_lister(vi_obj)
 
 
 def clearLayout(layout):

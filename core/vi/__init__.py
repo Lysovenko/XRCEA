@@ -17,6 +17,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from .plot import Plot
+from .lister import Lister
 from ..application import get_actual_interface
 
 
