@@ -17,10 +17,13 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from zipfile import ZipFile, ZIP_DEFLATED
+from time import time
 try:
     from lxml.etree import fromstring, tostring, Element, SubElement
 except ImportError:
     from xml.etree.ElementTree import fromstring, tostring, Element, SubElement
+from .vi import Lister
+from .vi.value import Value
 
 
 def xml_string(xml):
@@ -36,7 +39,7 @@ class Project:
 
     def __init__(self, filename=None):
         self._compounds = []
-        self._about = {"name": _("New")}
+        self._about = {"name": _("New"), "id": str(int(time()))}
         if filename:
             self.read(filename)
 
@@ -84,3 +87,22 @@ class Project:
         if name is None:
             return self._about.get("name")
         self._about["name"] = str(name)
+
+    def abouts(self):
+        return self._about.items()
+
+
+class vi_Project(Lister):
+    def __init__(self, project):
+        self.project = project
+        abouts = Value(list)
+        abouts.update([i + (None,) for i in project.abouts()])
+        compounds = Value(list)
+        compounds.update([(c.type, c.name, None, c)
+                          for c in project.compounds()])
+        styles = {}
+        super().__init__(project.name(),
+                         [(_("About"), (_("Name"),"Value")),
+                          (_("Components"), (_("Type"), _("Name")))],
+                         [abouts, compounds], styles)
+        self.show()

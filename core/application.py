@@ -21,7 +21,7 @@ from os.path import join, dirname, realpath, splitext, normcase
 from .compman import CompMan
 from .settings import Settings
 from .vi.menu import DMenu
-from .project import Project
+from .project import Project, vi_Project
 
 _ACTUAL_INTERFACE = None
 
@@ -45,6 +45,8 @@ class Application:
 
     def open_project(self, fname):
         self.projects.append(Project(fname))
+        # just for test
+        vi_Project(self.projects[-1])
 
 
 def draw_plot():

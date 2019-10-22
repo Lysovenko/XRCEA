@@ -37,6 +37,7 @@ def introduce_input():
 class XrayData:
     loaders = []
     xmlroot = "xrd"
+    type = _("Difractogram")
 
     def __init__(self, fname=None):
         self.__sample = None
