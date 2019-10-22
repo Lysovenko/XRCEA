@@ -111,7 +111,6 @@ class PlotWindow(QMainWindow):
         self.setCentralWidget(self.canvas)
         self.vi_obj = vi_obj
         self.menu = SDIMenu(self)
-        self.vi_obj = vi_obj
 
     def closeEvent(self, event):
         pass

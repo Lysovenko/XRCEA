@@ -23,6 +23,7 @@ from PyQt5.QtGui import QIcon
 from .lists import VisualList
 from .core import _DATA, clearLayout
 from .idialog import DialogsMixin, get_widget_value, get_widget_from_value
+from .menu import SDIMenu
 
 
 class Lister(QMainWindow, DialogsMixin):
@@ -34,6 +35,7 @@ class Lister(QMainWindow, DialogsMixin):
         self.timers = []
         self.form_edas = []
         self.forms = []
+        self.menu = SDIMenu(self)
 
     def draw_shape(self, titles, values, styles):
         """Internal. Draw window shape"""
@@ -117,7 +119,7 @@ class Lister(QMainWindow, DialogsMixin):
                 t.deleteLater()
         self.timers.clear()
         _DATA["Settings"].setValue(
-            self.vi_obj.class_name+'_state', self.saveState())
+            self.vi_obj.class_name + '_state', self.saveState())
 
 
 def show_lister(vi_obj):

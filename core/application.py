@@ -21,6 +21,7 @@ from os.path import join, dirname, realpath, splitext, normcase
 from .compman import CompMan
 from .settings import Settings
 from .vi.menu import DMenu
+from .vi import input_dialog
 from .project import Project, vi_Project
 
 _ACTUAL_INTERFACE = None
@@ -107,7 +108,10 @@ def _introduce_menu():
     mappend = APPLICATION.menu.append_item
     _edit = _("&Edit")
     _file = _("&File")
+    _prj = _("Project")
     mappend((), _file, {}, None)
+    mappend((_file,), _prj, {}, None)
+    mappend((_file, _prj), _("New"), new_project, None)
     mappend((), _edit, {}, None)
     mappend((_edit,), _("Components..."),
             edit_components, None, None)
@@ -116,3 +120,14 @@ def _introduce_menu():
     APPLICATION.register_opener(".xrp", APPLICATION.open_project,
                                 _("XRCEA projects"))
     introduce_input()
+
+
+def new_project():
+    pars = input_dialog(_("New project"),
+                        _("Project parameters"), [(_("Name"), "New")])
+    if pars:
+        name, = pars
+        prj = Project()
+        prj.name(name)
+        APPLICATION.projects.append(prj)
+        vi_Project(prj)

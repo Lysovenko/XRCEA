@@ -38,6 +38,7 @@ class Project:
     __TREATERS = {}
 
     def __init__(self, filename=None):
+        self.filename = filename
         self._compounds = []
         self._about = {"name": _("New"), "id": str(int(time()))}
         if filename:
@@ -102,7 +103,8 @@ class vi_Project(Lister):
                           for c in project.compounds()])
         styles = {}
         super().__init__(project.name(),
-                         [(_("About"), (_("Name"),"Value")),
+                         [(_("About"), (_("Name"), "Value")),
                           (_("Components"), (_("Type"), _("Name")))],
                          [abouts, compounds], styles)
+        self.menu.append_item((), _("&Project"), {}, None)
         self.show()
