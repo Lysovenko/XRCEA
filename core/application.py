@@ -21,8 +21,8 @@ from os.path import join, dirname, realpath, splitext, normcase
 from .compman import CompMan
 from .settings import Settings
 from .vi.menu import DMenu
-from .vi import input_dialog
-from .project import Project, vi_Project
+from .vi import input_dialog, print_error
+from .project import Project, show_project
 
 _ACTUAL_INTERFACE = None
 
@@ -32,22 +32,61 @@ class Application:
 
     def __init__(self):
         self.menu = DMenu()
+        self.prj_path = None
         self.settings = Settings()
         self.compman = CompMan(self)
         self.runtime_data = dict()
         self.on_start = [draw_plot]
         self.register_treater = Project.add_treater
-        self.projects = []
+        self._projects = {}
         self.register_opener = Opener.register_opener
 
     @property
     def visual(self):
         return _ACTUAL_INTERFACE
 
+    def _add_project(self, prj):
+        name = prj.name()
+        i = 0
+        while name in self.menu.get_container(self.prj_path):
+            i += 1
+            name = "{} ({})".format(prj.name(), i)
+        self._projects[name] = prj
+        self.menu.append_item(self.prj_path, name,
+                              lambda x=prj: show_project(x), None)
+
+    def forget_project(self, prj):
+        names = [k for k, v in self._projects.items() if v is prj]
+        for name in names:
+            self._projects.pop(name)
+            self.menu.remove_item(self.prj_path + (name,))
+
     def open_project(self, fname):
-        self.projects.append(Project(fname))
-        # just for test
-        vi_Project(self.projects[-1])
+        pathes = dict(i.path for i in self._projects.values())
+        if fname in pathes:
+            show_project(pathes[fname])
+            return
+        try:
+            prj = Project(fname)
+        except FileNotFoundError:
+            print_error(_("File not found"),
+                        _("File %s is not found") % fname)
+        except:
+            print_error(_("File damaged"),
+                        _("File %s is damaged") % fname)
+        self._add_project(prj)
+        show_project(prj)
+
+    def new_project(self):
+        pars = input_dialog(_("New project"),
+                            _("Project parameters"),
+                            [(_("Name"), "New project")])
+        if pars:
+            name, = pars
+            prj = Project()
+            prj.name(name)
+            self._add_project(prj)
+            show_project(prj)
 
 
 def draw_plot():
@@ -106,28 +145,19 @@ def _introduce_menu():
     from .sett_dialogs import edit_components
     from .idata import introduce_input
     mappend = APPLICATION.menu.append_item
-    _edit = _("&Edit")
+    _opts = _("&Options")
     _file = _("&File")
     _prj = _("Project")
     mappend((), _file, {}, None)
     mappend((_file,), _prj, {}, None)
-    mappend((_file, _prj), _("New"), new_project, None)
-    mappend((), _edit, {}, None)
-    mappend((_edit,), _("Components..."),
+    APPLICATION.prj_path = prj_p = (_file, _prj)
+    mappend(prj_p, _("New"), APPLICATION.new_project, None)
+    mappend(prj_p, "separ", None, None)
+    mappend((), _opts, {}, None)
+    mappend((_opts,), _("Components..."),
             edit_components, None, None)
     mappend((_file,), _("&Open"), Opener.run_dialog, None, None,
             icon_file("open"))
     APPLICATION.register_opener(".xrp", APPLICATION.open_project,
                                 _("XRCEA projects"))
     introduce_input()
-
-
-def new_project():
-    pars = input_dialog(_("New project"),
-                        _("Project parameters"), [(_("Name"), "New")])
-    if pars:
-        name, = pars
-        prj = Project()
-        prj.name(name)
-        APPLICATION.projects.append(prj)
-        vi_Project(prj)

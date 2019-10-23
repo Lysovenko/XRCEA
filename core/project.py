@@ -38,7 +38,7 @@ class Project:
     __TREATERS = {}
 
     def __init__(self, filename=None):
-        self.filename = filename
+        self.path = filename
         self._compounds = []
         self._about = {"name": _("New"), "id": str(int(time()))}
         if filename:
@@ -108,3 +108,14 @@ class vi_Project(Lister):
                          [abouts, compounds], styles)
         self.menu.append_item((), _("&Project"), {}, None)
         self.show()
+
+
+_SHOWING_PROJECTS = {}
+
+
+def show_project(prj):
+    prj_id = id(prj)
+    if prj_id in _SHOWING_PROJECTS:
+        _SHOWING_PROJECTS[prj_id].show()
+        return
+    _SHOWING_PROJECTS[prj_id] = vi_Project(prj)

@@ -60,7 +60,7 @@ class SDIMenu:
                 smenu.addSeparator()
             else:
                 new_item = QAction(name, self.frame)
-                new_item.triggered.connect(item.function)
+                new_item.triggered.connect(lambda x, f=item.function: f())
                 if item.icon is not None:
                     new_item.setIcon(QIcon(item.icon))
                 smenu.addAction(new_item)
