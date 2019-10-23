@@ -133,15 +133,3 @@ def show_plot_window(vi_obj):
     vi_obj.gui_functions["set_icon"] = plt.set_icon
     vi_obj.gui_functions["draw"] = plt.draw
     plt.show()
-
-
-if __name__ == '__main__':
-    class vi_obj:
-        def __init__(self):
-            self.title = 'hello world'
-            self.gui_functions = {}
-    import sys
-    app = QApplication(sys.argv)
-    v = vi_obj()
-    show_plot_window(v)
-    sys.exit(app.exec_())

@@ -39,7 +39,7 @@ class Project:
 
     def __init__(self, filename=None):
         self.path = filename
-        self._compounds = []
+        self._components = []
         self._about = {"name": _("New"), "id": str(int(time()))}
         if filename:
             self.read(filename)
@@ -61,7 +61,7 @@ class Project:
 
     def save(self, filename):
         with ZipFile(filename, "w", compression=ZIP_DEFLATED) as zipf:
-            for i, c in enumerate(self._compounds):
+            for i, c in enumerate(self._components):
                 xml = c.get_xml()
                 zipf.writestr("item%d" % i, xml_string(xml))
             zipf.writestr("about", xml_string(self._about_xml()))
@@ -71,18 +71,18 @@ class Project:
             for i in filter(lambda x: x.startswith("item"), zipf.namelist()):
                 xml = fromstring(zipf.read(i))
                 try:
-                    self._compounds.append(
+                    self._components.append(
                         self.__TREATERS[xml.tag]().from_xml(xml))
                 except KeyError:
                     pass
             self._about_from_xml(fromstring(zipf.read("about")))
 
-    def add_compound(self, compound):
-        if compound not in self._compounds:
-            self._compounds.append(compound)
+    def add_component(self, component):
+        if component not in self._components:
+            self._components.append(component)
 
-    def compounds(self):
-        return iter(self._compounds)
+    def components(self):
+        return iter(self._components)
 
     def name(self, name=None):
         if name is None:
@@ -98,16 +98,22 @@ class vi_Project(Lister):
         self.project = project
         abouts = Value(list)
         abouts.update([i + (None,) for i in project.abouts()])
-        compounds = Value(list)
-        compounds.update([(c.type, c.name, None, c)
-                          for c in project.compounds()])
+        components = Value(list)
+        components.update([(c.type, c.name, None, c)
+                          for c in project.components()])
         styles = {}
         super().__init__(project.name(),
                          [(_("About"), (_("Name"), "Value")),
                           (_("Components"), (_("Type"), _("Name")))],
-                         [abouts, compounds], styles)
+                         [abouts, components], styles)
         self.menu.append_item((), _("&Project"), {}, None)
         self.show()
+        self.set_choicer(self.click_component, False, 1)
+
+    def click_component(self, tup):
+        component = tup[-1]
+        if hasattr(component, "display"):
+            component.display()
 
 
 _SHOWING_PROJECTS = {}

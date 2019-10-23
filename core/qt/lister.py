@@ -30,6 +30,7 @@ class Lister(QMainWindow, DialogsMixin):
     def __init__(self, vi_obj):
         super().__init__()
         self.splitter = QSplitter(self)
+        self.setWindowTitle(vi_obj.name)
         self.setCentralWidget(self.splitter)
         self.vi_obj = vi_obj
         self.timers = []

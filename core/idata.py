@@ -149,12 +149,16 @@ class XrayData:
                 setattr(self, e.tag, np.array(loads(e.text)))
         return self
 
+    def display(self):
+        if self:
+            plt = Plot(self.name, "exp_plot")
+            plt.add_plot("exp_data", self.make_plot())
+            plt.show()
+            plt.draw("exp_data")
+
 
 def open_xrd(fname):
     """Open x-ray data file"""
     xrd = XrayData(fname)
     if xrd:
-        plt = Plot(xrd.name, "exp_plot")
-        plt.add_plot("exp_data", xrd.make_plot())
-        plt.show()
-        plt.draw("exp_data")
+        xrd.display()
