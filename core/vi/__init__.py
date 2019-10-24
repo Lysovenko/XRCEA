@@ -18,7 +18,7 @@
 
 from .plot import Plot
 from .lister import Lister
-
+from .page import Page
 
 def _actual():
     from ..application import get_actual_interface
