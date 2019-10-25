@@ -16,20 +16,35 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-from .pddb import Database, formula_markup, switch_number
 from core.application import APPLICATION as APP
+from core.vi import input_dialog
+from .browser import show_browser
 _opts = _("&Options")
+_tools = _("&Tools")
 
 
 def introduce():
     """Entry point"""
     APP.menu.append_item((), _opts, {}, None)
+    APP.menu.append_item((), _tools, {}, None)
     APP.menu.append_item((_opts,), _("Configure PDDB..."), configure, None)
-
+    APP.menu.append_item((_tools,), _("DB browser"), show_browser, None)
+    APP.settings.declare_section("PDDB")
+    
 
 def terminate():
     "unloader"
 
 
 def configure():
+    db_file = APP.settings.get("db_file", "", "PDDB")
+    masks = (("*.db", _("DB Files")),)
+    db_file = {"Filename": db_file, "Masks": masks}
+    sett = input_dialog(_("PDDB settings"), _("Database browser settings"),
+                        [(_("Database file:"), db_file)])
+    if sett is None:
+        return
+    for i, j in zip(("interval", "snd_new", "snd_imp", "snd_act",
+                     "snd_rem", "snd_err", "clear_after"), sett):
+        APP.settings.set("db_file", sett[0], "PDDB")
     pass

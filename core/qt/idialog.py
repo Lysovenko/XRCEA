@@ -150,8 +150,11 @@ class InputDialog(QDialog):
         fname = editable.text()
         masks = fdict.get("Masks", ())
         fltr = ";;".join("{1} ({0})".format(*md) for md in masks)
+        options = QFileDialog.Options()
+        if os.name == "posix":
+            options |= QFileDialog.DontUseNativeDialog
         fname, h = QFileDialog.getOpenFileName(
-            self.parent, self.title, fname, fltr)
+            self.parent, self.title, fname, fltr, options=options)
         if fname:
             editable.setText(fname)
 

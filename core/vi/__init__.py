@@ -51,3 +51,12 @@ def copy_to_clipboard(text):
 
 def register_dialog(dlg):
     return _actual().register_dialog(dlg)
+
+
+class Button:
+    def __init__(self, name, func):
+        self.name = name
+        self.func = func
+
+    def __call__(self, val):
+        self.func(val)
