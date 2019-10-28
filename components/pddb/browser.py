@@ -15,34 +15,53 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-from .pddb import Database, formula_markup, switch_number
-from core.vi import Lister, Button
+from core.vi import Lister, Button, print_error
 from core.vi.value import Value
+from core.application import APPLICATION as APP
+from .pddb import Database, formula_markup, switch_number
 
 
 PARAMS = {}
 
 
 class Browser(Lister):
-    def __init__(self):
-        cards = Value(list)
-        styles = {}
+    def __init__(self, db):
+        self.cards = Value(list)
+        self.nums = set()
+        self._database = db
+        styles = {"DC": (None, "red")}
         super().__init__(_("Database browser"),
-                         [(_("Number"), (_("Name"), "Formula"))],
-                         [cards], styles)
+                         [(_("Cards"),
+                           (_("Number"), _("Name"), _("Formula")))],
+                         [self.cards], styles)
         self.show()
         self.set_choicer(self.click_card, False)
         self.set_form(((Button(_("Search:"), self.search), ""),), 0, True)
 
     def click_card(self, tup):
         card = tup[-1]
+        print(tup, type(card))
 
     def search(self, query):
         ""
+        try:
+            cards = self._database.select_cards(query)
+        except ValueError:
+            return print_error(_("Query error"), _("Wrong Query"))
+        ext = [(str(c), n, f, (q, None, None), c)
+               for c, n, f, q in cards if c not in self.nums]
+        self.nums.update(r[-1] for r in ext)
+        self.cards.update(self.cards.get() + ext)
+
 
 def show_browser():
     if not PARAMS.get("Browser"):
-        PARAMS["Browser"] = Browser()
+        try:
+            db = Database(APP.settings.get("db_file", "", "PDDB"))
+        except RuntimeError as err:
+            return print_error(_("DB opening error"),
+                               _("Failed to open DB file: %s") % str(err))
+        PARAMS["Browser"] = Browser(db)
     else:
         PARAMS["Browser"].show()
     

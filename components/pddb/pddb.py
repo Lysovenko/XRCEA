@@ -82,11 +82,11 @@ class Database:
     def __init__(self, path):
         self.connection = None
         if not isfile(path):
-            return
+            raise RuntimeError("File not exists")
         try:
             self.connection = sql.connect(path)
         except sql.Error as e:
-            return
+            raise RuntimeError("Broken File")
 
     def __bool__(self):
         return self.connection is not None
