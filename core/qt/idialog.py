@@ -22,6 +22,8 @@ from PyQt5.QtWidgets import (
     QFormLayout, QLineEdit, QCheckBox, QMessageBox)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QValidator
+from .text import LineEdit
+from ..vi.value import Value
 
 
 class MyValidator(QValidator):
@@ -62,6 +64,8 @@ def get_widget_from_value(value, optional=None):
         return rv
     if isinstance(value, str):
         return QLineEdit(value)
+    if isinstance(value, Value):
+        return LineEdit(None, value)
 
 
 class InputDialog(QDialog):

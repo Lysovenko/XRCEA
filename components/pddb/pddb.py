@@ -85,13 +85,12 @@ class Database:
             raise RuntimeError("File not exists")
         try:
             self.connection = sql.connect(path)
+            self.execute("SELECT DISTINCT(quality) FROM about")
         except sql.Error as e:
-            raise RuntimeError("Broken File")
+            raise RuntimeError("Wrong file (%s)" % e)
 
     def __bool__(self):
         return self.connection is not None
-
-    __nonzero__ = __bool__
 
     def execute(self, command, commit=True):
         cursor = self.connection.cursor()
@@ -253,7 +252,6 @@ class Database:
             return
         dcoduns = {"BF": "b", "IT": "i"}
         for cod, val in eval(cmt):
-            val = val.decode("utf8")
             if '\\' in val:
                 coduns = []
                 spos = 0
