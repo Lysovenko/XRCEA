@@ -43,11 +43,6 @@ class Page(QMainWindow, DialogsMixin):
         self.menu = SDIMenu(self)
 
     def draw_shape(self, colnames, lvalue, styles):
-        if colnames is not None:
-            self.vislist = vl = VisualList(self, colnames, lvalue, styles)
-            self.splitter.addWidget(vl)
-        else:
-            self.vislist = None
         message_area = QWidget()
         layout = QVBoxLayout(message_area)
         self.form = QFormLayout()
@@ -60,6 +55,11 @@ class Page(QMainWindow, DialogsMixin):
         sk.activated.connect(self.textEdit.zoomOut)
         layout.addWidget(self.textEdit)
         self.splitter.addWidget(message_area)
+        if colnames is not None:
+            self.vislist = vl = VisualList(self, colnames, lvalue, styles)
+            self.splitter.addWidget(vl)
+        else:
+            self.vislist = None
         self.splitter.setOrientation(Qt.Vertical)
         self.splitter.setStretchFactor(0, 0)
         self.splitter.setStretchFactor(1, 1)

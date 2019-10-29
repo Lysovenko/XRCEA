@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-from core.vi import Lister, Button, print_error
+from core.vi import Page, Button, print_error
 from core.vi.value import Value
 from core.application import APPLICATION as APP
 from .pddb import Database, formula_markup, switch_number
@@ -24,23 +24,23 @@ from .pddb import Database, formula_markup, switch_number
 PARAMS = {}
 
 
-class Browser(Lister):
+class Browser(Page):
     def __init__(self, db):
         self.cards = Value(list)
         self.nums = set()
         self._database = db
         styles = {"DC": (None, "red")}
         super().__init__(_("Database browser"),
-                         [(_("Cards"),
-                           (_("Number"), _("Name"), _("Formula")))],
-                         [self.cards], styles)
+                         self.cards,
+                         (_("Number"), _("Name"), _("Formula")),
+                         styles)
         self.show()
-        self.set_choicer(self.click_card, False)
-        self.set_form(((Button(_("Search:"), self.search), ""),), 0, True)
+        self.set_form(((Button(_("Search:"), self.search), ""),), True)
+        self.set_choicer(self.click_card)
 
     def click_card(self, tup):
         card = tup[-1]
-        print(tup, type(card))
+        self.set_text("%s %s" % (tup, type(card)))
 
     def search(self, query):
         ""
