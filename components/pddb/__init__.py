@@ -19,6 +19,7 @@
 from core.application import APPLICATION as APP
 from core.vi import input_dialog
 from .browser import show_browser
+show_me = show_browser
 _opts = _("&Options")
 _tools = _("&Tools")
 
@@ -30,7 +31,7 @@ def introduce():
     APP.menu.append_item((_opts,), _("Configure PDDB..."), configure, None)
     APP.menu.append_item((_tools,), _("DB browser"), show_browser, None)
     APP.settings.declare_section("PDDB")
-    
+
 
 def terminate():
     "unloader"

@@ -91,6 +91,12 @@ class Application:
 
 def draw_plot():
     # TODO: this is for test. Do not leave so.
+    for desc in APPLICATION.compman.descriptions:
+        try:
+            getattr(desc["module"], "show_me")()
+            return
+        except (KeyError, AttributeError):
+            pass
     from .vi import Plot
     APPLICATION.runtime_data["MainWindow"] = p = Plot("XRCEA")
     p.show()
