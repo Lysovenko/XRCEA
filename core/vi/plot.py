@@ -54,8 +54,12 @@ class Plot(DialogsMixin):
         "y2": Array() (optionally replaces y1)}],
         "x1label": "X axis title",
         "y1label": "Y axis title",
+        "x1units": "2theta", # used for adding extra plots
         "picker": None}"""
         self.plots[pl_name] = plt
+
+    def get_plot(self, pl_name):
+        return self.plots.get(pl_name)
 
     def set_close_lock(self, close_lock):
         self.close_lock = close_lock
