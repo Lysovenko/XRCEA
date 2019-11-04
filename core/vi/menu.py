@@ -51,11 +51,15 @@ class DMenu:
 
     def get_container(self, path, default=None):
         rcont = self.root
-        for name in path:
-            if name in rcont:
+        for i, name in enumerate(path):
+            try:
                 rcont = rcont[name].function
-            else:
-                return default
+            except KeyError:
+                if default is None:
+                    rcont = {}
+                    self.append_item(path[:i-1], path[i], rcont)
+                else:
+                    return default
         return rcont
 
     def insert_item(self, path, priority, name, function, shortcut,
@@ -65,8 +69,6 @@ class DMenu:
             cont = path
         else:
             cont = self.get_container(path)
-        if cont is None:
-            raise RuntimeError("No sutch path exists %s" % "/".join(path))
         if name in cont:
             if isinstance(cont[name].function, dict) and \
                isinstance(function, dict):

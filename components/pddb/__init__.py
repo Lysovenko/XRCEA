@@ -26,8 +26,6 @@ _tools = _("&Tools")
 
 def introduce():
     """Entry point"""
-    APP.menu.append_item((), _opts, {}, None)
-    APP.menu.append_item((), _tools, {}, None)
     APP.menu.append_item((_opts,), _("Configure PDDB..."), configure, None)
     APP.menu.append_item((_tools,), _("DB browser"), show_browser, None)
     APP.settings.declare_section("PDDB")
