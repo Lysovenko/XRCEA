@@ -18,7 +18,8 @@
 
 from core.application import APPLICATION as APP
 from core.vi import input_dialog
-from .browser import show_browser
+from core.idata import XrayData
+from .browser import show_browser, set_plot
 show_me = show_browser
 _opts = _("&Options")
 _tools = _("&Tools")
@@ -29,6 +30,7 @@ def introduce():
     APP.menu.append_item((_opts,), _("Configure PDDB..."), configure, None)
     APP.menu.append_item((_tools,), _("DB browser"), show_browser, None)
     APP.settings.declare_section("PDDB")
+    XrayData.actions[(_tools, _("Compare with DB pattern"))] = set_plot
 
 
 def terminate():

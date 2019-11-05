@@ -36,12 +36,14 @@ def introduce_input():
 
 class XrayData:
     loaders = []
+    actions = {}
     xmlroot = "xrd"
     type = _("Difractogram")
 
     def __init__(self, fname=None):
         self.__sample = None
         self.__dict = {}
+        self.UI = None
         for i in ("contains", "density", "x_data", "y_data",
                   # diffraction angle of monochromer
                   "alpha", "name",
@@ -123,7 +125,8 @@ class XrayData:
         x_label = {"theta": "$\\theta$", "2theta": "$2\\theta$",
                    "q": "q", None: _("Unknown")}[self.x_units]
         return {"plots": [{"x1": self.x_data, "y1": self.y_data}],
-                "x1label": x_label, "y1label": _("pps")}
+                "x1label": x_label, "y1label": _("pps"),
+                "x1units": self.x_units}
 
     def get_xml(self):
         """represent the object in xml"""
@@ -150,11 +153,25 @@ class XrayData:
         return self
 
     def display(self):
-        if self:
-            plt = Plot(self.name, "exp_plot")
+        if not self:
+            return
+        if self.UI:
+            plt = self.UI
+        else:
+            actions = type(self).actions
+            self.UI = plt = Plot(self.name, "exp_plot")
+            for mi in sorted(actions.keys()):
+                args = actions[mi]
+                if isinstance(args, tuple):
+                    plt.menu.append_item(mi[:-1], mi[-1],
+                                         lambda x=self, f=args[0]: f(x),
+                                         *args[1:])
+                else:
+                    plt.menu.append_item(mi[:-1], mi[-1],
+                                         lambda x=self, f=args: f(x))
             plt.add_plot("exp_data", self.make_plot())
-            plt.show()
-            plt.draw("exp_data")
+        plt.show()
+        plt.draw("exp_data")
 
 
 def open_xrd(fname):

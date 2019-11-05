@@ -215,20 +215,20 @@ class Database:
         return self.execute(
             "SELECT sgroup FROM about WHERE cid=%d" % cid, False)[0][0]
 
-    def get_di(self, cid, xtype="A^{-1}", wavel=None):
+    def get_di(self, cid, xtype="q", wavel=None):
         reflexes = self.reflexes(cid)
         if not reflexes:
             return [], []
         dis = np.array(reflexes, "f").transpose()
-        if xtype == "A^{-1}":
+        if xtype == "q}":
             x = (2. * np.pi) / dis[0]
-        elif xtype == "A":
+        elif xtype == "d":
             x = dis[0]
-        elif xtype == "sin(\\theta)":
+        elif xtype == "sin(theta)":
             x = wavel / 2. / dis[0]
-        elif xtype == "\\theta":
+        elif xtype == "theta":
             x = np.arcsin(wavel / 2. / dis[0]) / np.pi * 180.
-        elif xtype == "2\\theta":
+        elif xtype == "2theta":
             x = np.arcsin(wavel / 2. / dis[0]) / np.pi * 360.
         else:
             raise ValueError("Unknown x axis type: %s" % xtype)

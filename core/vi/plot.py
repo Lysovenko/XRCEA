@@ -33,6 +33,7 @@ class Plot(DialogsMixin):
         self.shortcuts = {}
         self.menu = DMenu()
         self.plots = {}
+        self._currently_showing = None
 
     def show(self):
         from ..application import get_actual_interface
@@ -42,16 +43,19 @@ class Plot(DialogsMixin):
         """Try to draw a plot"""
         try:
             self.gui_functions["draw"](self.plots[pl_name])
+            self._currently_showing = pl_name
         except KeyError:
             pass
 
     def add_plot(self, pl_name, plt):
         """ adds plot with name, where plt is:
-        {"plots": [{"type": "-" ("pulse" or MathPlotLib types),
+        {"plots": [{
+        "type": "-" ("pulse" or MathPlotLib types),
         "color": None,
         "x1": Array(),
         "y1": Array(),
-        "y2": Array() (optionally replaces y1)}],
+        "y2": Array() (optionally replaces y1)
+        }],
         "x1label": "X axis title",
         "y1label": "Y axis title",
         "x1units": "2theta", # used for adding extra plots
@@ -60,6 +64,9 @@ class Plot(DialogsMixin):
 
     def get_plot(self, pl_name):
         return self.plots.get(pl_name)
+
+    def get_current(self):
+        return self._currently_showing, self.plots.get(self._currently_showing)
 
     def set_close_lock(self, close_lock):
         self.close_lock = close_lock

@@ -30,6 +30,7 @@ class Browser(Page):
         self.cards = Value(list)
         self.nums = set()
         self._database = db
+        self._cur_card = None
         styles = {"D": (None, "red")}
         super().__init__(_("Database browser"),
                          self.cards,
@@ -42,6 +43,7 @@ class Browser(Page):
 
     def click_card(self, tup):
         card = tup[-1]
+        self._cur_card = card
         self.set_text(self.mkhtext(card))
 
     def search(self, query):
@@ -127,6 +129,39 @@ class Browser(Page):
         res += "</ul>\n"
         return "".join(["<html><body>", res, "</body></html>"])
 
+    def plot(self):
+        card = self._cur_card
+        plot = PARAMS.get("Plot")
+        if not (plot and card):
+            return
+        name, plt = plot.get_current()
+        if plt is None:
+            return
+        xrd = PARAMS.get("XRD")
+        if not xrd:
+            return
+        _name = _("PDDB Pattern")
+        if name == _name:
+            for p in reversed(plt["plots"]):
+                if p.get("type") == "pulse":
+                    plt["plots"].pop()
+                else:
+                    break
+        units = plt["x1units"]
+        for wavel, intens, clr in (
+                (xrd.lambda1, 1., "red"), (xrd.lambda2, xrd.I2, "orange"),
+                (xrd.lambda3, xrd.I3, "green")):
+            if wavel is None or intens is None:
+                continue
+            eplt = {"type": "pulse", "color": clr}
+            x, y = self._database.get_di(card, units, wavel)
+            y *= intens
+            eplt["x1"] = x
+            eplt["y2"] = y
+            plt["plots"].append(eplt)
+        plot.add_plot(_name, plt)
+        plot.draw(_name)
+
 
 def show_browser():
     if not PARAMS.get("Browser"):
@@ -138,3 +173,10 @@ def show_browser():
         PARAMS["Browser"] = Browser(db)
     else:
         PARAMS["Browser"].show()
+
+
+def set_plot(plotting):
+    PARAMS["Plot"] = plotting.UI
+    PARAMS["XRD"] = plotting
+    if PARAMS.get("Browser"):
+        PARAMS["Browser"].plot()
