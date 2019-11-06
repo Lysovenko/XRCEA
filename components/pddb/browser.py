@@ -148,6 +148,13 @@ class Browser(Page):
                     plt["plots"].pop()
                 else:
                     break
+        if not plt["plots"]:
+            return
+        xmin = min(plt["plots"][0]["x1"])
+        xmax = max(plt["plots"][0]["x1"])
+        for p in plt["plots"][1:]:
+            xmin = min(xmin, min(p["x1"]))
+            xmax = max(xmax, max(p["x1"]))
         units = plt["x1units"]
         for wavel, intens, clr in (
                 (xrd.lambda1, 1., "red"), (xrd.lambda2, xrd.I2, "orange"),
@@ -157,6 +164,7 @@ class Browser(Page):
             eplt = {"type": "pulse", "color": clr}
             x, y = self._database.get_di(card, units, wavel)
             y *= intens
+            x, y = zip(*(xy for xy in zip(x, y) if xmin <= xy[0] <= xmax))
             eplt["x1"] = x
             eplt["y2"] = y
             plt["plots"].append(eplt)
