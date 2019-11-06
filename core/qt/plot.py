@@ -55,13 +55,11 @@ class Canvas(FigureCanvas):
 
         # self.compute_initial_figure()
 
-        FigureCanvas.__init__(self, fig)
+        super().__init__(fig)
         self.setParent(parent)
 
-        FigureCanvas.setSizePolicy(self,
-                                   QSizePolicy.Expanding,
-                                   QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
+        super().setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        super().updateGeometry()
 
     def mk_axes(self):
         self.axes1 = self.figure.add_subplot(111)
@@ -92,11 +90,12 @@ class Canvas(FigureCanvas):
             else:
                 a2p = self.axes1
             if ltype == "pulse":
-                a2p.bar(plot["x1"], plot.get("y1", plot.get("y2")),
+                a2p.bar(plot["x1"], plot.get("y1", plot.get("y2")), width=1e-9,
                         edgecolor=color, align="center")
             else:
                 a2p.plot(plot["x1"], plot.get("y1", plot.get("y2")), ltype,
                          color=color, picker=plot.get("picker"))
+        super().draw()
 
 
 class PlotWindow(QMainWindow):
@@ -113,7 +112,7 @@ class PlotWindow(QMainWindow):
         self.menu = SDIMenu(self)
 
     def closeEvent(self, event):
-        pass
+        self.vi_obj.currently_alive = False
 
     def set_icon(self, icon):
         self.setWindowIcon(QIcon(icon))
@@ -133,3 +132,4 @@ def show_plot_window(vi_obj):
     vi_obj.gui_functions["set_icon"] = plt.set_icon
     vi_obj.gui_functions["draw"] = plt.draw
     plt.show()
+    vi_obj.currently_alive = True

@@ -45,6 +45,7 @@ class Browser(Page):
         card = tup[-1]
         self._cur_card = card
         self.set_text(self.mkhtext(card))
+        self.plot()
 
     def search(self, query):
         ""
