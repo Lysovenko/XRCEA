@@ -290,7 +290,7 @@ class Database:
                         spos = epos + 1
                         epos = val.find("\\", spos)
                         rval += formula_markup(val[spos:epos])
-                        spos = epos + 1
+                        spos = epos + 1 if epos > 0 else len(val)
                     epos = val.find("\\", spos)
                 val = rval + val[spos:]
             yield cod, val
