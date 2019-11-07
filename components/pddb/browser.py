@@ -156,17 +156,15 @@ class Browser(Page):
             xmin = min(xmin, min(p["x1"]))
             xmax = max(xmax, max(p["x1"]))
         units = plt["x1units"]
-        for wavel, intens, clr in (
-                (xrd.lambda1, 1., "red"), (xrd.lambda2, xrd.I2, "orange"),
-                (xrd.lambda3, xrd.I3, "green")):
-            if wavel is None or intens is None:
-                continue
+        wavis = [(wavel, intens) for wavel, intens in (
+            (xrd.lambda1, 1.), (xrd.lambda2, xrd.I2), (xrd.lambda3, xrd.I3))
+            if wavel is not None and intens is not None]
+        wavels = tuple(i[0] for i in wavis)
+        dis = self._database.get_di(card, units, wavels, (xmin, xmax))
+        for (x, y), clr, (w, i) in zip(dis, ("red", "orange", "green"), wavis):
             eplt = {"type": "pulse", "color": clr}
-            x, y = self._database.get_di(card, units, wavel)
-            y *= intens
-            x, y = zip(*(xy for xy in zip(x, y) if xmin <= xy[0] <= xmax))
             eplt["x1"] = x
-            eplt["y2"] = y
+            eplt["y2"] = y * i
             plt["plots"].append(eplt)
         plot.add_plot(_name, plt)
         plot.draw(_name)

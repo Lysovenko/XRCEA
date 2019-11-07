@@ -215,29 +215,44 @@ class Database:
         return self.execute(
             "SELECT sgroup FROM about WHERE cid=%d" % cid, False)[0][0]
 
-    def get_di(self, cid, xtype="q", wavel=None):
+    def get_di(self, cid, xtype="q", wavel=(), between=None):
         reflexes = self.reflexes(cid)
         if not reflexes:
             return [], []
         dis = np.array(reflexes, "f").transpose()
-        if xtype == "q}":
-            x = (2. * np.pi) / dis[0]
-        elif xtype == "d":
-            x = dis[0]
-        elif xtype == "sin(theta)":
-            x = wavel / 2. / dis[0]
-        elif xtype == "theta":
-            x = np.arcsin(wavel / 2. / dis[0]) / np.pi * 180.
-        elif xtype == "2theta":
-            x = np.arcsin(wavel / 2. / dis[0]) / np.pi * 360.
-        else:
-            raise ValueError("Unknown x axis type: %s" % xtype)
         intens = dis[1]
         if intens.max() == 999.:
             for i in (intens == 999.).nonzero():
                 intens[i] += 1.
             intens /= 10.
-        return x, intens
+        if not isinstance(wavel, (tuple, list)):
+            wavel = (wavel,)
+            single = True
+        else:
+            single = False
+        abscisas = []
+        for wave in wavel:
+            if xtype == "sin(theta)":
+                abscisas.append(wave / 2. / dis[0])
+            elif xtype == "theta":
+                abscisas.append(np.arcsin(wave / 2. / dis[0]) / np.pi * 180.)
+            elif xtype == "2theta":
+                abscisas.append(np.arcsin(wave / 2. / dis[0]) / np.pi * 360.)
+        if xtype == "q":
+            abscisas.append((2. * np.pi) / dis[0])
+        elif not abscisas:
+            abscisas.append(dis[0])
+        res = []
+        if between:
+            for x in abscisas:
+                b = x >= min(between)
+                b &= x <= max(between)
+                res.append((x[b], intens[b]))
+        else:
+            res = [(x, intens) for x in abscisas]
+        if single:
+            return res[0]
+        return res
 
     def wiki_di(self, cid, xtype, wavels, pld=None):
         return Wiki_card(self, cid, xtype, wavels, pld)
