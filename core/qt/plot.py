@@ -68,7 +68,9 @@ class Canvas(FigureCanvas):
         self.axes1.set_xlabel(r'$s,\, \AA^{-1}$')
         self.axes1.set_ylabel('Intensity')
 
-    def draw(self, dset):
+    def draw(self, dset=None):
+        if dset is None:
+            return super().draw()
         self.figure.clear()
         self.axes1 = self.figure.add_subplot(111)
         self.axes1.grid(True)
