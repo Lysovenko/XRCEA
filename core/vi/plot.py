@@ -16,6 +16,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
+from copy import deepcopy
 from .menu import DMenu
 from .mixins import DialogsMixin
 
@@ -60,13 +61,16 @@ class Plot(DialogsMixin):
         "y1label": "Y axis title",
         "x1units": "2theta", # used for adding extra plots
         "picker": None}"""
+        if pl_name not in self.plots:
+            self.menu.append_item((_("Plot"),), pl_name,
+                                  lambda x=pl_name, f=self.draw: f(x))
         self.plots[pl_name] = plt
 
     def get_plot(self, pl_name):
-        return self.plots.get(pl_name)
+        return deepcopy(self.plots.get(pl_name))
 
     def get_current(self):
-        return self._currently_showing, self.plots.get(self._currently_showing)
+        return self._currently_showing, self.get_plot(self._currently_showing)
 
     def set_close_lock(self, close_lock):
         self.close_lock = close_lock
