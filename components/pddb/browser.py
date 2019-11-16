@@ -40,12 +40,25 @@ class Browser(Page):
         self._query = Value(str)
         self.set_form([(Button(_("Search:"), self.search), self._query)], True)
         self.set_choicer(self.click_card)
+        self.set_list_context_menu([
+            (_("Delete"), self.del_the_card),
+            (_("Clear deleted"), self.remove_deleted)
+        ])
 
     def click_card(self, tup):
         card = tup[-1]
         self._cur_card = card
         self.set_text(self.mkhtext(card))
         self.plot()
+
+    def del_the_card(self, row, c=None):
+        cl = self.cards.get()
+        cl.remove(row)
+        self.cards.update(cl)
+
+    def remove_deleted(self, row, c=None):
+        cl = self.cards.get()
+        self.cards.update(i for i in cl if "D" not in i[3][0])
 
     def search(self, query):
         ""
