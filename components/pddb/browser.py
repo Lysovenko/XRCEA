@@ -42,7 +42,8 @@ class Browser(Page):
         self.set_choicer(self.click_card)
         self.set_list_context_menu([
             (_("Delete"), self.del_the_card),
-            (_("Clear deleted"), self.remove_deleted)
+            (_("Clear deleted"), self.remove_deleted),
+            (_("Print GNUPlot labels"), self.print_gp_labels)
         ])
 
     def click_card(self, tup):
@@ -181,6 +182,24 @@ class Browser(Page):
             plt["plots"].append(eplt)
         plot.add_plot(_name, plt)
         plot.draw(_name)
+
+    def print_gp_labels(self, row, c=None):
+        cid = row[-1]
+        xrd = PARAMS.get("XRD")
+        if not xrd:
+            return
+        plot = PARAMS.get("Plot")
+        if not plot:
+            return
+        name, plt = plot.get_current()
+        if plt is None:
+            return
+        units = plt["x1units"]
+        wavis = [(wavel, intens) for wavel, intens in (
+            (xrd.lambda1, 1.), (xrd.lambda2, xrd.I2), (xrd.lambda3, xrd.I3))
+            if wavel is not None and intens is not None]
+        wavels = tuple(i[0] for i in wavis)
+        print(self._database.gnuplot_lables(cid, units, wavels[0]))
 
 
 def show_browser():
