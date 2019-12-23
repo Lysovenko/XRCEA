@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"db interface"
-# wxRays (C) 2013-2016 Serhii Lysovenko
+# XRCEA (C) 2019 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,6 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+"""
+.. module:: pddb
+   :platform: Unix, Windows
+   :synopsis: DB interface.
+
+.. moduleauthor:: Serhii Lysovenko
+
+"""
 
 from core.application import APPLICATION as APP
 from core.vi import input_dialog
@@ -26,7 +33,7 @@ _tools = _("&Tools")
 
 
 def introduce():
-    """Entry point"""
+    """Entry point. Declares menu items."""
     APP.menu.append_item((_opts,), _("Configure PDDB..."), configure, None)
     APP.menu.append_item((_tools,), _("DB browser"), show_browser, None)
     APP.settings.declare_section("PDDB")
@@ -34,7 +41,7 @@ def introduce():
 
 
 def terminate():
-    "unloader"
+    """unloader"""
 
 
 def configure():

@@ -42,6 +42,14 @@ ELNUMS = {
 
 
 def formula_markup(fstr, wiki=False):
+    """
+    :param fstr: formula string
+    :type fstr: string
+    :param wiki: print wiki (deprecated)
+    :type wiki: boolean
+    :returns: formula
+    :rtype: string
+    """
     formula = fstr.replace("!", u"\u00d7")
     res = u""
     for item in formula.split():
@@ -70,6 +78,13 @@ def formula_markup(fstr, wiki=False):
 
 
 def switch_number(number):
+    """
+    Adds defis to number.
+
+    :param number: number in database
+    :type number: integer
+    :rtype: string
+    """
     if type(number) is int:
         unum = u"%.6d" % number
         return unum[0:2] + "-" + unum[2:]
@@ -78,7 +93,11 @@ def switch_number(number):
 
 
 class Database:
-    "Powder diffraction database class"
+    """Powder diffraction database class
+
+    :param path: Path to database.
+    :type path: string
+    """
     def __init__(self, path):
         self.connection = None
         if not isfile(path):
@@ -93,6 +112,13 @@ class Database:
         return self.connection is not None
 
     def execute(self, command, commit=True):
+        """
+        :param command: SQL command
+        :type command: string
+        :param commit: Whether to commit results.
+        :type commit: boolean
+        :rtype: list
+        """
         cursor = self.connection.cursor()
         cursor.execute(command)
         if commit:
@@ -110,6 +136,11 @@ class Database:
         self.close()
 
     def select_cards(self, req):
+        """
+        :param req: Query to select cards
+        :type req: string
+        :returns: List of cards.
+        """
         reqs = map(type(req).strip, req.split('&'))
         selects = []
         for req in reqs:
@@ -123,7 +154,7 @@ class Database:
             if req.startswith(':'):
                 try:
                     res = self.select_reflex(req)
-                except:
+                except Exception:
                     raise ValueError("Bad request")
                 selects.append(res)
                 continue
@@ -142,7 +173,13 @@ class Database:
             return ()
 
     def select_bruqa(self, req):
-        "Select bruto equation"
+        """
+        Select bruto equation
+
+        :param req: Request
+        :type req: string
+        :returns: list of cards
+        """
         pos = 0
         regexp = re.compile(r"([A-Za-z]+)\s*(\d*)\s*")
         lst = regexp.findall(req)
@@ -165,6 +202,13 @@ class Database:
         SUM(CASE %s ELSE -1 END) = %d""" % (dreq, len(lst))
 
     def select_bruto(self, req):
+        """
+        Select bruto equation
+
+        :param req: Request
+        :type req: string
+        :returns: list of cards
+        """
         spl = req.split(";")
         spl1 = spl[0].split()
         must = [ELNUMS[x] for x in spl1]
@@ -192,10 +236,17 @@ class Database:
         return minstr % (scon, msum)
 
     def select_reflex(self, req):
+        """
+        Select by reflex
+
+        :param req: Request
+        :type req: string
+        :returns: list of cards
+        """
         try:
             d1, d2, h1, h2 = map(lambda x: float(x.replace(',', '.')),
                                  req[1:].split())
-        except:
+        except Exception:
             raise ValueError("Bad values")
         return """SELECT DISTINCT cid as icid FROM reflexes
         WHERE d BETWEEN %g AND %g AND intens
