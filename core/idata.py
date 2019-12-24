@@ -28,13 +28,16 @@ from .vi import Plot
 
 
 def introduce_input():
-    """Add to menu "open" item"""
-    from .project import Project
+    """Introduce input"""
     APP.register_treater(XrayData)
     APP.register_opener(".xrd", open_xrd, _("Difractograms"))
 
 
 class XrayData:
+    """
+    :param fname: Path to file with X-ray difraction data.
+    :type fname: string
+    """
     loaders = []
     actions = {}
     xmlroot = "xrd"
@@ -55,7 +58,7 @@ class XrayData:
         if fname is not None:
             self.open(fname)
 
-    def from_dict(self, dct):
+    def _from_dict(self, dct):
         self.__dict.update(dct)
         for i in ("lambda1", "lambda2", "lambda3", "alpha", "I2", "I3",
                   "density"):
@@ -80,6 +83,12 @@ class XrayData:
 
     @staticmethod
     def open_xrd(fname):
+        """
+        Open xrd file.
+
+        :param fname: Path to xrd file.
+        :type fname: string
+        """
         arr = []
         odict = {}
         fobj = open(fname)
@@ -106,6 +115,12 @@ class XrayData:
         return x, y, odict
 
     def open(self, fname):
+        """
+        Open file with X-ray data.
+
+        :param fname: Path to file with X-ray data.
+        :type fname: string
+        """
         for loader in XrayData.loaders:
             try:
                 x, y, dct = loader(fname)
@@ -114,7 +129,7 @@ class XrayData:
             if all(i is not None for i in (x, y, dct)):
                 self.x_data = x
                 self.y_data = y
-                self.from_dict(dct)
+                self._from_dict(dct)
                 if self.name is None:
                     self.name = basename(fname)
 
@@ -129,7 +144,7 @@ class XrayData:
                 "x1units": self.x_units}
 
     def get_xml(self):
-        """represent the object in xml"""
+        """Convets X-ray data into XML."""
         xrd = Element(self.xmlroot)
         for i in ("density", "alpha", "lambda1", "lambda2", "lambda3",
                   "I2", "I3", "contains", "name", "x_units"):
@@ -143,6 +158,7 @@ class XrayData:
         return xrd
 
     def from_xml(self, xrd):
+        """Get X-ray data from XML."""
         assert xrd.tag == self.xmlroot
         for e in xrd:
             if e.tag in {"density", "alpha", "lambda1", "lambda2", "lambda3",
@@ -153,6 +169,7 @@ class XrayData:
         return self
 
     def display(self):
+        """Display X-ray data as plot."""
         if not self:
             return
         if self.UI:
@@ -175,7 +192,7 @@ class XrayData:
 
 
 def open_xrd(fname):
-    """Open x-ray data file"""
+    """Open X-ray data file."""
     xrd = XrayData(fname)
     if xrd:
         xrd.display()

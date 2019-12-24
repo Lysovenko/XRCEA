@@ -8,15 +8,9 @@ Welcome to XRCEA's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
-.. automodule:: pddb
-   :members:
-.. automodule:: pddb.pddb
-   :members:
-.. automodule:: pddb.browser
-   :members:
-
+   core
+   pddb
 
 Indices and tables
 ==================
