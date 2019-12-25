@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-"""start from here"""
 # XRCEA (C) 2019 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
@@ -15,41 +14,94 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+"""
+.. module:: core.vi
+   :platform: Unix, Windows
+   :synopsis: Visual interface
+
+.. moduleauthor:: Serhii Lysovenko
+
+"""
+
 
 from .plot import Plot
 from .lister import Lister
 from .page import Page
+
 
 def _actual():
     from ..application import get_actual_interface
     return get_actual_interface()
 
 
-def input_dialog(*args, **kwargs):
-    return _actual().input_dialog(*args, **kwargs)
+def input_dialog(title, question, fields, parent=None):
+    """
+    :param title: Title of the window.
+    :type title: string
+    :param question: Question to ask.
+    :type question: string or None
+    :param fields: List of tuples (name, value, [optional]).
+    :type fields: list
+    :param parent: Not used.
+    :type parent: NoneType
+    """
+    return _actual().input_dialog(title, question, fields, parent)
 
 
-def print_information(*args, **kwargs):
-    return _actual().print_information(*args, **kwargs)
+def print_information(title, info):
+    """
+    :param title: Title of the window.
+    :type title: string
+    :param info: Information itself.
+    :type info: string
+    """
+    return _actual().print_information(title, info)
 
 
-def print_error(*args, **kwargs):
-    return _actual().print_error(*args, **kwargs)
+def print_error(title, info):
+    """
+    :param title: Title of the window.
+    :type title: string
+    :param info: Information about error.
+    :type info: string
+    """
+    return _actual().print_error(title, info)
 
 
-def ask_question(*args, **kwargs):
-    return _actual().ask_question(*args, **kwargs)
+def ask_question(title, question):
+    """
+    :param title: Title of the window.
+    :type title: string
+    :param question: A simple question.
+    :type question: string
+    """
+    return _actual().ask_question(title, question)
 
 
-def print_status(*args, **kwargs):
-    return _actual().print_status(*args, **kwargs)
+def print_status(status):
+    """
+    :param status: Status to print into statusbar.
+    :type status: string
+    """
+    return _actual().print_status(status)
 
 
 def copy_to_clipboard(text):
+    """
+    :param text: Text to copy into clipboard.
+    :type text: string
+    """
     return _actual().copy_to_clipboard(text)
 
 
 def register_dialog(dlg):
+    """
+    Send a dlg function to execution queue, which should be executed
+    in GUI thread.
+
+    :param dlg: Some function, which gets no parameters.
+    :type dlg: callable
+    """
     return _actual().register_dialog(dlg)
 
 
