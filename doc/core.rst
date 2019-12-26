@@ -1,6 +1,6 @@
-==============
+##############
 Core functions
-==============
+##############
 
 .. automodule:: core
    :synopsis: Core functions
@@ -11,8 +11,9 @@ Core functions
 .. automodule:: core.project
    :members:
 
+*************
 Visualization
-=============
+*************
 
 .. automodule:: core.vi
    :synopsis: Visual interface
