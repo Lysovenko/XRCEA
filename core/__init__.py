@@ -15,12 +15,6 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """
-.. module:: core
-   :platform: Unix, Windows
-   :synopsis: Core functions
-
-.. moduleauthor:: Serhii Lysovenko
-
 """
 
 import locale
@@ -28,7 +22,8 @@ import logging
 from os.path import dirname, join, isdir, pardir
 from argparse import ArgumentParser
 from .application import APPLICATION
-VERSION = '0.0.0'
+VERSION = '0.1'
+RELEASE = '0.1'
 
 
 def install_gt():

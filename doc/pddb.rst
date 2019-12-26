@@ -9,6 +9,7 @@ Powder difraction database
 Core functions
 ==============
 .. automodule:: pddb.pddb
+   :synopsis: DB interface.
    :members:
 
 GUI

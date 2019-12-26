@@ -16,6 +16,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../components'))
 sys.path.insert(0, os.path.abspath('..'))
+from core import VERSION as version, RELEASE as release
 __builtins__["_"] = str
 
 
@@ -24,11 +25,6 @@ __builtins__["_"] = str
 project = 'XRCEA'
 copyright = '2019, Serhii Lysovenko'
 author = 'Serhii Lysovenko'
-
-# The short X.Y version
-version = ''
-# The full version, including alpha/beta/rc tags
-release = '0.0.1'
 
 
 # -- General configuration ---------------------------------------------------
