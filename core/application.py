@@ -147,6 +147,16 @@ def icon_file(name):
         "data", "icons", name + ".png")
 
 
+def _help():
+    from webbrowser import open_new
+    from os.path import abspath, isfile
+    from .vi import print_error
+    fname = abspath(join(dirname(dirname(
+        __file__)), "doc", "html", "index.html"))
+    if not (isfile(fname) and open_new(fname)):
+        print_error(_("Help window"), _("Unable to open help page."))
+
+
 def _introduce_menu():
     from .sett_dialogs import edit_components
     from .idata import introduce_input
@@ -154,6 +164,7 @@ def _introduce_menu():
     _opts = _("&Options")
     _file = _("&File")
     _prj = _("Project")
+    _hlp = _("&Help")
     mappend((), _file, {}, None)
     mappend((_file,), _prj, {}, None)
     APPLICATION.prj_path = prj_p = (_file, _prj)
@@ -164,6 +175,8 @@ def _introduce_menu():
             edit_components, None, None)
     mappend((_file,), _("&Open"), Opener.run_dialog, None, None,
             icon_file("open"))
+    APPLICATION.menu.insert_item((), 99, _hlp, {}, None)
+    mappend((_hlp,), _("Contents"), _help, None)
     APPLICATION.register_opener(".xrp", APPLICATION.open_project,
                                 _("XRCEA projects"))
     introduce_input()
