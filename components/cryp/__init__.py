@@ -18,6 +18,7 @@
 
 import numpy as np
 from core.application import APPLICATION as APP
+from core.idata import XrayData
 from .reflex import calc_bg, refl_sects, ReflexDedect
 _DEFAULTS = {"bg_sigmul": 2.0, "bg_polrang": 2, "refl_sigmin": 1e-3,
              "refl_consig": False, "refl_mbells": 10, "refl_bt": 0,
@@ -30,14 +31,14 @@ def introduce():
     """Entry point. Declares menu items."""
     p = (_("Peak"),)
     pdr = PredefRefl(data)
-    mitems = [(p, _("Find background..."),
-               Mcall(data, 'calc_bg'), None),
-              (p, _("Calc. refl. shapes..."),
-               Mcall(data, 'calc_reflexes'), None),
-              (p, _("Predefined reflexes..."),
-               pdr.call_grid, None)]
+    mitems = [(p + (_("Find background..."),),
+               Mcall(data, 'calc_bg')),
+              (p + (_("Calc. refl. shapes..."),),
+               Mcall(data, 'calc_reflexes')),
+              (p + (_("Predefined reflexes..."),),
+               pdr.call_grid)]
     for i in mitems:
-        APP.menu.append_item(*i)
+        XrayData.actions[i[0]] = i[1]
     APP.settings.declare_section("Peaks")
     iget = APP.settings.get
     for n, v in _DEFAULTS.iteritems():
@@ -52,12 +53,18 @@ def terminate(data):
 
 class Mcall:
     def __init__(self, data, action):
-        self.data = data
-        self.__call__ = getattr(self, action)
+        self.__action = getattr(self, action)
+        
+    def __call__(self, xrd):
+        self.data = xrd
+        return self.__action()
 
-    def calc_bg(self, evt):
+    def calc_bg(self):
         dat = self.data
-        dlg = DlgPowBgCalc(dat['window'], dat)
+        dlg = dat.UI.input_dialog(_("Calculate background"), [
+            (_("Sigma multiplier:"), self.idat["bg_sigmul"]),
+            (_("Background poynom's range:"), self.idat["bg_polrang"]),
+        ])
         if dlg.ShowModal() == wx.ID_OK:
             from formtext import poly1d2wiki
             dat["data"]["Background"], plts = dlg.calc_bg()
@@ -76,7 +83,7 @@ class Mcall:
             dat['menu'].action_catch("bg found")
         dlg.Destroy()
 
-    def calc_reflexes(self, evt):
+    def calc_reflexes(self):
         dat = self.data
         rv = calculate_reflexes(dat)
         if rv is None:
