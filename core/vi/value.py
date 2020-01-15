@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Share values with ui"""
 # XRCEA (C) 2019 Serhii Lysovenko
 #

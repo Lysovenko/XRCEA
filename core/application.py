@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """the Application class"""
 # XRCEA (C) 2019 Serhii Lysovenko
 #

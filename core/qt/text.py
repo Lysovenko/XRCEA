@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Text editors dealing with value"""
 # XRCEA (C) 2019 Serhii Lysovenko
 #

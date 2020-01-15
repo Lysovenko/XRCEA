@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 "db interface"
 # wxRays (C) 2013-2016 Serhii Lysovenko
 # XRCEA (C) 2019 Serhii Lysovenko

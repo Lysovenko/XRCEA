@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """"This is the components manager"""
 # XRCEA (C) 2019 Serhii Lysovenko
 #

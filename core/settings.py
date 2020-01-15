@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """This is some interesting educational program"""
 # XRCEA (C) 2019 Serhii Lysovenko
 #

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # XRCEA (C) 2019 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify

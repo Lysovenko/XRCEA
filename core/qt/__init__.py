@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """start from here"""
 # XRCEA (C) 2019 Serhii Lysovenko
 #

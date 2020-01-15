@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Input data"""
 # XRCEA (C) 2019 Serhii Lysovenko
 #

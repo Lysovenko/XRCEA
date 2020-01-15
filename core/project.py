@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Operate with project file"""
 # XRCEA (C) 2019 Serhii Lysovenko
 #
