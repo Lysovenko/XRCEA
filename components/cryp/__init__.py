@@ -54,7 +54,8 @@ def terminate(data):
 class Mcall:
     def __init__(self, data, action):
         self.__action = getattr(self, action)
-        
+        self.idat = data
+
     def __call__(self, xrd):
         self.data = xrd
         return self.__action()
