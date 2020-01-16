@@ -16,6 +16,8 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
+from threading import Thread
+
 
 class DialogsMixin:
     """Dialogs, called as children of widget"""
@@ -54,3 +56,13 @@ class DialogsMixin:
             return self.gui_functions["ask_open_filename"](filename, masks)
         except KeyError:
             return
+
+    def bg_process(self, function, *args, **kwargs):
+        status = {}
+        t = Thread(target=function, args=(status,) + args, kwargs=kwargs)
+        t.daemon = True
+        t.start()
+        try:
+            self.gui_functions["bg_process"](status)
+        except KeyError:
+            status["stop"] = True

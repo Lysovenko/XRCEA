@@ -24,7 +24,7 @@ from PyQt5.QtWidgets import (
 
 class Progress(QDialog):
     def __init__(self, title, status, parent=None):
-        QDialog.__init__(self, parent)
+        super().__init__(parent)
         self.setWindowTitle(title)
         buttonBox = QDialogButtonBox(QDialogButtonBox.Cancel)
         buttonBox.rejected.connect(self.reject)
