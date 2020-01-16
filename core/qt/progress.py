@@ -16,6 +16,7 @@
 """Draw progress dialog"""
 
 
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import (
     QVBoxLayout, QDialog, QDialogButtonBox, QLabel, QComboBox, QFileDialog,
     QFormLayout, QLineEdit, QCheckBox, QMessageBox, QProgressBar)
@@ -31,13 +32,36 @@ class Progress(QDialog):
         self.progressBar = QProgressBar()
         self.progressBar.setRange(0, 1000)
         self.progressBar.setValue(0)
-        timer = QTimer(self)
-        timer.timeout.connect(self.advanceProgressBar)
-        timer.start(1000)
+        self.description = QLabel()
+        layout = QVBoxLayout()
+        layout.addWidget(self.description)
+        layout.addWidget(self.progressBar)
+        layout.addWidget(buttonBox)
+        self.setLayout(layout)
+        self.prev_st = None
+        self.prev_pr = None
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self._check_status)
+        self.timer.start(250)
 
-    def _scheck_status(self):
-        self.progressBar.setValue(self._status.get("part", 0.))
+    def _check_status(self):
+        cur_pr = self._status.get("part", 0.) * 1000
+        if self.prev_pr != cur_pr:
+            self.progressBar.setValue(cur_pr)
+            self.prev_pr = cur_pr
+        cur_st = self._status.get("description", "")
+        if self.prev_st != cur_st:
+            self.description.setText(cur_st)
+            self.prev_st = cur_st
+        if self._status.get("complete"):
+            self.reject()
 
     def reject(self):
-        # TODO: stop timer and process
+        try:
+            self.timer.stop()
+        except RuntimeError:
+            pass
+        else:
+            self.timer.deleteLater()
+        self._status["stop"] = True
         return super().reject()
