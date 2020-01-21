@@ -25,16 +25,17 @@ _DEFAULTS = {"bg_sigmul": 2.0, "bg_polrang": 2, "refl_sigmin": 1e-3,
              "refl_ptm": 4, "refloc_sz": "(640,480)", "refl_bf": 2.}
 _BELL_TYPES = ["Gaus", "Lorentz", "P-Voit"]
 _BELL_NAMES = [_("Gaus"), _("Lorentz"), _("Pseudo Voit")]
+_data = {}
 
 
 def introduce():
     """Entry point. Declares menu items."""
     p = (_("Peak"),)
-    pdr = PredefRefl(data)
+    pdr = PredefRefl(_data)
     mitems = [(p + (_("Find background..."),),
-               Mcall(data, 'calc_bg')),
+               Mcall(_data, 'calc_bg')),
               (p + (_("Calc. refl. shapes..."),),
-               Mcall(data, 'calc_reflexes')),
+               Mcall(_data, 'calc_reflexes')),
               (p + (_("Predefined reflexes..."),),
                pdr.call_grid)]
     for i in mitems:
@@ -42,13 +43,13 @@ def introduce():
     APP.settings.declare_section("Peaks")
     iget = APP.settings.get
     for n, v in _DEFAULTS.iteritems():
-        data[n] = iget(n, v, "Peaks")
+        _data[n] = iget(n, v, "Peaks")
 
 
-def terminate(data):
+def terminate():
     iset = APP.settings.set
     for i in _DEFAULTS:
-        iset(i, data[i], "Peaks")
+        iset(i, _data[i], "Peaks")
 
 
 class Mcall:
@@ -62,11 +63,13 @@ class Mcall:
 
     def calc_bg(self):
         dat = self.data
-        dlg = dat.UI.input_dialog(_("Calculate background"), [
+        plot = dat.UI
+        dlgr = plot.input_dialog(_("Calculate background"), [
             (_("Sigma multiplier:"), self.idat["bg_sigmul"]),
             (_("Background poynom's range:"), self.idat["bg_polrang"]),
         ])
-        if dlg.ShowModal() == wx.ID_OK:
+        if dlgr is not None:
+            sigmul, polrang = dlgr
             from formtext import poly1d2wiki
             dat["data"]["Background"], plts = dlg.calc_bg()
             if dat["data"]["Exp. data"].x_axis == "q":
@@ -82,7 +85,6 @@ class Mcall:
             pdat.set_info(poly1d2wiki(dat["data"]["Background"][4]))
             dat['plot'].plot_dataset(pltn)
             dat['menu'].action_catch("bg found")
-        dlg.Destroy()
 
     def calc_reflexes(self):
         dat = self.data
