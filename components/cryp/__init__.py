@@ -69,9 +69,22 @@ class Mcall:
             (_("Background poynom's range:"), self.idat["bg_polrang"]),
         ])
         if dlgr is not None:
-            sigmul, polrang = dlgr
-            from formtext import poly1d2wiki
-            dat["data"]["Background"], plts = dlg.calc_bg()
+            sigmul, deg = dlgr
+            if self.data.x_axis != "q":
+                x = np.sin(self.data.get_theta())
+                y = self.data.corr_intens()
+            else:
+                x = self.data.get_qrange()
+                y = self.data.get_y()
+            self.idat["bg_polrang"] = deg
+            self.idat["bg_sigmul"] = sigmul
+            self.bckgnd = (x, y) + calc_bg(x, y, deg, sigmul)
+            plts.append((x, y, 1))
+            plts.append((x, self.bckgnd[2], 1))
+            plts.append((x, y - self.bckgnd[2], 1))
+        # return self.bckgnd, plts
+            # from formtext import poly1d2wiki
+            # dat["data"]["Background"], plts = dlg.calc_bg()
             if dat["data"]["Exp. data"].x_axis == "q":
                 dat["the x units"] = x_units = "A^{-1}"
                 x_title = r"$q,\,\AA^{-1}$"
@@ -82,7 +95,7 @@ class Mcall:
             pdat = dat['plot'].set_data(
                 pltn, plts, x_title, _("I, rel. units"), x_units)
             pdat.tech_info['wavelength'] = dat["data"]["Exp. data"].wavel
-            pdat.set_info(poly1d2wiki(dat["data"]["Background"][4]))
+            # pdat.set_info(poly1d2wiki(dat["data"]["Background"][4]))
             dat['plot'].plot_dataset(pltn)
             dat['menu'].action_catch("bg found")
 
@@ -99,33 +112,6 @@ class Mcall:
         pdat.set_info(reflexes_markup(dat["data"]["Reflexes"]))
         pdat.tech_info['wavelength'] = dat["data"]["Exp. data"].lambda1
         dat['plot'].plot_dataset(pltn)
-
-
-class DlgPowBgCalc(wx.Dialog):
-    "Missing docstring"
-    def __init__(self, parent=None, data=None):
-        self.data = data["data"]["Exp. data"]
-        self.idat = data
-        # GUI was here
-
-    def calc_bg(self):
-        plts = []
-        if self.data:
-            if self.data.x_axis != "q":
-                x = np.sin(self.data.get_theta())
-                y = self.data.corr_intens()
-            else:
-                x = self.data.get_qrange()
-                y = self.data.get_y()
-            sigmul = atof(self.sigmul_ea.GetValue())
-            deg = self.bgpol_spin.GetValue()
-            self.idat["bg_polrang"] = deg
-            self.idat["bg_sigmul"] = sigmul
-            self.bckgnd = (x, y) + calc_bg(x, y, deg, sigmul)
-            plts.append((x, y, 1))
-            plts.append((x, self.bckgnd[2], 1))
-            plts.append((x, y - self.bckgnd[2], 1))
-        return self.bckgnd, plts
 
 
 class PredefRefl:
