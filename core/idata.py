@@ -1,4 +1,3 @@
-"""Input data"""
 # XRCEA (C) 2019 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
@@ -14,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+"""Input data"""
 
 import numpy as np
 try:
@@ -134,6 +134,58 @@ class XrayData:
 
     def __bool__(self):
         return self.x_data is not None and self.y_data is not None
+
+    def get_qrange(self):
+        if not self:
+            return None
+        if self.x_units == "q":
+            return self.x_data
+        if self.x_units == "2theta":
+            acoef = np.pi / 360.
+        if self.x_units == "theta":
+            acoef = np.pi / 180.
+        K = 4. * np.pi / self.wavel
+        return K * np.sin(self.x_data * acoef)
+
+    def get_theta(self):
+        if self.x_units == "q":
+            return None
+        if self.x_units == "2theta":
+            acoef = np.pi / 360.
+        elif self.x_units == "theta":
+            acoef = np.pi / 180.
+        return np.array(self.x_data) * acoef
+
+    def get_2theta(self):
+        if self.x_units == "q":
+            return None
+        if self.x_units == "2theta":
+            acoef = np.pi / 180.
+        elif self.x_units == "theta":
+            acoef = np.pi / 90.
+        return np.array(self.x_data) * acoef
+
+    def get_y(self):
+        return self.y_data
+
+    def corr_intens(self):
+        """correct intensity"""
+        Iex = self.y_data
+        ang = self.get_2theta()
+        if ang is None:
+            return Iex
+        if self.alpha is None:
+            return Iex / (np.cos(ang) ** 2 + 1.) * 2.
+        c2a = np.cos(2. * self.alpha) ** 2
+        return Iex / (c2a * np.cos(ang) ** 2 + 1.) * (1. + c2a)
+
+    def rev_intens(self, Icor):
+        """reverse correct intensity"""
+        ang = self.get_2theta()
+        if self.alpha is None:
+            return Icor / 2. * (np.cos(ang) ** 2 + 1.)
+        c2a = np.cos(2. * self.alpha) ** 2
+        return Icor * (c2a * np.cos(ang) ** 2 + 1.) / (1. + c2a)
 
     def make_plot(self):
         x_label = {"theta": "$\\theta$", "2theta": "$2\\theta$",

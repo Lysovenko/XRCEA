@@ -42,7 +42,7 @@ def introduce():
         XrayData.actions[i[0]] = i[1]
     APP.settings.declare_section("Peaks")
     iget = APP.settings.get
-    for n, v in _DEFAULTS.iteritems():
+    for n, v in _DEFAULTS.items():
         _data[n] = iget(n, v, "Peaks")
 
 
@@ -70,7 +70,7 @@ class Mcall:
         ])
         if dlgr is not None:
             sigmul, deg = dlgr
-            if self.data.x_axis != "q":
+            if self.data.x_units != "q":
                 x = np.sin(self.data.get_theta())
                 y = self.data.corr_intens()
             else:
@@ -79,9 +79,12 @@ class Mcall:
             self.idat["bg_polrang"] = deg
             self.idat["bg_sigmul"] = sigmul
             self.bckgnd = (x, y) + calc_bg(x, y, deg, sigmul)
+            name, plt = plot.get_current()
             plts.append((x, y, 1))
             plts.append((x, self.bckgnd[2], 1))
             plts.append((x, y - self.bckgnd[2], 1))
+            plot.add_plot(_name, plt)
+            plot.draw(_name)
         # return self.bckgnd, plts
             # from formtext import poly1d2wiki
             # dat["data"]["Background"], plts = dlg.calc_bg()
