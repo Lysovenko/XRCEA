@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-"""Display plots"""
 # XRCEA (C) 2019 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
@@ -33,6 +31,7 @@
 #   publisher = {IEEE COMPUTER SOC},
 #   year      = 2007
 # }
+"""Display plots"""
 
 from PyQt5.QtCore import (QFile, QFileInfo, QPoint, QSettings, QSize, Qt,
                           QTextStream)
@@ -42,8 +41,8 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QMainWindow,
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
+from .idialog import DialogsMixin
 from .menu import SDIMenu
-# from .core import _DATA, Face, clearLayout
 
 
 class Canvas(FigureCanvas):
@@ -100,12 +99,12 @@ class Canvas(FigureCanvas):
         super().draw()
 
 
-class PlotWindow(QMainWindow):
+class PlotWindow(QMainWindow, DialogsMixin):
     """Plot and toolbar"""
     def __init__(self, vi_obj):
         super(PlotWindow, self).__init__()
         self.setAttribute(Qt.WA_DeleteOnClose)
-        self.setWindowTitle(vi_obj.title)
+        self.setWindowTitle(vi_obj.name)
         self.canvas = Canvas(self)
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.addToolBar(self.toolbar)
@@ -133,5 +132,8 @@ def show_plot_window(vi_obj):
         plt.set_icon(vi_obj.icon)
     vi_obj.gui_functions["set_icon"] = plt.set_icon
     vi_obj.gui_functions["draw"] = plt.draw
+    plt.register_dialogs()
+    for k, f in vi_obj.shortcuts.items():
+        plt.add_shortcut(k, f)
     plt.show()
     vi_obj.currently_alive = True

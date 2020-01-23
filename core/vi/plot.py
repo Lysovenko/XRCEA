@@ -24,7 +24,7 @@ from .mixins import DialogsMixin
 class Plot(DialogsMixin):
     def __init__(self, name,
                  class_name=None, identifier=None):
-        self.title = name
+        self.__name = name
         self.identifier = identifier
         self.close_lock = None
         self.currently_alive = False
@@ -35,6 +35,16 @@ class Plot(DialogsMixin):
         self.menu = DMenu()
         self.plots = {}
         self._currently_showing = None
+
+    @property
+    def name(self):
+        return self.__name
+
+    @name.setter
+    def name(self, name_):
+        if "set_name" in self.gui_functions:
+            self.gui_functions["set_name"](name_)
+        self.__name = name_
 
     def show(self):
         from ..application import get_actual_interface
