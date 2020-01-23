@@ -79,28 +79,19 @@ class Mcall:
             self.idat["bg_polrang"] = deg
             self.idat["bg_sigmul"] = sigmul
             self.bckgnd = (x, y) + calc_bg(x, y, deg, sigmul)
-            name, plt = plot.get_current()
-            plts.append((x, y, 1))
-            plts.append((x, self.bckgnd[2], 1))
-            plts.append((x, y - self.bckgnd[2], 1))
+            x_label = {"theta": "$\\theta$", "2theta": "$2\\theta$",
+                   "q": "q", None: _("Unknown")}[dat.x_units]
+            plt = {"plots": [
+                {"x1": dat.x_data, "y1": dat.y_data},
+                {"x1": dat.x_data, "y1": y},
+                {"x1": dat.x_data, "y1": self.bckgnd[2]},
+                {"x1": dat.x_data, "y1": y - self.bckgnd[2]}
+            ],
+                   "x1label": x_label, "y1label": _("pps"),
+                   "x1units": dat.x_units}
+            _name = _("Background")
             plot.add_plot(_name, plt)
             plot.draw(_name)
-        # return self.bckgnd, plts
-            # from formtext import poly1d2wiki
-            # dat["data"]["Background"], plts = dlg.calc_bg()
-            if dat["data"]["Exp. data"].x_axis == "q":
-                dat["the x units"] = x_units = "A^{-1}"
-                x_title = r"$q,\,\AA^{-1}$"
-            else:
-                dat["the x units"] = x_units = 'sin(\\theta)'
-                x_title = r'$\sin(\theta)$'
-            pltn = _("Exp. background")
-            pdat = dat['plot'].set_data(
-                pltn, plts, x_title, _("I, rel. units"), x_units)
-            pdat.tech_info['wavelength'] = dat["data"]["Exp. data"].wavel
-            # pdat.set_info(poly1d2wiki(dat["data"]["Background"][4]))
-            dat['plot'].plot_dataset(pltn)
-            dat['menu'].action_catch("bg found")
 
     def calc_reflexes(self):
         dat = self.data
