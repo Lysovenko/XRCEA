@@ -45,6 +45,7 @@ class XrayData:
     def __init__(self, fname=None):
         self.__sample = None
         self.__dict = {}
+        self.extra_data = {}
         self.UI = None
         for i in ("contains", "density", "x_data", "y_data",
                   # diffraction angle of monochromer
@@ -206,6 +207,10 @@ class XrayData:
             v = getattr(self, i, None)
             if v is not None:
                 SubElement(xrd, i).text = dumps(list(map(float, v)))
+        if self.extra_data:
+            e = SubElement(xrd, "extras")
+            for n, v in self.extra_data.items():
+                SubElement(e, "list", name=n).text = dumps(list(map(float, v)))
         return xrd
 
     def from_xml(self, xrd):
@@ -217,6 +222,14 @@ class XrayData:
                 setattr(self, e.tag, loads(e.text))
             if e.tag in {"x_data", "y_data"}:
                 setattr(self, e.tag, np.array(loads(e.text)))
+            if e.tag == "extras":
+                for l in e:
+                    if l.tag != "list":
+                        continue
+                    name = l.get("name")
+                    if name is None:
+                        continue
+                    self.extra_data[name] = np.array(loads(l.text))
         return self
 
     def display(self):

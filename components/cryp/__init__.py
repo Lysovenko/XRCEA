@@ -30,7 +30,7 @@ _data = {}
 
 def introduce():
     """Entry point. Declares menu items."""
-    p = (_("Peak"),)
+    p = (_("Diffractogram"),)
     pdr = PredefRefl(_data)
     mitems = [(p + (_("Find background..."),),
                Mcall(_data, 'calc_bg')),
@@ -79,17 +79,24 @@ class Mcall:
             self.idat["bg_polrang"] = deg
             self.idat["bg_sigmul"] = sigmul
             self.bckgnd = (x, y) + calc_bg(x, y, deg, sigmul)
+            dat.extra_data["background"] = bckgnd = self.bckgnd[2]
+            dat.extra_data["stripped"] = strip = y - bckgnd
             x_label = {"theta": "$\\theta$", "2theta": "$2\\theta$",
                    "q": "q", None: _("Unknown")}[dat.x_units]
             plt = {"plots": [
                 {"x1": dat.x_data, "y1": dat.y_data},
                 {"x1": dat.x_data, "y1": y},
-                {"x1": dat.x_data, "y1": self.bckgnd[2]},
-                {"x1": dat.x_data, "y1": y - self.bckgnd[2]}
+                {"x1": dat.x_data, "y1": bckgnd},
+                {"x1": dat.x_data, "y1": strip}
             ],
                    "x1label": x_label, "y1label": _("pps"),
                    "x1units": dat.x_units}
             _name = _("Background")
+            plot.add_plot(_name, plt)
+            plt = {"plots": [{"x1": dat.x_data, "y1": strip}],
+                   "x1label": x_label, "y1label": _("pps"),
+                   "x1units": dat.x_units}
+            _name = _("Stripped")
             plot.add_plot(_name, plt)
             plot.draw(_name)
 
