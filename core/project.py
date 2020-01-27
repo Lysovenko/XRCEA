@@ -1,4 +1,3 @@
-"""Operate with project file"""
 # XRCEA (C) 2019 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
@@ -14,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+"""Operate with project file"""
 
 from zipfile import ZipFile, ZIP_DEFLATED
 from time import time
@@ -21,7 +21,7 @@ try:
     from lxml.etree import fromstring, tostring, Element, SubElement
 except ImportError:
     from xml.etree.ElementTree import fromstring, tostring, Element, SubElement
-from .vi import Lister
+from .vi import Lister, input_dialog, print_error
 from .vi.value import Value
 
 
@@ -38,6 +38,7 @@ class Project:
 
     def __init__(self, filename=None):
         self.path = filename
+        self.UI = None
         self._components = []
         self._about = {"name": _("New"), "id": str(int(time()))}
         if filename:
@@ -115,12 +116,23 @@ class vi_Project(Lister):
             component.display()
 
 
-_SHOWING_PROJECTS = {}
+_CURRENT_PROJECT = None
 
 
-def show_project(prj):
-    prj_id = id(prj)
-    if prj_id in _SHOWING_PROJECTS:
-        _SHOWING_PROJECTS[prj_id].show()
-        return
-    _SHOWING_PROJECTS[prj_id] = vi_Project(prj)
+def show_project():
+    global _CURRENT_PROJECT
+    if _CURRENT_PROJECT is None:
+        pars = input_dialog(_("New project"),
+                            _("Project parameters"),
+                            [(_("Name"), "New project")])
+        if pars:
+            name, = pars
+            _CURRENT_PROJECT = Project()
+            _CURRENT_PROJECT.name(name)
+        else:
+            return
+    if _CURRENT_PROJECT.UI is None:
+        _CURRENT_PROJECT.UI = vi_Project(_CURRENT_PROJECT)
+    else:
+        _CURRENT_PROJECT.UI.show()
+
