@@ -46,6 +46,7 @@ class XrayData:
         self.__sample = None
         self.__dict = {}
         self.extra_data = {}
+        self._saved_plots = []
         self.UI = None
         for i in ("contains", "density", "x_data", "y_data",
                   # diffraction angle of monochromer
@@ -74,7 +75,7 @@ class XrayData:
         if 'contains' in dct:
             try:
                 self.contains = loads(dct['contains'])
-            except:
+            except Exception:
                 self.contains = None
         if 'sample' in dct:
             self.__sample = dct['sample'].lower()
@@ -136,7 +137,8 @@ class XrayData:
     def __bool__(self):
         return self.x_data is not None and self.y_data is not None
 
-    def get_qrange(self):
+    @property
+    def qrange(self):
         if not self:
             return None
         if self.x_units == "q":
@@ -148,7 +150,8 @@ class XrayData:
         K = 4. * np.pi / self.wavel
         return K * np.sin(self.x_data * acoef)
 
-    def get_theta(self):
+    @property
+    def theta(self):
         if self.x_units == "q":
             return None
         if self.x_units == "2theta":
@@ -157,7 +160,8 @@ class XrayData:
             acoef = np.pi / 180.
         return np.array(self.x_data) * acoef
 
-    def get_2theta(self):
+    @property
+    def two_theta(self):
         if self.x_units == "q":
             return None
         if self.x_units == "2theta":
@@ -169,6 +173,7 @@ class XrayData:
     def get_y(self):
         return self.y_data
 
+    @property
     def corr_intens(self):
         """correct intensity"""
         Iex = self.y_data
@@ -187,6 +192,35 @@ class XrayData:
             return Icor / 2. * (np.cos(ang) ** 2 + 1.)
         c2a = np.cos(2. * self.alpha) ** 2
         return Icor * (c2a * np.cos(ang) ** 2 + 1.) / (1. + c2a)
+
+    def restore_plots(self):
+        plt = self.UI
+        for n, p in self._saved_plots:
+            plt.add_plot(n, self.abstraction2plot(p))
+
+    def abstraction2plot(self, abstr):
+        plt = dict(abstr)
+        plt["plots"] = pplots = []
+        for plot in abstr["plots"]:
+            pplot = dict(plot)
+            for axis in ("x1", "y1", "y2"):
+                try:
+                    dname = plot[axis]
+                except KeyError:
+                    continue
+                try:
+                    axdata = getattr(self, dname)
+                except AttributeError:
+                    try:
+                        axdata = self.extra_data[dname]
+                    except KeyError:
+                        raise(RuntimeError(f"Incorrect dataname {dname}"))
+                pplot[axis] = axdata
+            pplots.append(pplot)
+        return plt
+
+    def remember_plot(self, name, plot):
+        self.UI.add_plot(name, self.abstraction2plot(plot))
 
     def make_plot(self):
         x_label = {"theta": "$\\theta$", "2theta": "$2\\theta$",
@@ -211,6 +245,8 @@ class XrayData:
             e = SubElement(xrd, "extras")
             for n, v in self.extra_data.items():
                 SubElement(e, "list", name=n).text = dumps(list(map(float, v)))
+        if self._saved_plots:
+            SubElement(xrd, "SavedPlots").text = dumps(self._saved_plots)
         return xrd
 
     def from_xml(self, xrd):
@@ -230,6 +266,8 @@ class XrayData:
                     if name is None:
                         continue
                     self.extra_data[name] = np.array(loads(l.text))
+            if e.tag == "SavedPlots":
+                self._saved_plots = loads(e.text)
         return self
 
     def display(self):
@@ -251,6 +289,7 @@ class XrayData:
                     plt.menu.append_item(mi[:-1], mi[-1],
                                          lambda x=self, f=args: f(x))
             plt.add_plot("exp_data", self.make_plot())
+        self.restore_plots()
         plt.show()
         plt.draw("exp_data")
 

@@ -82,22 +82,20 @@ class Mcall:
             dat.extra_data["background"] = bckgnd = self.bckgnd[2]
             dat.extra_data["stripped"] = strip = y - bckgnd
             x_label = {"theta": "$\\theta$", "2theta": "$2\\theta$",
-                   "q": "q", None: _("Unknown")}[dat.x_units]
+                       "q": "q", None: _("Unknown")}[dat.x_units]
             plt = {"plots": [
-                {"x1": dat.x_data, "y1": dat.y_data},
-                {"x1": dat.x_data, "y1": y},
-                {"x1": dat.x_data, "y1": bckgnd},
-                {"x1": dat.x_data, "y1": strip}
-            ],
-                   "x1label": x_label, "y1label": _("pps"),
-                   "x1units": dat.x_units}
+                {"x1": "x_data", "y1": "corr_intens"},
+                {"x1": "x_data", "y1": "background"},
+                {"x1": "x_data", "y1": "stripped"}],
+                "x1label": x_label, "y1label": _("pps"),
+                "x1units": dat.x_units}
             _name = _("Background")
-            plot.add_plot(_name, plt)
-            plt = {"plots": [{"x1": dat.x_data, "y1": strip}],
+            dat.remember_plot(_name, plt)
+            plt = {"plots": [{"x1": "x_data", "y1": "stripped"}],
                    "x1label": x_label, "y1label": _("pps"),
                    "x1units": dat.x_units}
             _name = _("Stripped")
-            plot.add_plot(_name, plt)
+            dat.remember_plot(_name, plt)
             plot.draw(_name)
 
     def calc_reflexes(self):
