@@ -177,7 +177,7 @@ class XrayData:
     def corr_intens(self):
         """correct intensity"""
         Iex = self.y_data
-        ang = self.get_2theta()
+        ang = self.two_theta
         if ang is None:
             return Iex
         if self.alpha is None:
@@ -187,7 +187,7 @@ class XrayData:
 
     def rev_intens(self, Icor):
         """reverse correct intensity"""
-        ang = self.get_2theta()
+        ang = self.two_theta
         if self.alpha is None:
             return Icor / 2. * (np.cos(ang) ** 2 + 1.)
         c2a = np.cos(2. * self.alpha) ** 2

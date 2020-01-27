@@ -71,16 +71,15 @@ class Mcall:
         if dlgr is not None:
             sigmul, deg = dlgr
             if self.data.x_units != "q":
-                x = np.sin(self.data.get_theta())
-                y = self.data.corr_intens()
+                x = np.sin(self.data.theta)
+                y = self.data.corr_intens
             else:
-                x = self.data.get_qrange()
-                y = self.data.get_y()
+                x = self.data.qrange
+                y = self.data.y_data
             self.idat["bg_polrang"] = deg
             self.idat["bg_sigmul"] = sigmul
-            self.bckgnd = (x, y) + calc_bg(x, y, deg, sigmul)
-            dat.extra_data["background"] = bckgnd = self.bckgnd[2]
-            dat.extra_data["stripped"] = strip = y - bckgnd
+            dat.extra_data["background"] = bgnd = calc_bg(x, y, deg, sigmul)[0]
+            dat.extra_data["stripped"] = y - bgnd
             x_label = {"theta": "$\\theta$", "2theta": "$2\\theta$",
                        "q": "q", None: _("Unknown")}[dat.x_units]
             plt = {"plots": [
