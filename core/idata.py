@@ -46,7 +46,7 @@ class XrayData:
         self.__sample = None
         self.__dict = {}
         self.extra_data = {}
-        self._saved_plots = []
+        self._saved_plots = {}
         self.UI = None
         for i in ("contains", "density", "x_data", "y_data",
                   # diffraction angle of monochromer
@@ -200,7 +200,7 @@ class XrayData:
 
     def restore_plots(self):
         plt = self.UI
-        for n, p in self._saved_plots:
+        for n, p in sorted(self._saved_plots.items()):
             plt.add_plot(n, self.abstraction2plot(p))
 
     def abstraction2plot(self, abstr):
@@ -225,6 +225,7 @@ class XrayData:
         return plt
 
     def remember_plot(self, name, plot):
+        self._saved_plots[name] = plot
         self.UI.add_plot(name, self.abstraction2plot(plot))
 
     def make_plot(self):
@@ -241,7 +242,7 @@ class XrayData:
                   "I2", "I3", "contains", "name", "x_units"):
             v = getattr(self, i, None)
             if v is not None:
-                SubElement(xrd, i).text = dumps(v, ensure_ascii=False)
+                SubElement(xrd, i).text = dumps(v)
         for i in ("x_data", "y_data"):
             v = getattr(self, i, None)
             if v is not None:
@@ -249,7 +250,7 @@ class XrayData:
         if self.extra_data:
             e = SubElement(xrd, "extras")
             for n, v in self.extra_data.items():
-                SubElement(e, "list", name=n).text = dumps(list(map(float, v)))
+                SubElement(e, "array", name=n).text = dumps(list(map(float, v)))
         if self._saved_plots:
             SubElement(xrd, "SavedPlots").text = dumps(self._saved_plots)
         return xrd
@@ -265,7 +266,7 @@ class XrayData:
                 setattr(self, e.tag, np.array(loads(e.text)))
             if e.tag == "extras":
                 for l in e:
-                    if l.tag != "list":
+                    if l.tag != "array":
                         continue
                     name = l.get("name")
                     if name is None:

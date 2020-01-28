@@ -146,7 +146,7 @@ _CURRENT_FILE = ""
 
 def show_project():
     global _CURRENT_PROJECT
-    if _CURRENT_PROJECT is None and _CURRENT_FILE is not None:
+    if _CURRENT_PROJECT is None and _CURRENT_FILE != "":
         open_project(_CURRENT_FILE)
     if _CURRENT_PROJECT is None:
         pars = input_dialog(_("New project"),
