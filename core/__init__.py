@@ -21,7 +21,7 @@ import logging
 from os.path import dirname, join, isdir, pardir
 from argparse import ArgumentParser
 from .application import APPLICATION
-from .project import open_project
+from .project import open_later
 VERSION = '0.1'
 RELEASE = '0.1'
 
@@ -52,7 +52,7 @@ def parse_args():
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
     if args.prjfile:
-        open_project(args.prjfile)
+        open_later(args.prjfile)
 
 
 def initialize():

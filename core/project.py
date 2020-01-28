@@ -17,7 +17,7 @@
 
 from zipfile import ZipFile, ZIP_DEFLATED
 from time import time
-from os.path import splitext
+from os.path import splitext, isfile
 try:
     from lxml.etree import fromstring, tostring, Element, SubElement
 except ImportError:
@@ -146,6 +146,8 @@ _CURRENT_FILE = ""
 
 def show_project():
     global _CURRENT_PROJECT
+    if _CURRENT_PROJECT is None and _CURRENT_FILE is not None:
+        open_project(_CURRENT_FILE)
     if _CURRENT_PROJECT is None:
         pars = input_dialog(_("New project"),
                             _("Project parameters"),
@@ -195,6 +197,14 @@ def open_project(fname=None):
         return
     _CURRENT_PROJECT = Project(fname)
     _CURRENT_FILE = fname
+
+
+def open_later(fname):
+    global _CURRENT_FILE
+    if isfile(fname):
+        _CURRENT_FILE = fname
+    else:
+        print(f"{fname} does not exists")
 
 
 def add_object(component):
