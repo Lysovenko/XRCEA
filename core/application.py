@@ -37,68 +37,11 @@ class Application:
         self.runtime_data = dict()
         self.on_start = [show_project]
         self.register_treater = Project.add_treater
-        self._projects = {}
         self.register_opener = Opener.register_opener
 
     @property
     def visual(self):
         return _ACTUAL_INTERFACE
-
-    def _add_project(self, prj):
-        name = prj.name()
-        i = 0
-        while name in self.menu.get_container(self.prj_path):
-            i += 1
-            name = "{} ({})".format(prj.name(), i)
-        self._projects[name] = prj
-        self.menu.append_item(self.prj_path, name,
-                              lambda x=prj: show_project(x), None)
-
-    def forget_project(self, prj):
-        names = [k for k, v in self._projects.items() if v is prj]
-        for name in names:
-            self._projects.pop(name)
-            self.menu.remove_item(self.prj_path + (name,))
-
-    def open_project(self, fname):
-        pathes = dict(i.path for i in self._projects.values())
-        if fname in pathes:
-            show_project(pathes[fname])
-            return
-        try:
-            prj = Project(fname)
-        except FileNotFoundError:
-            print_error(_("File not found"),
-                        _("File %s is not found") % fname)
-        except Exception:
-            print_error(_("File damaged"),
-                        _("File %s is damaged") % fname)
-        self._add_project(prj)
-        show_project(prj)
-
-    def new_project(self):
-        pars = input_dialog(_("New project"),
-                            _("Project parameters"),
-                            [(_("Name"), "New project")])
-        if pars:
-            name, = pars
-            prj = Project()
-            prj.name(name)
-            self._add_project(prj)
-            show_project(prj)
-
-
-def draw_plot():
-    # TODO: this is for test. Do not leave so.
-    for desc in APPLICATION.compman.descriptions:
-        try:
-            getattr(desc["module"], "show_me")()
-            return
-        except (KeyError, AttributeError):
-            pass
-    from .vi import Plot
-    APPLICATION.runtime_data["MainWindow"] = p = Plot("XRCEA")
-    p.show()
 
 
 def start():
@@ -178,6 +121,4 @@ def _introduce_menu():
             icon_file("open"))
     APPLICATION.menu.insert_item((), 99, _hlp, {}, None)
     mappend((_hlp,), _("Contents"), _help, None)
-    APPLICATION.register_opener(".xrp", APPLICATION.open_project,
-                                _("XRCEA projects"))
     introduce_input()

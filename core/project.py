@@ -17,11 +17,12 @@
 
 from zipfile import ZipFile, ZIP_DEFLATED
 from time import time
+from os.path import splitext
 try:
     from lxml.etree import fromstring, tostring, Element, SubElement
 except ImportError:
     from xml.etree.ElementTree import fromstring, tostring, Element, SubElement
-from .vi import (Lister, input_dialog, print_error,
+from .vi import (Lister, input_dialog, print_error, ask_open_filename,
                  ask_save_filename, ask_question)
 from .vi.value import Value
 
@@ -41,7 +42,7 @@ class Project:
         self.path = filename
         self.UI = None
         self._components = []
-        self._about = {"name": _("New"), "id": str(int(time()))}
+        self._about = {"name": "New", "id": str(int(time()))}
         if filename:
             self.read(filename)
 
@@ -147,7 +148,9 @@ def show_project():
             _CURRENT_PROJECT = Project()
             _CURRENT_PROJECT.name(name)
         else:
-            return
+            open_project()
+            if _CURRENT_PROJECT is None:
+                return
     if _CURRENT_PROJECT.UI is None:
         _CURRENT_PROJECT.UI = vi_Project(_CURRENT_PROJECT)
     else:
@@ -162,6 +165,8 @@ def save_project_as():
         _("Save project"), _CURRENT_FILE,
         [("*.xrp", _("XRCEA project"))])
     if fname:
+        if splitext(fname)[1] != ".xrp":
+            fname += ".xrp"
         _CURRENT_PROJECT.save(fname)
         _CURRENT_FILE = fname
 
@@ -170,3 +175,17 @@ def save_project():
     if _CURRENT_FILE == "":
         return save_project_as()
     _CURRENT_PROJECT.save(_CURRENT_FILE)
+
+
+def open_project(fname=None):
+    global _CURRENT_PROJECT
+    global _CURRENT_FILE
+    if fname is None:
+        fname = ask_open_filename(
+            _("Open XRCEA project"), "",
+            [("*.xrp", _("XRCEA project"))])
+    if fname is None:
+        return
+    _CURRENT_PROJECT = Project(fname)
+    _CURRENT_FILE = fname
+    

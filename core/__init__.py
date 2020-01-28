@@ -21,6 +21,7 @@ import logging
 from os.path import dirname, join, isdir, pardir
 from argparse import ArgumentParser
 from .application import APPLICATION
+from .project import open_project
 VERSION = '0.1'
 RELEASE = '0.1'
 
@@ -38,17 +39,20 @@ def install_gt():
 
 
 def parse_args():
-    parser = ArgumentParser(description="Hvosting tickets solver")
+    parser = ArgumentParser(description="XRC extensible analiser")
     parser.add_argument("-v", "--verbose", dest="verbose", default=False,
                         action="store_true", help="be verbose")
     parser.add_argument('--debug', dest="debug", default=False,
                         action="store_true",
                         help="show debug messages")
+    parser.add_argument('prjfile', help='Project file', nargs="?")
     args = parser.parse_args()
     if args.verbose:
         logging.basicConfig(level=logging.INFO)
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
+    if args.prjfile:
+        open_project(args.prjfile)
 
 
 def initialize():
