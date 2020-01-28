@@ -17,7 +17,6 @@
 
 from zipfile import ZipFile, ZIP_DEFLATED
 from time import time
-from os.path import isfile
 try:
     from lxml.etree import fromstring, tostring, Element, SubElement
 except ImportError:
@@ -160,15 +159,11 @@ def save_project_as():
     if _CURRENT_PROJECT is None:
         return
     fname = ask_save_filename(
-        _("Save projtct"), _CURRENT_FILE,
+        _("Save project"), _CURRENT_FILE,
         [("*.xrp", _("XRCEA project"))])
-    if isfile(fname):
-        if not ask_question(
-                _("Save project"),
-                _("File %s exists. Owervrite?") % fname):
-            return
-    _CURRENT_PROJECT.save(fname)
-    _CURRENT_FILE = fname
+    if fname:
+        _CURRENT_PROJECT.save(fname)
+        _CURRENT_FILE = fname
 
 
 def save_project():
