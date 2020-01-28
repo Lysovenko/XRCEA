@@ -17,11 +17,13 @@
 
 from zipfile import ZipFile, ZIP_DEFLATED
 from time import time
+from os.path import isfile
 try:
     from lxml.etree import fromstring, tostring, Element, SubElement
 except ImportError:
     from xml.etree.ElementTree import fromstring, tostring, Element, SubElement
-from .vi import Lister, input_dialog, print_error
+from .vi import (Lister, input_dialog, print_error,
+                 ask_save_filename, ask_question)
 from .vi.value import Value
 
 
@@ -102,6 +104,7 @@ class vi_Project(Lister):
         components.update([(c.type, c.name, None, c)
                           for c in project.components()])
         styles = {}
+        self.__currently_alive = None
         super().__init__(project.name(),
                          [(_("About"), (_("Name"), "Value")),
                           (_("Components"), (_("Type"), _("Name")))],
@@ -110,6 +113,20 @@ class vi_Project(Lister):
         self.show()
         self.set_choicer(self.click_component, False, 1)
 
+    @property
+    def currently_alive(self):
+        return self.__currently_alive
+
+    @currently_alive.setter
+    def currently_alive(self, cv):
+        global _CURRENT_PROJECT
+        if not cv:
+            try:
+                _CURRENT_PROJECT.UI = None
+            except AttributeError:
+                pass
+        self.__currently_alive = cv
+
     def click_component(self, tup):
         component = tup[-1]
         if hasattr(component, "display"):
@@ -117,6 +134,7 @@ class vi_Project(Lister):
 
 
 _CURRENT_PROJECT = None
+_CURRENT_FILE = ""
 
 
 def show_project():
@@ -136,3 +154,24 @@ def show_project():
     else:
         _CURRENT_PROJECT.UI.show()
 
+
+def save_project_as():
+    global _CURRENT_FILE
+    if _CURRENT_PROJECT is None:
+        return
+    fname = ask_save_filename(
+        _("Save projtct"), _CURRENT_FILE,
+        [("*.xrp", _("XRCEA project"))])
+    if isfile(fname):
+        if not ask_question(
+                _("Save project"),
+                _("File %s exists. Owervrite?") % fname):
+            return
+    _CURRENT_PROJECT.save(fname)
+    _CURRENT_FILE = fname
+
+
+def save_project():
+    if _CURRENT_FILE == "":
+        return save_project_as()
+    _CURRENT_PROJECT.save(_CURRENT_FILE)

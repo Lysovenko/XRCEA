@@ -21,7 +21,7 @@ from .compman import CompMan
 from .settings import Settings
 from .vi.menu import DMenu
 from .vi import input_dialog, print_error
-from .project import Project, show_project
+from .project import Project, show_project, save_project_as, save_project
 
 _ACTUAL_INTERFACE = None
 
@@ -35,7 +35,7 @@ class Application:
         self.settings = Settings()
         self.compman = CompMan(self)
         self.runtime_data = dict()
-        self.on_start = [draw_plot]
+        self.on_start = [show_project]
         self.register_treater = Project.add_treater
         self._projects = {}
         self.register_opener = Opener.register_opener
@@ -70,7 +70,7 @@ class Application:
         except FileNotFoundError:
             print_error(_("File not found"),
                         _("File %s is not found") % fname)
-        except:
+        except Exception:
             print_error(_("File damaged"),
                         _("File %s is damaged") % fname)
         self._add_project(prj)
@@ -124,9 +124,9 @@ class Opener:
     @classmethod
     def run_dialog(self):
         fname = APPLICATION.visual.ask_open_filename(
-            _("Open file"), "", [(" ".join(self._descriptions.keys()),
-                                 _("All known files"))] +
-            sorted(self._descriptions.items()))
+            _("Open file"), "", [
+                (" ".join(self._descriptions.keys()),
+                 _("All known files"))] + sorted(self._descriptions.items()))
         if fname is not None:
             ext = splitext(normcase(fname))[1]
             if ext not in self._openers:
@@ -167,7 +167,9 @@ def _introduce_menu():
     mappend((), _file, {}, None)
     mappend((_file,), _prj, {}, None)
     APPLICATION.prj_path = prj_p = (_file, _prj)
-    mappend(prj_p, _("New"), APPLICATION.new_project, None)
+    mappend(prj_p, _("Show"), show_project, None)
+    mappend(prj_p, _("Save"), save_project, None)
+    mappend(prj_p, _("Save as..."), save_project_as, None)
     mappend(prj_p, "separ", None, None)
     mappend((), _opts, {}, None)
     mappend((_opts,), _("Components..."),

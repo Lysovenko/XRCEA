@@ -110,7 +110,7 @@ class Lister(QMainWindow, DialogsMixin):
     def get_form_vals(self, which):
         return tuple(get_widget_value(e) for e in self.form_edas[which])
 
-    def close_event(self, event=None):
+    def closeEvent(self, event=None):
         for t in self.timers:
             try:
                 t.stop()
@@ -119,8 +119,10 @@ class Lister(QMainWindow, DialogsMixin):
             else:
                 t.deleteLater()
         self.timers.clear()
-        _DATA["Settings"].setValue(
-            self.vi_obj.class_name + '_state', self.saveState())
+        self.vi_obj.currently_alive = False
+        if self.vi_obj.class_name is not None:
+            _DATA["Settings"].setValue(
+                self.vi_obj.class_name + '_state', self.saveState())
 
 
 def show_lister(vi_obj):

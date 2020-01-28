@@ -98,6 +98,14 @@ def register_dialog(dlg):
     return _actual().register_dialog(dlg)
 
 
+def ask_open_filename(title, filename, masks):
+    return _actual().ask_open_filename(title, filename, masks)
+
+
+def ask_save_filename(title, filename, masks):
+    return _actual().ask_save_filename(title, filename, masks)
+
+
 class Button:
     def __init__(self, name, func):
         self.name = name
