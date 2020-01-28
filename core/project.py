@@ -82,6 +82,8 @@ class Project:
     def add_component(self, component):
         if component not in self._components:
             self._components.append(component)
+            if self.UI:
+                self.UI.update_components()
 
     def components(self):
         return iter(self._components)
@@ -100,7 +102,7 @@ class vi_Project(Lister):
         self.project = project
         abouts = Value(list)
         abouts.update([i + (None,) for i in project.abouts()])
-        components = Value(list)
+        self.components = components = Value(list)
         components.update([(c.type, c.name, None, c)
                           for c in project.components()])
         styles = {}
@@ -131,6 +133,11 @@ class vi_Project(Lister):
         component = tup[-1]
         if hasattr(component, "display"):
             component.display()
+
+    def update_components(self):
+        self.components.update([(c.type, c.name, None, c)
+                                for c in self.project.components()])
+
 
 
 _CURRENT_PROJECT = None
@@ -188,4 +195,7 @@ def open_project(fname=None):
         return
     _CURRENT_PROJECT = Project(fname)
     _CURRENT_FILE = fname
-    
+
+
+def add_object(component):
+    _CURRENT_PROJECT.add_component(component)

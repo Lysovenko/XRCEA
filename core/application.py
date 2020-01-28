@@ -21,7 +21,8 @@ from .compman import CompMan
 from .settings import Settings
 from .vi.menu import DMenu
 from .vi import input_dialog, print_error
-from .project import Project, show_project, save_project_as, save_project
+from .project import (Project, show_project, save_project_as, save_project,
+                      add_object)
 
 _ACTUAL_INTERFACE = None
 
@@ -38,6 +39,7 @@ class Application:
         self.on_start = [show_project]
         self.register_treater = Project.add_treater
         self.register_opener = Opener.register_opener
+        self.add_object = add_object
 
     @property
     def visual(self):

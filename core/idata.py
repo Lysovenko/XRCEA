@@ -59,6 +59,11 @@ class XrayData:
         if fname is not None:
             self.open(fname)
 
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return False
+        return self.x_data == other.x_data and self.y_data == other.y_data
+
     def _from_dict(self, dct):
         self.__dict.update(dct)
         for i in ("lambda1", "lambda2", "lambda3", "alpha", "I2", "I3",
@@ -298,4 +303,5 @@ def open_xrd(fname):
     """Open X-ray data file."""
     xrd = XrayData(fname)
     if xrd:
+        APP.add_object(xrd)
         xrd.display()
