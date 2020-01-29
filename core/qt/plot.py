@@ -36,13 +36,13 @@
 from PyQt5.QtCore import (QFile, QFileInfo, QPoint, QSettings, QSize, Qt,
                           QTextStream)
 from PyQt5.QtGui import QIcon, QKeySequence
-from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QMainWindow,
+from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog,
                              QMessageBox, QSizePolicy)
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 from .idialog import DialogsMixin
-from .menu import SDIMenu
+from .core import qMainWindow
 
 
 class Canvas(FigureCanvas):
@@ -99,18 +99,15 @@ class Canvas(FigureCanvas):
         super().draw()
 
 
-class PlotWindow(QMainWindow, DialogsMixin):
+class PlotWindow(qMainWindow):
     """Plot and toolbar"""
     def __init__(self, vi_obj):
-        super(PlotWindow, self).__init__()
+        super(PlotWindow, self).__init__(vi_obj)
         self.setAttribute(Qt.WA_DeleteOnClose)
-        self.setWindowTitle(vi_obj.name)
         self.canvas = Canvas(self)
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.addToolBar(self.toolbar)
         self.setCentralWidget(self.canvas)
-        self.vi_obj = vi_obj
-        self.menu = SDIMenu(self)
 
     def closeEvent(self, event):
         self.vi_obj.currently_alive = False

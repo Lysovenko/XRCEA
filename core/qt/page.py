@@ -18,29 +18,25 @@
 
 
 from PyQt5.QtWidgets import (QFormLayout, QWidget, QVBoxLayout, QTextBrowser,
-                             QSplitter, QPushButton, QShortcut, QMainWindow)
+                             QSplitter, QPushButton, QShortcut)
 from PyQt5.QtCore import Qt, QTextCodec
 from PyQt5.QtGui import (QKeySequence, QIcon)
 from .lists import VisualList
-from .core import _DATA, clearLayout
+from .core import clearLayout, qMainWindow
 from .idialog import DialogsMixin, get_widget_value, get_widget_from_value
-from .menu import SDIMenu
 
 
-class Page(QMainWindow, DialogsMixin):
+class Page(qMainWindow):
     def __init__(self, vi_obj):
-        super().__init__()
+        super().__init__(vi_obj)
         self.splitter = QSplitter(self)
-        self.setWindowTitle(vi_obj.name)
         self.setCentralWidget(self.splitter)
         self.styles = {}
         self.values = None
         self.choicer = None
         self.separate_items = False
-        self.vi_obj = vi_obj
         self.close_lock = None
         self.form_edas = []
-        self.menu = SDIMenu(self)
 
     def draw_shape(self, colnames, lvalue, styles):
         message_area = QWidget()

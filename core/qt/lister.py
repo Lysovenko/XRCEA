@@ -17,26 +17,22 @@
 """Show listings"""
 
 from PyQt5.QtWidgets import (QFormLayout, QGroupBox, QVBoxLayout, QSplitter,
-                             QPushButton, QMainWindow)
+                             QPushButton)
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QIcon
 from .lists import VisualList
-from .core import _DATA, clearLayout
+from .core import clearLayout, qMainWindow
 from .idialog import DialogsMixin, get_widget_value, get_widget_from_value
-from .menu import SDIMenu
 
 
-class Lister(QMainWindow, DialogsMixin):
+class Lister(qMainWindow):
     def __init__(self, vi_obj):
-        super().__init__()
+        super().__init__(vi_obj)
         self.splitter = QSplitter(self)
-        self.setWindowTitle(vi_obj.name)
         self.setCentralWidget(self.splitter)
-        self.vi_obj = vi_obj
         self.timers = []
         self.form_edas = []
         self.forms = []
-        self.menu = SDIMenu(self)
 
     def draw_shape(self, titles, values, styles):
         """Internal. Draw window shape"""
@@ -120,9 +116,6 @@ class Lister(QMainWindow, DialogsMixin):
                 t.deleteLater()
         self.timers.clear()
         self.vi_obj.currently_alive = False
-        if self.vi_obj.class_name is not None:
-            _DATA["Settings"].setValue(
-                self.vi_obj.class_name + '_state', self.saveState())
 
 
 def show_lister(vi_obj):

@@ -20,24 +20,6 @@ import os
 from sys import stderr
 from PyQt5.QtWidgets import QDialog, QMessageBox, QFileDialog
 from PyQt5.QtCore import Qt
-from .frame import VFrame, QPushButton
-from .core import _DATA
-
-
-class Frame(VFrame, QDialog):
-    def __init__(self, puzzle, parent=None):
-        QDialog.__init__(self, parent)
-        VFrame.__init__(self, puzzle)
-
-    def get_button(self, b_type, name, default=False):
-        btn = QPushButton(name)
-        if default:
-            btn.setDefault(True)
-        if b_type == "ok":
-            btn.clicked.connect(self.accept)
-        if b_type == "cancel":
-            btn.clicked.connect(self.reject)
-        return btn
 
 
 def run_dialog(puzzle):
@@ -87,4 +69,3 @@ def ask_save_filename(title, filename, masks):
         None, title, filename, fltr, options=options)
     if fname:
         return fname
-

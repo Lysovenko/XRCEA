@@ -26,7 +26,9 @@ from PyQt5.QtWidgets import (QMainWindow, QMessageBox, QApplication,
                              QShortcut, QWidget, QTextEdit)
 from PyQt5.QtGui import QIcon
 from ..vi import Plot, Lister, Page
-_DATA = {}
+from .idialog import DialogsMixin
+from .menu import SDIMenu
+_WINDOWS = 0
 _DIALOGS = []
 _TASKS = []
 _DLG_LOCKER = Lock()
@@ -64,10 +66,12 @@ def main():
     APPLICATION.compman.introduce()
     for e in APPLICATION.on_start:
         e()
-    t_dialogs = QTimer()
-    t_dialogs.start(250)
-    t_dialogs.timeout.connect(_check_dialogs)
-    outcode = app.exec_()
+    outcode = 0
+    if _WINDOWS:
+        t_dialogs = QTimer()
+        t_dialogs.start(250)
+        t_dialogs.timeout.connect(_check_dialogs)
+        outcode = app.exec_()
     APPLICATION.compman.terminate(True)
     APPLICATION.settings.save()
     sys.exit(outcode)
@@ -110,3 +114,19 @@ def schedule(at, task):
     _TASKS.append((at, task))
     _TASKS.sort()
     _DLG_LOCKER.release()
+
+
+def _decrease():
+    global _WINDOWS
+    _WINDOWS -= 1
+
+
+class qMainWindow(QMainWindow, DialogsMixin):
+    def __init__(self, vi_obj):
+        super().__init__()
+        self.setWindowTitle(vi_obj.name)
+        self.vi_obj = vi_obj
+        self.menu = SDIMenu(self)
+        global _WINDOWS
+        _WINDOWS += 1
+        self.destroyed.connect(_decrease)
