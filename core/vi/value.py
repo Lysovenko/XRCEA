@@ -90,3 +90,22 @@ def lfloat(noless=None, nomore=None):
         def __str__(self):
             return loc.str(self)
     return efloat
+
+
+class Tabular:
+    def __init__(self, rows=None, cols=None, coltypes=None):
+        if rows is not None and cols is not None:
+            self._data = [[None] * cols] * rows
+        self._coltypes = coltypes
+
+    def get(self, row, col):
+        try:
+            return self._data[row][col]
+        except IndexError:
+            return None
+
+    def set(self, row, col, data):
+        try:
+            self._data[row][col] = self._coltypes[col](data)
+        except TypeError:
+            self._data[row][col] = data

@@ -1,5 +1,4 @@
-"""Text editors dealing with value"""
-# XRCEA (C) 2019 Serhii Lysovenko
+# XRCEA (C) 2020 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,7 +15,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from PyQt5.QtCore import Qt, QModelIndex, QAbstractTableModel
-from PyQt5.QtWidgets import QListWidget, QTreeView, QAbstractItemView, QMenu
+from PyQt5.QtWidgets import QTableView, QTreeView, QAbstractItemView, QMenu
 from PyQt5.QtGui import (QStandardItem, QStandardItemModel, QColor)
 
 COLORS = {"red": Qt.red, "blue": Qt.blue, "gray": Qt.gray,
@@ -24,38 +23,7 @@ COLORS = {"red": Qt.red, "blue": Qt.blue, "gray": Qt.gray,
           "white": Qt.white, "dark blue": Qt.darkBlue, "green": Qt.green}
 
 
-class CheckedList(QListWidget):
-    def __init__(self, parent, value):
-        super().__init__(parent)
-        self.value = value
-        self.addItems(i[1] for i in value)
-        for i, (uid, name, sel) in enumerate(value):
-            item = self.item(i)
-            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-            check = Qt.Checked if sel else Qt.Unchecked
-            item.setCheckState(check)
-            item.setWhatsThis(str(i))
-        self.itemChanged.connect(self.clk)
-        self.show()
-
-    def selectionChanged(self, *args):
-        print("selection changed:", args)
-
-    def clk(self, item):
-        try:
-            i = int(item.whatsThis())
-        except TypeError:
-            return
-        uid, name, sel = self.value.pop(i)
-        sel = item.checkState() == Qt.Checked
-        self.value.insert(i, (uid, name, sel))
-        if sel:
-            item.setBackground(QColor("#ffffb2"))
-        else:
-            item.setBackground(QColor("#ffffff"))
-
-
-class VisualListModel(QAbstractTableModel):
+class VisualTableModel(QAbstractTableModel):
     def __init__(self, colnames, value, styles, parent):
         super().__init__(parent)
         self.colnames = colnames
@@ -94,6 +62,10 @@ class VisualListModel(QAbstractTableModel):
                     return QColor(bg)
         return None
 
+    def setData(self, index, data, role):
+        print(index.row(), index.column(), role, data)
+        return True
+
     def rowCount(self, *dummy):
         return len(self.value.value)
 
@@ -103,7 +75,7 @@ class VisualListModel(QAbstractTableModel):
     def flags(self, index):
         if not index.isValid():
             return Qt.NoItemFlags
-        return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
 
     def index(self, row, column, parent=None):
         if not self.hasIndex(row, column, parent) or parent.isValid():
@@ -111,15 +83,14 @@ class VisualListModel(QAbstractTableModel):
         return self.createIndex(row, column, None)
 
 
-class VisualList(QTreeView):
+class VisualTable(QTableView):
     def __init__(self, parent, colnames, value, styles={}):
         super().__init__(parent)
         self.value = value
         self.styles = styles
-        self.setRootIsDecorated(False)
         self.setAlternatingRowColors(True)
         self.ncols = len(colnames)
-        self.model = model = VisualListModel(colnames, value, styles, self)
+        self.model = model = VisualTableModel(colnames, value, styles, self)
         self.setModel(model)
         self.activated.connect(self.on_activated)
         self.choicer = None
