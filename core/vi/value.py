@@ -109,3 +109,23 @@ class Tabular:
             self._data[row][col] = self._coltypes[col](data)
         except TypeError:
             self._data[row][col] = data
+
+    @property
+    def rows(self):
+        try:
+            return len(self._data)
+        except (TypeError, AttributeError):
+            return 0
+
+    @property
+    def columns(self):
+        try:
+            return len(self._data[0])
+        except (TypeError, AttributeError, IndexError):
+            return 0
+
+    def insert_row(self, index):
+        try:
+            self._data.insert(index, [None] * self.columns)
+        except (AttributeError):
+            self._data = [[]]
