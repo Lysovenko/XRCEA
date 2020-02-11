@@ -93,10 +93,20 @@ def lfloat(noless=None, nomore=None):
 
 
 class Tabular:
-    def __init__(self, rows=None, cols=None, coltypes=None):
+    def __init__(self, rows=None, colnames=None, coltypes=None):
         if rows is not None and cols is not None:
-            self._data = [[None] * cols] * rows
+            self._data = [[None] * len(colnames)] * rows
         self._coltypes = coltypes
+        self._colnames = colnames
+        if type(coltypes) is not type(colnames):
+            raise RuntimeError("colnames and coltypes "
+                               "should be the same type")
+        try:
+            if len(colnames) != len(coltypes):
+                raise RuntimeError("colnames and coltypes "
+                                   "should be the same length")
+        except TypeError:
+            pass
 
     def get(self, row, col):
         try:
@@ -120,12 +130,31 @@ class Tabular:
     @property
     def columns(self):
         try:
-            return len(self._data[0])
-        except (TypeError, AttributeError, IndexError):
+            return len(self._colnames)
+        except TypeError:
             return 0
+
+    def colname(self, column):
+        try:
+            return self._colnames[column]
+        except (TypeError, IndexError):
+            return f"col_{column}"
 
     def insert_row(self, index):
         try:
-            self._data.insert(index, [None] * self.columns)
+            self._data.insert(index, [None] * self.columns))
         except (AttributeError):
-            self._data = [[]]
+            self._data = [[None] * self.columns]
+
+    def insert_column(self, index, colname, coltype=None):
+        try:
+            self._colnames.insert(index, colname)
+            self._coltypes.insert(index, coltype)
+        except AttributeError:
+            self._colnames = [colname]
+            self._coltypes = [coltype]
+        try:
+            for i in self._data:
+                i.insert(index, None)
+        except TypeError:
+            self._data = []
