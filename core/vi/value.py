@@ -92,6 +92,16 @@ def lfloat(noless=None, nomore=None):
     return efloat
 
 
+class TabCell:
+    def __init__(self, value, foreground=None, background=None):
+        self.value = value
+        self.background = background
+        self.foreground = foreground
+
+    def __str__(self):
+        return str(self.value)
+
+
 class Tabular:
     def __init__(self, rows=None, colnames=None, coltypes=None):
         if rows is not None and cols is not None:
@@ -107,6 +117,7 @@ class Tabular:
                                    "should be the same length")
         except TypeError:
             pass
+        self._updater = None
 
     def get(self, row, col):
         try:
@@ -140,11 +151,26 @@ class Tabular:
         except (TypeError, IndexError):
             return f"col_{column}"
 
-    def insert_row(self, index):
+    def set_updater(self, updater):
+        self._updater = updater
+
+    def _update(self):
         try:
-            self._data.insert(index, [None] * self.columns))
+            self._updater(self.value)
+        except Exception:
+            pass
+
+    def insert_row(self, index, row=None):
+        if row is not None and len(row) != self.columns:
+            raise RuntimeError(f"length of row is not appropriate "
+                               "({len(row)} vs {self.columns})")
+        if row is not None:
+            row = list(row)
+        try:
+            self._data.insert(index, [None] * self.columns if row is None else row)
         except (AttributeError):
-            self._data = [[None] * self.columns]
+            self._data = [[None] * self.columns if row is None else row]
+        self._update()
 
     def insert_column(self, index, colname, coltype=None):
         try:
@@ -158,3 +184,4 @@ class Tabular:
                 i.insert(index, None)
         except TypeError:
             self._data = []
+        self._update()

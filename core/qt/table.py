@@ -43,23 +43,16 @@ class VisualTableModel(QAbstractTableModel):
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
-            return self.value.get()[index.row()][index.column()]
+            return str(self.value.get(index.row(), index.column()))
         if role == Qt.BackgroundRole or role == Qt.ForegroundRole:
-            tup = self.value.get()[index.row()]
+            tc = self.value.get(index.row(), index.column())
             try:
-                style = tup[self.columnCount()]
-            except IndexError:
+                if role == Qt.ForegroundRole and tc.foreground is not None:
+                    return QColor(tc.foreground)
+                if role == Qt.BackgroundRole and tc.background is not None:
+                    return QColor(tc.background)
+            except TypeError:
                 return None
-            if isinstance(style, (tuple, list)):
-                style = style[index.column()]
-            if not isinstance(style, set):
-                style = {style}
-            for s in style:
-                fg, bg = self.styles.get(s, (None, None))
-                if fg is not None and role == Qt.ForegroundRole:
-                    return QColor(fg)
-                if bg is not None and role == Qt.BackgroundRole:
-                    return QColor(bg)
         return None
 
     def setData(self, index, data, role):
@@ -67,10 +60,10 @@ class VisualTableModel(QAbstractTableModel):
         return True
 
     def rowCount(self, *dummy):
-        return len(self.value.value)
+        return self.value.rows
 
     def columnCount(self, parent=None):
-        return len(self.colnames)
+        return self.value.columns
 
     def flags(self, index):
         if not index.isValid():
