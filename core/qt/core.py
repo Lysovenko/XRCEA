@@ -25,7 +25,7 @@ from PyQt5.QtCore import Qt, QSettings, QTimer, QSignalMapper
 from PyQt5.QtWidgets import (QMainWindow, QMessageBox, QApplication,
                              QShortcut, QWidget, QTextEdit)
 from PyQt5.QtGui import QIcon
-from ..vi import Plot, Lister, Page
+from ..vi import Plot, Lister, Page, Spreadsheet
 from .idialog import DialogsMixin
 from .menu import SDIMenu
 _WINDOWS = 0
@@ -87,6 +87,9 @@ def show_vi(vi_obj):
     if isinstance(vi_obj, Page):
         from .page import show_page
         show_page(vi_obj)
+    if isinstance(vi_obj, Spreadsheet):
+        from .spreadsheet import show_spreadsheet
+        show_spreadsheet(vi_obj)
 
 
 def clearLayout(layout):

@@ -20,6 +20,7 @@
 from .plot import Plot
 from .lister import Lister
 from .page import Page
+from .spreadsheet import Spreadsheet
 
 
 def _actual():
