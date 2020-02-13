@@ -127,9 +127,13 @@ class Tabular:
 
     def set(self, row, col, data):
         try:
-            self._data[row][col] = self._coltypes[col](data)
+            value = self._coltypes[col](data)
         except TypeError:
-            self._data[row][col] = data
+            value = data
+        if isinstance(self._data[row][col], TabCell):
+            self._data[row][col].value = value
+        else:
+            self._data[row][col] = value
 
     @property
     def rows(self):

@@ -47,12 +47,12 @@ class VisualTableModel(QAbstractTableModel):
                     return QColor(tc.foreground)
                 if role == Qt.BackgroundRole and tc.background is not None:
                     return QColor(tc.background)
-            except TypeError:
+            except AttributeError:
                 return None
         return None
 
     def setData(self, index, data, role):
-        print(index.row(), index.column(), role, data)
+        self.value.set(index.row(), index.column(), data)
         return True
 
     def rowCount(self, *dummy):
