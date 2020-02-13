@@ -24,21 +24,17 @@ COLORS = {"red": Qt.red, "blue": Qt.blue, "gray": Qt.gray,
 
 
 class VisualTableModel(QAbstractTableModel):
-    def __init__(self, colnames, value, styles, parent):
+    def __init__(self, value, parent):
         super().__init__(parent)
-        self.colnames = colnames
-        for i, name in enumerate(colnames):
-            self.setHeaderData(i, Qt.Horizontal, name)
         self.value = value
         value.set_updater(self.updater)
-        self.styles = styles
 
     def updater(self, lst):
         self.layoutChanged.emit()
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return self.colnames[section]
+            return self.value.colname(section)
         return None
 
     def data(self, index, role):
@@ -77,13 +73,12 @@ class VisualTableModel(QAbstractTableModel):
 
 
 class VisualTable(QTableView):
-    def __init__(self, parent, colnames, value, styles={}):
+    def __init__(self, parent, value, styles={}):
         super().__init__(parent)
         self.value = value
         self.styles = styles
         self.setAlternatingRowColors(True)
-        self.ncols = len(colnames)
-        self.model = model = VisualTableModel(colnames, value, styles, self)
+        self.model = model = VisualTableModel(value, self)
         self.setModel(model)
         self.activated.connect(self.on_activated)
         self.choicer = None
