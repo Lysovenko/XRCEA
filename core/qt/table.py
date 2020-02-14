@@ -29,7 +29,7 @@ class VisualTableModel(QAbstractTableModel):
         self.value = value
         value.set_updater(self.updater)
 
-    def updater(self, lst):
+    def updater(self):
         self.layoutChanged.emit()
 
     def headerData(self, section, orientation, role):

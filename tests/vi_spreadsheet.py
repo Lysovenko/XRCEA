@@ -3,19 +3,36 @@ path.insert(0, '..')
 from core import initialize
 from core.vi.spreadsheet import Spreadsheet
 from core.application import APPLICATION as APP, start
-from core.vi.value import Tabular, TabCell
+from core.vi.value import Tabular, TabCell, Value
+from core.vi import Button
 
+class MyCell(TabCell):
+    @property
+    def value(self):
+        return self.__value
 
+    @value.setter
+    def value(self, v):
+        print (f"someone called setter with v={v}")
+        self.__value = v
+
+        
 def test():
     val = Tabular(colnames=list("AbC"), coltypes=[None] * 3)
-    for i in range(1, 100):
+    def insert_column(name):
+        val.insert_column(0, name, int)
+    for i in range(1, 25):
         val.insert_row(i, [
-            TabCell(str(j), background=(None, "red", "blue")[j % 3],
-                foreground=("green", None, "white", "yellow")[j % 4])
+            MyCell(str(j), background=(None, "red", "blue")[j % 3],
+                foreground=("green", None, "orange", "magenta")[j % 4])
             for j in range(i, i + 3)])
     APP.runtime_data["MainWindow"] = p = \
         Spreadsheet("XRCEA", val)
     p.show()
+    v= Value(str)
+    w = Value(str)
+    p.set_form([("some label", v),
+                (Button("Button", insert_column), w)], True)
 
 
 if __name__ == '__main__':

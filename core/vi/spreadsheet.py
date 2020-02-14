@@ -67,10 +67,10 @@ class Spreadsheet (DialogsMixin):
         except KeyError:
             pass
 
-    def set_form(self, form, which=0, is_editable=True):
+    def set_form(self, form, is_editable=True):
         """Sets fotrm. <form> is a list of tuples: (name/action, value)"""
         try:
-            self.gui_functions["set_form"](form, which, is_editable)
+            self.gui_functions["set_form"](form, is_editable)
         except KeyError:
             pass
 

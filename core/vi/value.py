@@ -93,7 +93,7 @@ def lfloat(noless=None, nomore=None):
 
 
 class TabCell:
-    def __init__(self, value, foreground=None, background=None):
+    def __init__(self, value=None, foreground=None, background=None):
         self.value = value
         self.background = background
         self.foreground = foreground
@@ -130,6 +130,8 @@ class Tabular:
             value = self._coltypes[col](data)
         except TypeError:
             value = data
+        except ValueError:
+            value = None
         if isinstance(self._data[row][col], TabCell):
             self._data[row][col].value = value
         else:
@@ -160,7 +162,7 @@ class Tabular:
 
     def _update(self):
         try:
-            self._updater(self.value)
+            self._updater()
         except Exception:
             pass
 
