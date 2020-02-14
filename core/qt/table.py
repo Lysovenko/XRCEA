@@ -39,7 +39,10 @@ class VisualTableModel(QAbstractTableModel):
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
-            return str(self.value.get(index.row(), index.column()))
+            v = self.value.get(index.row(), index.column())
+            if v is None:
+                return None
+            return str(v)
         if role == Qt.BackgroundRole or role == Qt.ForegroundRole:
             tc = self.value.get(index.row(), index.column())
             try:
