@@ -9,6 +9,10 @@ from core.vi import Button
 
 
 class MyCell(TabCell):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.editable = False
+
     @property
     def value(self):
         return self.__value

@@ -69,7 +69,9 @@ class VisualTableModel(QAbstractTableModel):
     def flags(self, index):
         if not index.isValid():
             return Qt.NoItemFlags
-        return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
+        tc = self.value.get(index.row(), index.column())
+        editable = Qt.ItemIsEditable if getattr(tc, "editable", True) else 0
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable | editable
 
     def index(self, row, column, parent=None):
         if not self.hasIndex(row, column, parent) or parent.isValid():
