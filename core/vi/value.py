@@ -108,7 +108,7 @@ class Tabular:
             self._data = [[None] * len(colnames)] * rows
         self._coltypes = coltypes
         self._colnames = colnames
-        if type(coltypes) is not type(colnames):
+        if coltypes is not None and type(coltypes) is not type(colnames):
             raise RuntimeError("colnames and coltypes "
                                "should be the same type")
         try:
@@ -181,7 +181,8 @@ class Tabular:
     def insert_column(self, index, colname, coltype=None):
         try:
             self._colnames.insert(index, colname)
-            self._coltypes.insert(index, coltype)
+            if self._coltypes is not None:
+                self._coltypes.insert(index, coltype)
         except AttributeError:
             self._colnames = [colname]
             self._coltypes = [coltype]
@@ -190,4 +191,16 @@ class Tabular:
                 i.insert(index, None)
         except TypeError:
             self._data = []
+        self._update()
+
+    def remove_row(self, index):
+        self._data.pop(index)
+        self._update()
+
+    def remove_column(self, index):
+        self._colnames.pop(index)
+        if self._coltypes is not None:
+            self._coltypes.pop(index)
+        for row in self._data:
+            row.pop(index)
         self._update()

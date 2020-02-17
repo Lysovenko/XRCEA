@@ -24,9 +24,19 @@ class MyCell(TabCell):
 
 
 def test():
-    val = Tabular(colnames=list("AbC"), coltypes=[None] * 3)
+    val = Tabular(colnames=list("AbC"))
 
     def insert_column(name):
+        if name.startswith("-"):
+            try:
+                index = int(name[1:])
+                try:
+                    val.remove_column(index)
+                except IndexError:
+                    print(f"it is no column {index}")
+                return
+            except ValueError:
+                pass
         val.insert_column(0, name, int)
     for i in range(1, 25):
         val.insert_row(i, [
