@@ -23,8 +23,8 @@ from .reflex import calc_bg, refl_sects, ReflexDedect
 _DEFAULTS = {"bg_sigmul": 2.0, "bg_polrang": 2, "refl_sigmin": 1e-3,
              "refl_consig": False, "refl_mbells": 10, "refl_bt": 0,
              "refl_ptm": 4, "refloc_sz": "(640,480)", "refl_bf": 2.}
-_BELL_TYPES = ["Gaus", "Lorentz", "P-Voit"]
-_BELL_NAMES = [_("Gaus"), _("Lorentz"), _("Pseudo Voit")]
+_BELL_TYPES = ("Gaus", "Lorentz", "P-Voit")
+_BELL_NAMES = (_("Gaus"), _("Lorentz"), _("Pseudo Voit"))
 _data = {}
 
 
@@ -102,6 +102,8 @@ class Mcall:
         rv = calculate_reflexes(dat)
         if rv is None:
             return
+        print (rv)
+        return
         dat["data"]["Reflexes"], plts = rv
         pltn = _("Exp. reflexes")
         pdat = dat['plot'].set_data(
@@ -161,81 +163,79 @@ class PredefRefl:
 
 def calculate_reflexes(idata):
     "Search reflexes shapes"
-    parent = idata["window"]
-    exd = idata["data"]["Exp. data"]
-    x, y, bg, sig2 = idata["data"]["Background"][:4]
-    if exd.lambda2:
-        l21 = exd.lambda2 / exd.lambda1
+    plot = idata.UI
+    if idata.x_units != "q":
+        x = np.sin(idata.theta)
+    else:
+        x = idata.qrange
+    try:
+        stripped_y = idata.extra_data["stripped"]
+    except KeyError:
+        return
+    sig2 = _data["bg_sigmul"]
+    if idata.lambda2:
+        l21 = idata.lambda2 / idata.lambda1
     else:
         l21 = None
     dreflexes = {}
-    dreflexes["lambda"] = exd.lambda1
-    I2 = exd.I2
-    sigmin = _("Min. \u03c3:"), idata["refl_sigmin"]
-    consig = _("Const. \u03c3"), idata["refl_consig"]
-    mbells = _("Max. bells:"), idata["refl_mbells"]
-    bell_t = _("Shape function:"), _BELL_NAMES, idata["refl_bt"]
-    pts_mi = _("Ignore points:"), idata["refl_ptm"], 4
-    bf = _("Believe factor:"), idata["refl_bf"]
-    if idata["data"]["User refl"]:
-        alg = 1
-    else:
-        alg = 0
-    algorithm = _("Algorithm:"), [_("alg 1"), _("alg 2")], alg
-    rv = v_input(parent, _("Shapes of reflexes"), sigmin, consig, mbells,
-                 bell_t, bf, pts_mi, algorithm)
+    dreflexes["lambda"] = idata.lambda1
+    I2 = idata.I2
+    sigmin = _("Min. \u03c3:"), _data["refl_sigmin"]
+    consig = _("Const. \u03c3"), _data["refl_consig"]
+    mbells = _("Max. bells:"), _data["refl_mbells"]
+    bell_t = _("Shape function:"), _BELL_NAMES, _data["refl_bt"]
+    pts_mi = _("Ignore points:"), _data["refl_ptm"], 4
+    bf = _("Believe factor:"), _data["refl_bf"]
+    alg = 0 # TODO: select optimal algorithm
+    algorithm = _("Algorithm:"), (_("alg 1"), _("alg 2")), alg
+    rv = plot.input_dialog(_("Shapes of reflexes"), [
+        sigmin, consig, mbells, bell_t, bf, pts_mi, algorithm])
     if rv is None:
         return
     sigmin, consig, mbells, bell_t, bf, pts_mi, algorithm = rv
-    idata["refl_sigmin"] = sigmin
-    idata["refl_consig"] = consig
-    idata["refl_mbells"] = mbells
-    idata["refl_bt"] = bell_t
-    idata["refl_ptm"] = pts_mi
-    idata["refl_bf"] = bf
-    sects = refl_sects(x, y, bg, sig2, bf)
+    _data["refl_sigmin"] = sigmin
+    _data["refl_consig"] = consig
+    _data["refl_mbells"] = mbells
+    _data["refl_bt"] = bell_t
+    _data["refl_ptm"] = pts_mi
+    _data["refl_bf"] = bf
+    sects = refl_sects(x, stripped_y, sig2, bf)
     sects = [i for i in sects if len(i) > pts_mi]
-    lsec = len(sects)
-    titl = _("Calculate shapes")
-    msg = _("Calculating shapes of the reflexes...")
-    if lsec:
-        dlgp = DlgProgressCallb(parent, titl, msg, lsec, can_abort=True)
-    done = 0
     totreflexes = []
     totsigmas = []
-    plts = []
-    plts.append((x, y - bg, 1, 'black', '.'))
     if algorithm == 1:
         apposs = [(i[0], i[3]) for i in idata["data"]["User refl"].get()]
-    for sect in sects:
-        rfd = ReflexDedect(sect, l21, I2)
-        if algorithm == 0:
-            reflexes, stdev = rfd.find_bells(sigmin, not consig,
-                                             mbells, _BELL_TYPES[bell_t])
-        else:
-            mi = sect[0][0]
-            ma = sect[-1][0]
-            pposs = [i for i in apposs if mi <= i[0] <= ma]
-            posfxs = [i for i in range(len(pposs)) if pposs[i][1]]
-            pposs = [i[0] for i in pposs]
-            reflexes, stdev = rfd.find_bells_pp(_BELL_TYPES[bell_t],
-                                                pposs, posfxs)
-        totreflexes += reflexes
-        totsigmas += [stdev] * len(reflexes)
-        plts.append((rfd.x_ar, rfd.y_ar - rfd.calc_shape(), 1,
-                     'magenta', '-'))
-        rfd.x_ar = np.linspace(rfd.x_ar[0], rfd.x_ar[-1], len(rfd.x_ar) * 10)
-        plts.append((rfd.x_ar, rfd.calc_shape(), 1, 'green', '-'))
-        rfd.lambda21 = None
-        for peak in reflexes:
-            pv = np.array(peak)[:3]
-            plts.append((rfd.x_ar, rfd.calc_shape(pv), 1, 'b', '-'))
-        done += 1
-        if not dlgp(done):
-            break
+
+    def progress(status):
+        status["description"] = _("Calculating shapes of the reflexes...")
+        lsec = len(sects)
+        for i, sect in enumerate(sects):
+            status["part"] = i / lsec
+            if status.get("stop"):
+                break
+            rfd = ReflexDedect(sect, l21, I2)
+            if algorithm == 0:
+                reflexes, stdev = rfd.find_bells(sigmin, not consig,
+                                                 mbells, _BELL_TYPES[bell_t])
+            else:
+                mi = sect[0][0]
+                ma = sect[-1][0]
+                pposs = [i for i in apposs if mi <= i[0] <= ma]
+                posfxs = [i for i in range(len(pposs)) if pposs[i][1]]
+                pposs = [i[0] for i in pposs]
+                reflexes, stdev = rfd.find_bells_pp(_BELL_TYPES[bell_t],
+                                                    pposs, posfxs)
+            totreflexes.extend(reflexes)
+            totsigmas.extend([stdev] * (len(totreflexes) - len(totsigmas)))
+            rfd.x_ar = np.linspace(rfd.x_ar[0], rfd.x_ar[-1], len(rfd.x_ar) * 10)
+            rfd.lambda21 = None
+            for peak in reflexes:
+                pv = np.array(peak)[:3]
+        status["complete"] = True
+    plot.bg_process(progress)
     dreflexes["shape"] = _BELL_TYPES[bell_t]
     dreflexes["items"] = [i + (j,) for i, j in zip(totreflexes, totsigmas)]
-    return dreflexes, plts
+    return dreflexes
 
 
 def reflexes_markup(reflexes):

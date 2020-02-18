@@ -33,19 +33,20 @@ class Progress(QDialog):
         self.progressBar.setRange(0, 1000)
         self.progressBar.setValue(0)
         self.description = QLabel()
+        self.description.setText("")
         layout = QVBoxLayout()
         layout.addWidget(self.description)
         layout.addWidget(self.progressBar)
         layout.addWidget(buttonBox)
         self.setLayout(layout)
-        self.prev_st = None
-        self.prev_pr = None
+        self.prev_st = ""
+        self.prev_pr = 0
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._check_status)
         self.timer.start(250)
 
     def _check_status(self):
-        cur_pr = self._status.get("part", 0.) * 1000
+        cur_pr = int(self._status.get("part", 0.) * 1000)
         if self.prev_pr != cur_pr:
             self.progressBar.setValue(cur_pr)
             self.prev_pr = cur_pr

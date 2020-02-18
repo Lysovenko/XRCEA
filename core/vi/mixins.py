@@ -58,7 +58,7 @@ class DialogsMixin:
             return
 
     def bg_process(self, function, *args, **kwargs):
-        status = {}
+        status = {"part": 0, "description": "some text", "complete": False}
         t = Thread(target=function, args=(status,) + args, kwargs=kwargs)
         t.daemon = True
         t.start()

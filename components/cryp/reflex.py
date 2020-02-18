@@ -44,11 +44,11 @@ def calc_bg(sig_x, sig_y, deg, bf=3.):
     return tbg, sigma2, coeffs
 
 
-def refl_sects(s_x, s_y, sbg, sigma2, bf=3.):
+def refl_sects(s_x, stripped_y, sigma2, bf=3.):
     sigma = sigma2 ** .5 * bf
     sector = []
     prev = []
-    for x, y in zip(s_x, s_y - sbg):
+    for x, y in zip(s_x, stripped_y):
         if y > sigma:
             if prev:
                 sector = prev
@@ -94,7 +94,7 @@ class ReflexDedect:
         if fixx:
             the_x = np.zeros((len(x) / 2, 3))
             the_x[:, 0] = self.x0
-            the_x[:, 1:3] = x.reshape(len(x) / 2, 2)
+            the_x[:, 1:3] = x.reshape(len(x) // 2, 2)
             x = the_x.reshape(len(the_x) * 3)
         elif fixs:
             the_x = np.zeros((len(self.x0), 3))
@@ -106,7 +106,7 @@ class ReflexDedect:
             the_x[:, 1:3] = x[nfl:].reshape(len(self.x0), 2)
             x = the_x.reshape(len(the_x) * 3)
         the_x = self.x_ar
-        tpx = x.reshape(len(x) / 3, 3).transpose()
+        tpx = x.reshape(len(x) // 3, 3).transpose()
         if x.min() <= 0.:
             return np.inf
         shape = self.calc_shape(x)
@@ -145,7 +145,7 @@ class ReflexDedect:
             if peaks is None:
                 return shape
         else:
-            peaks = x.reshape(len(x) / 3, 3)
+            peaks = x.reshape(len(x) // 3, 3)
         if l21 is None:
             for x0, h, w in peaks:
                 shape += sh_func(the_x, x0, h, w)
@@ -298,7 +298,7 @@ class ReflexDedect:
             opt_x, sigma2, itr, fcs, wflg = \
                 fmin(self.calc_deviat, opt_x, full_output=True, disp=False)
             done += 1
-            tpx = opt_x.reshape(len(opt_x) / 3, 3).transpose()
+            tpx = opt_x.reshape(len(opt_x) // 3, 3).transpose()
             if sigma2 >= prev_sigma2 or \
                     opt_x.min() <= 0.:
                 print('Warning: on fail')
@@ -314,7 +314,7 @@ class ReflexDedect:
                     sigma2 = sgm
                 else:
                     break
-        self.peaks = zip(*opt_x.reshape(len(opt_x) / 3, 3).transpose())
+        self.peaks = zip(*opt_x.reshape(len(opt_x) // 3, 3).transpose())
         if len(self.peaks) == 0:
             print(x_ar)
             print(y_ar)
