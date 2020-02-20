@@ -43,9 +43,13 @@ class Progress(QDialog):
         self.prev_pr = 0
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._check_status)
-        self.timer.start(250)
+        self.timer.start(100)
+        self._starter = status["start"]
 
     def _check_status(self):
+        if self._starter is not None:
+            self._starter()
+            self._starter = None
         cur_pr = int(self._status.get("part", 0.) * 1000)
         if self.prev_pr != cur_pr:
             self.progressBar.setValue(cur_pr)

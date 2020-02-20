@@ -59,9 +59,10 @@ class DialogsMixin:
 
     def bg_process(self, function, *args, **kwargs):
         status = {"part": 0, "description": "some text", "complete": False}
-        t = Thread(target=function, args=(status,) + args, kwargs=kwargs)
-        t.daemon = True
-        t.start()
+        if "bg_process" in self.gui_functions:
+            t = Thread(target=function, args=(status,) + args, kwargs=kwargs)
+            t.daemon = True
+            status["start"] = t.start
         try:
             self.gui_functions["bg_process"](status)
         except KeyError:
