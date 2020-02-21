@@ -51,7 +51,7 @@ class XrayData:
         self.UI = None
         for i in ("contains", "density", "x_data", "y_data",
                   # diffraction angle of monochromer
-                  "alpha", "name",
+                  "alpha1", "alpha2", "name",
                   "x_units", "lambda1", "lambda2", "lambda3",
                   "I2", "I3"):
             setattr(self, i, None)
@@ -67,8 +67,8 @@ class XrayData:
 
     def _from_dict(self, dct):
         self.__dict.update(dct)
-        for i in ("lambda1", "lambda2", "lambda3", "alpha", "I2", "I3",
-                  "density"):
+        for i in ("lambda1", "lambda2", "lambda3", "alpha1", "alpha2",
+                  "I2", "I3", "density"):
             try:
                 setattr(self, i, float(dct[i]))
             except(ValueError, KeyError):
@@ -186,18 +186,32 @@ class XrayData:
         ang = self.two_theta
         if ang is None:
             return Iex
-        if self.alpha is None:
+        if self.alpha1 is self.alpha2 is None:
             return Iex / (np.cos(ang) ** 2 + 1.) * 2.
-        c2a = np.cos(2. * self.alpha) ** 2
-        return Iex / (c2a * np.cos(ang) ** 2 + 1.) * (1. + c2a)
+        if self.alpha2 is None:
+            c2a = np.cos(2. * self.alpha1) ** 2
+            return Iex / (c2a * np.cos(ang) ** 2 + 1.) * (1. + c2a)
+        if self.alpha1 is None:
+            c2a = np.cos(2. * self.alpha2) ** 2
+            return Iex / (c2a * np.cos(ang) ** 2 + 1.) * 2.
+        c2a1 = np.cos(2. * self.alpha1) ** 2
+        c2a2 = np.cos(2. * self.alpha2) ** 2
+        return Iex / (c2a1 * c2a2 * np.cos(ang) ** 2 + 1.) * (1. + c2a1)
 
     def rev_intens(self, Icor):
         """reverse correct intensity"""
         ang = self.two_theta
-        if self.alpha is None:
+        if self.alpha1 is self.alpha2 is None:
             return Icor / 2. * (np.cos(ang) ** 2 + 1.)
-        c2a = np.cos(2. * self.alpha) ** 2
-        return Icor * (c2a * np.cos(ang) ** 2 + 1.) / (1. + c2a)
+        if self.alpha2 is None:
+            c2a = np.cos(2. * self.alpha1) ** 2
+            return Icor * (c2a * np.cos(ang) ** 2 + 1.) / (1. + c2a)
+        if self.alpha1 is None:
+            c2a = np.cos(2. * self.alpha2) ** 2
+            return Icor * (c2a * np.cos(ang) ** 2 + 1.) / 2.
+        c2a1 = np.cos(2. * self.alpha1) ** 2
+        c2a2 = np.cos(2. * self.alpha2) ** 2
+        return Icor * (c2a1 * c2a2 * np.cos(ang) ** 2 + 1.) / (1. + c2a1)
 
     def restore_plots(self):
         plt = self.UI
@@ -244,8 +258,8 @@ class XrayData:
     def get_xml(self):
         """Convets X-ray data into XML."""
         xrd = Element(self.xmlroot)
-        for i in ("density", "alpha", "lambda1", "lambda2", "lambda3",
-                  "I2", "I3", "contains", "name", "x_units"):
+        for i in ("density", "alpha1", "alpha2", "lambda1", "lambda2",
+                  "lambda3", "I2", "I3", "contains", "name", "x_units"):
             v = getattr(self, i, None)
             if v is not None:
                 SubElement(xrd, i).text = dumps(v)
@@ -266,8 +280,8 @@ class XrayData:
         """Get X-ray data from XML."""
         assert xrd.tag == self.xmlroot
         for e in xrd:
-            if e.tag in {"density", "alpha", "lambda1", "lambda2", "lambda3",
-                         "I2", "I3", "contains", "name", "x_units"}:
+            if e.tag in {"density", "alpha1", "alpha2", "lambda1", "lambda2",
+                         "lambda3", "I2", "I3", "contains", "name", "x_units"}:
                 setattr(self, e.tag, loads(e.text))
             if e.tag in {"x_data", "y_data"}:
                 setattr(self, e.tag, np.array(loads(e.text)))
