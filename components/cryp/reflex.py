@@ -23,7 +23,7 @@ _SH_FUNCTIONS = {"Gaus": lambda the_x, x0, h, w:
                  h * np.exp(-(the_x - x0) ** 2 / w),
                  "Lorentz": lambda the_x, x0, h, w:
                  h / (1. + (the_x - x0) ** 2 / w),
-                 "P-Voit": lambda the_x, x0, h, w:
+                 "Voit": lambda the_x, x0, h, w:
                  h / (1. + (the_x - x0) ** 2 / w) ** 2}
 
 
@@ -347,3 +347,38 @@ class ReflexDedect:
             x[:, 1:] = tox.reshape(pcs, 2)
             x = x.reshape(pcs * 3)
         return x, reduced, sigma2
+
+
+class Cryplots:
+    @staticmethod
+    def _plot(xrd, fname):
+        x_label = {"theta": "$\\theta$", "2theta": "$2\\theta$",
+                   "q": "q"}.get(xrd.x_units, _("Unknown"))
+
+        plt = {"x1label": x_label, "y1label": _("pps"),
+               "x1units": xrd.x_units}
+        plots = [{"x1": xrd.x_data, "y1": xrd.extra_data["stripped"]}]
+        cryb = xrd.extra_data["crypbells"]
+        for x0, h, w, s in cryb.reshape(len(cryb) // 4, 4):
+            halfwidth = 3 * np.sqrt(w)
+            x = np.linspace(x0 - halfwidth, x0 + halfwidth, 100)
+            y = _SH_FUNCTIONS[fname](x, x0, h, w)
+            if xrd.x_units == "theta":
+                x = np.arcsin(x)*180./np.pi
+            elif xrd.x_units == "2theta":
+                x = np.arcsin(x)*360./np.pi
+            plots.append({"x1": x, "y1": y})
+        plt["plots"] = plots
+        return plt
+
+    @classmethod
+    def pGaus(self, xrd):
+        return self._plot(xrd, "Gaus")
+
+    @classmethod
+    def pLorentz(self, xrd):
+        return self._plot(xrd, "Lorentz")
+
+    @classmethod
+    def pVoit(self, xrd):
+        return self._plot(xrd, "Voit")

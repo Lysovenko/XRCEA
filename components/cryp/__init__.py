@@ -19,11 +19,11 @@
 import numpy as np
 from core.application import APPLICATION as APP
 from core.idata import XrayData
-from .reflex import calc_bg, refl_sects, ReflexDedect
+from .reflex import calc_bg, refl_sects, ReflexDedect, Cryplots
 _DEFAULTS = {"bg_sigmul": 2.0, "bg_polrang": 2, "refl_sigmin": 1e-3,
              "refl_consig": False, "refl_mbells": 10, "refl_bt": 0,
              "refl_ptm": 4, "refloc_sz": "(640,480)", "refl_bf": 2.}
-_BELL_TYPES = ("Gaus", "Lorentz", "P-Voit")
+_BELL_TYPES = ("Gaus", "Lorentz", "Voit")
 _BELL_NAMES = (_("Gaus"), _("Lorentz"), _("Pseudo Voit"))
 _data = {}
 
@@ -38,8 +38,10 @@ def introduce():
                Mcall(_data, 'calc_reflexes')),
               (p + (_("Predefined reflexes..."),),
                pdr.call_grid)]
-    for i in mitems:
-        XrayData.actions[i[0]] = i[1]
+    for p, e in mitems:
+        XrayData.actions[p] = e
+    for i in _BELL_TYPES:
+        XrayData.plotters["cryp" + i] = getattr(Cryplots, "p" + i)
     APP.settings.declare_section("Peaks")
     iget = APP.settings.get
     for n, v in _DEFAULTS.items():
@@ -102,16 +104,11 @@ class Mcall:
         rv = calculate_reflexes(dat)
         if rv is None:
             return
-        print (rv)
-        return
-        dat["data"]["Reflexes"], plts = rv
-        pltn = _("Exp. reflexes")
-        pdat = dat['plot'].set_data(
-            pltn, plts, r'$\sin(\theta)$', _("I, rel. units"), 'sin(\\theta)')
-        # set reflexes markup here
-        pdat.set_info(reflexes_markup(dat["data"]["Reflexes"]))
-        pdat.tech_info['wavelength'] = dat["data"]["Exp. data"].lambda1
-        dat['plot'].plot_dataset(pltn)
+        itms = rv["items"]
+        dat.extra_data["crypbells"] = np.array(itms).reshape(len(itms) * 4)
+        _name = _("Peak description")
+        dat.remember_plot(_name, "cryp" + rv["shape"])
+        dat.UI.draw(_name)
 
 
 class PredefRefl:
@@ -186,7 +183,7 @@ def calculate_reflexes(idata):
     bell_t = _("Shape function:"), _BELL_NAMES, _data["refl_bt"]
     pts_mi = _("Ignore points:"), _data["refl_ptm"], 4
     bf = _("Believe factor:"), _data["refl_bf"]
-    alg = 0 # TODO: select optimal algorithm
+    alg = 0  # TODO: select optimal algorithm
     algorithm = _("Algorithm:"), (_("alg 1"), _("alg 2")), alg
     rv = plot.input_dialog(_("Shapes of reflexes"), [
         sigmin, consig, mbells, bell_t, bf, pts_mi, algorithm])
@@ -227,7 +224,8 @@ def calculate_reflexes(idata):
                                                     pposs, posfxs)
             totreflexes.extend(reflexes)
             totsigmas.extend([stdev] * (len(totreflexes) - len(totsigmas)))
-            rfd.x_ar = np.linspace(rfd.x_ar[0], rfd.x_ar[-1], len(rfd.x_ar) * 10)
+            rfd.x_ar = np.linspace(rfd.x_ar[0], rfd.x_ar[-1],
+                                   len(rfd.x_ar) * 10)
             rfd.lambda21 = None
             for peak in reflexes:
                 pv = np.array(peak)[:3]

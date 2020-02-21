@@ -39,6 +39,7 @@ class XrayData:
     """
     loaders = []
     actions = {}
+    plotters = {}
     xmlroot = "xrd"
     type = _("Difractogram")
 
@@ -204,6 +205,11 @@ class XrayData:
             plt.add_plot(n, self.abstraction2plot(p))
 
     def abstraction2plot(self, abstr):
+        if isinstance(abstr, str):
+            try:
+                return self.plotters[abstr](self)
+            except KeyError:
+                pass
         plt = dict(abstr)
         plt["plots"] = pplots = []
         for plot in abstr["plots"]:
@@ -250,7 +256,8 @@ class XrayData:
         if self.extra_data:
             e = SubElement(xrd, "extras")
             for n, v in self.extra_data.items():
-                SubElement(e, "array", name=n).text = dumps(list(map(float, v)))
+                SubElement(e, "array", name=n).text = dumps(
+                    list(map(float, v)))
         if self._saved_plots:
             SubElement(xrd, "SavedPlots").text = dumps(self._saved_plots)
         return xrd
