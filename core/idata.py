@@ -189,13 +189,13 @@ class XrayData:
         if self.alpha1 is self.alpha2 is None:
             return Iex / (np.cos(ang) ** 2 + 1.) * 2.
         if self.alpha2 is None:
-            c2a = np.cos(2. * self.alpha1) ** 2
+            c2a = np.cos(self.alpha1 * np.pi / 90.) ** 2
             return Iex / (c2a * np.cos(ang) ** 2 + 1.) * (1. + c2a)
         if self.alpha1 is None:
-            c2a = np.cos(2. * self.alpha2) ** 2
+            c2a = np.cos(self.alpha2 * np.pi / 90.) ** 2
             return Iex / (c2a * np.cos(ang) ** 2 + 1.) * 2.
-        c2a1 = np.cos(2. * self.alpha1) ** 2
-        c2a2 = np.cos(2. * self.alpha2) ** 2
+        c2a1 = np.cos(self.alpha1 * np.pi / 90.) ** 2
+        c2a2 = np.cos(self.alpha2 * np.pi / 90.) ** 2
         return Iex / (c2a1 * c2a2 * np.cos(ang) ** 2 + 1.) * (1. + c2a1)
 
     def rev_intens(self, Icor):
