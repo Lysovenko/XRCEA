@@ -46,6 +46,8 @@ def introduce():
     iget = APP.settings.get
     for n, v in _DEFAULTS.items():
         _data[n] = iget(n, v, "Peaks")
+    APP.settings.add_default_colors(
+        {"crp_strip": "blue", "crp_bg": "#FF4500", "crp_refl": "red"})
 
 
 def terminate():
@@ -85,14 +87,15 @@ class Mcall:
             x_label = {"theta": "$\\theta$", "2theta": "$2\\theta$",
                        "q": "q", None: _("Unknown")}[dat.x_units]
             plt = {"plots": [
-                {"x1": "x_data", "y1": "corr_intens"},
-                {"x1": "x_data", "y1": "background"},
-                {"x1": "x_data", "y1": "stripped"}],
+                {"x1": "x_data", "y1": "corr_intens", "color": "exp_dat"},
+                {"x1": "x_data", "y1": "background", "color": "crp_bg"},
+                {"x1": "x_data", "y1": "stripped", "color": "crp_strip"}],
                 "x1label": x_label, "y1label": _("pps"),
                 "x1units": dat.x_units}
             _name = _("Background")
             dat.remember_plot(_name, plt)
-            plt = {"plots": [{"x1": "x_data", "y1": "stripped"}],
+            plt = {"plots": [{"x1": "x_data", "y1": "stripped",
+                              "color": "exp_dat"}],
                    "x1label": x_label, "y1label": _("pps"),
                    "x1units": dat.x_units}
             _name = _("Stripped")

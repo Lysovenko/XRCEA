@@ -357,7 +357,8 @@ class Cryplots:
 
         plt = {"x1label": x_label, "y1label": _("pps"),
                "x1units": xrd.x_units}
-        plots = [{"x1": xrd.x_data, "y1": xrd.extra_data["stripped"]}]
+        plots = [{"x1": xrd.x_data, "y1": xrd.extra_data["stripped"],
+                  "color": "exp_dat"}]
         cryb = xrd.extra_data["crypbells"]
         for x0, h, w, s in cryb.reshape(len(cryb) // 4, 4):
             halfwidth = 3 * np.sqrt(w)
@@ -367,7 +368,7 @@ class Cryplots:
                 x = np.arcsin(x)*180./np.pi
             elif xrd.x_units == "2theta":
                 x = np.arcsin(x)*360./np.pi
-            plots.append({"x1": x, "y1": y})
+            plots.append({"x1": x, "y1": y, "color": "crp_refl"})
         plt["plots"] = plots
         return plt
 
