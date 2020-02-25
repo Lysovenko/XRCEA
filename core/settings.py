@@ -42,6 +42,8 @@ class Settings:
         if not isdir(self.__app_home):
             os.mkdir(self.__app_home, 0o755)
         self.__config.read(self.get_home("XRCEA.cfg"))
+        self.declare_section("PALETTE")
+        self.__default_colors = {}
 
     def declare_section(self, section):
         if not self.__config.has_section(section):
@@ -67,10 +69,23 @@ class Settings:
                 repr(self.__config.get(section, name)), deft.__name__))
             return default
 
+    def get_color(self, name):
+        if name is None:
+            return
+        if not self.__config.has_option("PALETTE", name):
+            return self.__default_colors.get(name)
+        return self.__config.get("PALETTE", name)
+
     def set(self, name, val, section='DEFAULT'):
         if not isinstance(val, str):
             val = repr(val)
         self.__config.set(section, name, val)
+
+    def set_color(self, name, val):
+        self.__config.set("PALETTE", name, val)
+
+    def add_default_colors(self, colors):
+        self.__default_colors.update(colors)
 
     def get_home(self, name=''):
         if name:

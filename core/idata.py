@@ -63,7 +63,8 @@ class XrayData:
     def __eq__(self, other):
         if not isinstance(other, type(self)):
             return False
-        return self.x_data == other.x_data and self.y_data == other.y_data
+        return ((self.x_data == other.x_data) ==
+                (self.y_data == other.y_data)).all()
 
     def _from_dict(self, dct):
         self.__dict.update(dct)
@@ -251,7 +252,8 @@ class XrayData:
     def make_plot(self):
         x_label = {"theta": "$\\theta$", "2theta": "$2\\theta$",
                    "q": "q", None: _("Unknown")}[self.x_units]
-        return {"plots": [{"x1": self.x_data, "y1": self.y_data}],
+        return {"plots": [{"x1": self.x_data, "y1": self.y_data,
+                           "color": "exp_dat"}],
                 "x1label": x_label, "y1label": _("pps"),
                 "x1units": self.x_units}
 

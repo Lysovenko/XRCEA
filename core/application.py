@@ -49,6 +49,7 @@ class Application:
 def start():
     global _ACTUAL_INTERFACE
     _introduce_menu()
+    APPLICATION.settings.add_default_colors({"exp_dat": "black"})
     _ACTUAL_INTERFACE = import_module(".qt", "core")
     _ACTUAL_INTERFACE.main()
 

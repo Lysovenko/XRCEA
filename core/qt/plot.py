@@ -43,7 +43,7 @@ from matplotlib.backends.backend_qt5agg import (
 from matplotlib.figure import Figure
 from .idialog import DialogsMixin
 from .core import qMainWindow
-
+from ..application import APPLICATION as APP
 
 class Canvas(FigureCanvas):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
@@ -86,6 +86,9 @@ class Canvas(FigureCanvas):
         for plot in dset["plots"]:
             ltype = plot.get("type", "-")
             color = plot.get("color")
+            cc = APP.settings.get_color(color)
+            if cc is not None:
+                color = cc
             if "y2" in plot:
                 a2p = self.axes2
             else:
