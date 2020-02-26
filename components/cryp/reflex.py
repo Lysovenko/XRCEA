@@ -351,24 +351,47 @@ class ReflexDedect:
 
 class Cryplots:
     @staticmethod
-    def _plot(xrd, fname):
+    def _calc_shape(xrd, shfunc):
+        shape = np.zeros(len(xrd.x_data))
+        if xrd.x_units != "q":
+            x = np.sin(xrd.theta)
+        else:
+            x = xrd.qrange
+        lambdi = []
+        if xrd.lambda2 is not None and xrd.I2 is not None:
+            lambdi.append((xrd.lambda2 / xrd.lambda1, xrd.I2))
+        if xrd.lambda3 is not None and xrd.I3 is not None:
+            lambdi.append((xrd.lambda3 / xrd.lambda1, xrd.I3))
+        cryb = xrd.extra_data["crypbells"]
+        for x0, h, w, s in cryb.reshape(len(cryb) // 4, 4):
+            shape += shfunc(x, x0, h, w)
+            for l21, ri in lambdi:
+                shape += shfunc(x, x0 * l21, h * ri, w * l21 ** 2)
+                # TODO: enshure if this is correct
+        return shape
+
+    @classmethod
+    def _plot(self, xrd, fname):
         x_label = {"theta": "$\\theta$", "2theta": "$2\\theta$",
                    "q": "q"}.get(xrd.x_units, _("Unknown"))
 
-        plt = {"x1label": x_label, "y1label": _("pps"),
+        plt = {"x1label": x_label, "y1label": _("Relative units"),
                "x1units": xrd.x_units}
         plots = [{"x1": xrd.x_data, "y1": xrd.extra_data["stripped"],
                   "color": "exp_dat"}]
         cryb = xrd.extra_data["crypbells"]
+        shfunc = _SH_FUNCTIONS[fname]
         for x0, h, w, s in cryb.reshape(len(cryb) // 4, 4):
             halfwidth = 3 * np.sqrt(w)
             x = np.linspace(x0 - halfwidth, x0 + halfwidth, 100)
-            y = _SH_FUNCTIONS[fname](x, x0, h, w)
+            y = shfunc(x, x0, h, w)
             if xrd.x_units == "theta":
-                x = np.arcsin(x)*180./np.pi
+                x = np.arcsin(x) * 180. / np.pi
             elif xrd.x_units == "2theta":
-                x = np.arcsin(x)*360./np.pi
+                x = np.arcsin(x) * 360. / np.pi
             plots.append({"x1": x, "y1": y, "color": "crp_refl"})
+        plots.append({"x1": xrd.x_data, "y1": self._calc_shape(xrd, shfunc),
+                      "color": "crp_srefl"})
         plt["plots"] = plots
         return plt
 

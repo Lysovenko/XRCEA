@@ -47,7 +47,8 @@ def introduce():
     for n, v in _DEFAULTS.items():
         _data[n] = iget(n, v, "Peaks")
     APP.settings.add_default_colors(
-        {"crp_strip": "blue", "crp_bg": "#FF4500", "crp_refl": "red"})
+        {"crp_strip": "blue", "crp_bg": "#FF4500", "crp_refl": "red",
+         "crp_srefl": "magenta"})
 
 
 def terminate():
@@ -90,13 +91,13 @@ class Mcall:
                 {"x1": "x_data", "y1": "corr_intens", "color": "exp_dat"},
                 {"x1": "x_data", "y1": "background", "color": "crp_bg"},
                 {"x1": "x_data", "y1": "stripped", "color": "crp_strip"}],
-                "x1label": x_label, "y1label": _("pps"),
+                "x1label": x_label, "y1label": _("Relative units"),
                 "x1units": dat.x_units}
             _name = _("Background")
             dat.remember_plot(_name, plt)
             plt = {"plots": [{"x1": "x_data", "y1": "stripped",
                               "color": "exp_dat"}],
-                   "x1label": x_label, "y1label": _("pps"),
+                   "x1label": x_label, "y1label": _("Relative units"),
                    "x1units": dat.x_units}
             _name = _("Stripped")
             dat.remember_plot(_name, plt)
