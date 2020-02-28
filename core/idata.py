@@ -61,7 +61,7 @@ class XrayData:
             self.open(fname)
 
     def __eq__(self, other):
-        if not isinstance(other, type(self)):
+        if not isinstance(other, np.ndarray):
             return False
         return ((self.x_data == other.x_data) ==
                 (self.y_data == other.y_data)).all()
