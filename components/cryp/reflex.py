@@ -153,7 +153,6 @@ class ReflexDedect:
             for x0, h, w in peaks:
                 shape += sh_func(the_x, x0, h, w)
                 shape += sh_func(the_x, x0 * l21, h * I2, w * l21 ** 2)
-                # TODO: enshure if this is correct
         return shape
 
     def find_bells(self, sigmin, varsig, max_peaks=None, sh_type="Gaus"):
@@ -367,7 +366,6 @@ class Cryplots:
             shape += shfunc(x, x0, h, w)
             for l21, ri in lambdi:
                 shape += shfunc(x, x0 * l21, h * ri, w * l21 ** 2)
-                # TODO: enshure if this is correct
         return shape
 
     @classmethod
