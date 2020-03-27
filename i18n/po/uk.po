@@ -1,0 +1,389 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-03-28 00:38+0200\n"
+"PO-Revision-Date: 2020-03-28 01:16+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../components/cryp/__init__.py:27
+msgid "Gaus"
+msgstr "Гаус"
+
+#: ../../components/cryp/__init__.py:27
+msgid "Lorentz"
+msgstr "Лоренц"
+
+#: ../../components/cryp/__init__.py:27
+msgid "Pseudo Voit"
+msgstr "Псевдо Войт"
+
+#: ../../components/cryp/__init__.py:33
+msgid "Diffractogram"
+msgstr "Дифрактограма"
+
+#: ../../components/cryp/__init__.py:35
+msgid "Find background..."
+msgstr "Знайти фон..."
+
+#: ../../components/cryp/__init__.py:37
+msgid "Calc. refl. shapes..."
+msgstr "Знайти профілі рефлексів"
+
+#: ../../components/cryp/__init__.py:39
+msgid "Predefined reflexes..."
+msgstr "Передвизначені рефлекси..."
+
+#: ../../components/cryp/__init__.py:72
+msgid "Calculate background"
+msgstr "Розрахувати фон"
+
+#: ../../components/cryp/__init__.py:73
+msgid "Sigma multiplier:"
+msgstr "Сигма множник:"
+
+#: ../../components/cryp/__init__.py:74
+msgid "Polynomial's degree:"
+msgstr "Порядок поліному:"
+
+#: ../../components/cryp/__init__.py:89 ../../components/cryp/reflex.py:374
+#: ../../core/idata.py:262
+msgid "Unknown"
+msgstr "Невідомо"
+
+#: ../../components/cryp/__init__.py:94 ../../components/cryp/__init__.py:100
+#: ../../components/cryp/reflex.py:376
+msgid "Relative units"
+msgstr "Відносні одиниці"
+
+#: ../../components/cryp/__init__.py:96
+msgid "Background"
+msgstr "Фон"
+
+#: ../../components/cryp/__init__.py:102
+msgid "Stripped"
+msgstr "Без фону"
+
+#: ../../components/cryp/__init__.py:113
+msgid "Peaks description"
+msgstr "Опис рефлексів"
+
+#: ../../components/cryp/__init__.py:184
+msgid "Min. \\u03c3:"
+msgstr "Мін. \\u03c3:"
+
+#: ../../components/cryp/__init__.py:185
+msgid "Const. \\u03c3"
+msgstr "Стала \\u03c3"
+
+#: ../../components/cryp/__init__.py:186
+msgid "Max. bells:"
+msgstr "Макс. піків:"
+
+#: ../../components/cryp/__init__.py:187
+msgid "Shape function:"
+msgstr "Функція профілю:"
+
+#: ../../components/cryp/__init__.py:188
+msgid "Ignore points:"
+msgstr "Ігнорувати точок:"
+
+#: ../../components/cryp/__init__.py:189
+msgid "Believe factor:"
+msgstr "Довірчий коефіцієнт:"
+
+#: ../../components/cryp/__init__.py:191
+msgid "Algorithm:"
+msgstr "Алгоритм:"
+
+#: ../../components/cryp/__init__.py:191
+msgid "alg 1"
+msgstr "Алг 1"
+
+#: ../../components/cryp/__init__.py:191
+msgid "alg 2"
+msgstr "Алг 2"
+
+#: ../../components/cryp/__init__.py:192
+msgid "Shapes of reflexes"
+msgstr "Профілі рефлексів"
+
+#: ../../components/cryp/__init__.py:211
+msgid "Calculating shapes of the reflexes..."
+msgstr "Розраховую профілі рефлексів..."
+
+#: ../../components/cryp/__init__.py:245
+msgid "Reflexes description"
+msgstr "Опис рефлексів"
+
+#: ../../components/cryp/__init__.py:247
+msgid "Mode"
+msgstr "Режим"
+
+#: ../../components/pddb/__init__.py:24 ../../core/application.py:110
+msgid "&Options"
+msgstr "&Налаштування"
+
+#: ../../components/pddb/__init__.py:25
+msgid "&Tools"
+msgstr "&Інструменти"
+
+#: ../../components/pddb/__init__.py:30
+msgid "Configure PDDB..."
+msgstr "Налаштувати ПДБД..."
+
+#: ../../components/pddb/__init__.py:31
+msgid "DB browser"
+msgstr "Браузер БД"
+
+#: ../../components/pddb/__init__.py:33
+msgid "Compare with DB pattern"
+msgstr "Порівняти з шаблоном БД"
+
+#: ../../components/pddb/__init__.py:42
+msgid "DB Files"
+msgstr "Файли БД"
+
+#: ../../components/pddb/__init__.py:44
+msgid "PDDB settings"
+msgstr "Налаштування ПДБД"
+
+#: ../../components/pddb/__init__.py:44
+msgid "Database browser settings"
+msgstr "Налаштування браузера БД"
+
+#: ../../components/pddb/__init__.py:45
+msgid "Database file:"
+msgstr "Файл бази даних:"
+
+#: ../../components/pddb/browser.py:35
+msgid "Database browser"
+msgstr "Браузер баз даних"
+
+#: ../../components/pddb/browser.py:37
+msgid "Number"
+msgstr "№"
+
+#: ../../components/pddb/browser.py:37 ../../core/project.py:126
+#: ../../core/project.py:127 ../../core/project.py:171
+msgid "Name"
+msgstr "Назва"
+
+#: ../../components/pddb/browser.py:37
+msgid "Formula"
+msgstr "Формула"
+
+#: ../../components/pddb/browser.py:41
+msgid "Search:"
+msgstr "Пошук:"
+
+#: ../../components/pddb/browser.py:44
+msgid "Delete"
+msgstr "Видалити"
+
+#: ../../components/pddb/browser.py:45
+msgid "Clear deleted"
+msgstr "Очистити видалені"
+
+#: ../../components/pddb/browser.py:46
+msgid "Print GNUPlot labels"
+msgstr "Надрукувати підписи GNUPlot"
+
+#: ../../components/pddb/browser.py:69
+msgid "Query error"
+msgstr "Помилка запиту"
+
+#: ../../components/pddb/browser.py:69
+msgid "Wrong Query"
+msgstr "Хибний запит"
+
+#: ../../components/pddb/browser.py:79
+msgid " (Deleted)"
+msgstr " (Вилучено)"
+
+#: ../../components/pddb/browser.py:80
+#, python-format
+msgid ""
+"\n"
+"<table>\n"
+"<tr><td>Number:</td><td>%(num)s</td></tr>\n"
+"<tr><td>Name:</td><td>%(nam)s</td></tr>\n"
+"<tr><td>Formula:</td><td>%(fml)s</td></tr>\n"
+"<tr><td>Quality:</td><td>%(qlt)s</td></tr>\n"
+msgstr ""
+"\n"
+"<table>\n"
+"<tr><td>Номер:</td><td>%(num)s</td></tr>\n"
+"<tr><td>Назва:</td><td>%(nam)s</td></tr>\n"
+"<tr><td>Формула:</td><td>%(fml)s</td></tr>\n"
+"<tr><td>Якість:</td><td>%(qlt)s</td></tr>\n"
+
+#: ../../components/pddb/browser.py:92
+msgid "Cell parameters:"
+msgstr "параметри комірки:"
+
+#: ../../components/pddb/browser.py:100
+msgid "Space group:"
+msgstr "Просторова група:"
+
+#: ../../components/pddb/browser.py:124
+msgid "<h5>Comment</h5>"
+msgstr "<h5>Коментар</h5>"
+
+#: ../../components/pddb/browser.py:127
+msgid "Color: "
+msgstr "Колір:"
+
+#: ../../components/pddb/browser.py:129
+msgid "<h5>Bibliography</h5>\n"
+msgstr "<h5>Бібліографія</h5>\n"
+
+#: ../../components/pddb/browser.py:158
+msgid "PDDB Pattern"
+msgstr "Шаблон ПДБД"
+
+#: ../../components/pddb/browser.py:210
+msgid "DB opening error"
+msgstr "Помилка відкривання БД"
+
+#: ../../components/pddb/browser.py:211
+#, python-format
+msgid "Failed to open DB file: %s"
+msgstr "Збій відкривання файла БД: %s"
+
+#: ../../core/application.py:74
+msgid "Open file"
+msgstr "Відкрити файл"
+
+#: ../../core/application.py:76
+msgid "All known files"
+msgstr "Всі відомі файли"
+
+#: ../../core/application.py:103
+msgid "Help window"
+msgstr "Вікно допомоги"
+
+#: ../../core/application.py:103
+msgid "Unable to open help page."
+msgstr "Не можу відкрити сторінку допомоги."
+
+#: ../../core/application.py:111
+msgid "&File"
+msgstr "&Файл"
+
+#: ../../core/application.py:112
+msgid "Project"
+msgstr "Проект"
+
+#: ../../core/application.py:113
+msgid "&Help"
+msgstr "&Допомога"
+
+#: ../../core/application.py:117
+msgid "Show"
+msgstr "Показати"
+
+#: ../../core/application.py:118
+msgid "Save"
+msgstr "Зберегти"
+
+#: ../../core/application.py:119
+msgid "Save as..."
+msgstr "Зберегти як..."
+
+#: ../../core/application.py:122
+msgid "Components..."
+msgstr "Компоненти..."
+
+#: ../../core/application.py:124
+msgid "&Open"
+msgstr "&Відкрити"
+
+#: ../../core/application.py:127
+msgid "Contents"
+msgstr "Зміст"
+
+#: ../../core/idata.py:29
+msgid "Difractograms"
+msgstr "Дифракторами"
+
+#: ../../core/idata.py:41
+msgid "Difractogram"
+msgstr "Дифрактограма"
+
+#: ../../core/idata.py:265
+msgid "pps"
+msgstr "імп./сек."
+
+#: ../../core/project.py:126
+msgid "About"
+msgstr "Про"
+
+#: ../../core/project.py:127
+msgid "Components"
+msgstr "Складові"
+
+#: ../../core/project.py:127
+msgid "Type"
+msgstr "Тип"
+
+#: ../../core/project.py:129
+msgid "&Project"
+msgstr "&Проект"
+
+#: ../../core/project.py:169
+msgid "New project"
+msgstr "Новий проект"
+
+#: ../../core/project.py:170
+msgid "Project parameters"
+msgstr "Параметри проекту"
+
+#: ../../core/project.py:191
+msgid "Save project"
+msgstr "Зберегти проект"
+
+#: ../../core/project.py:192 ../../core/project.py:212
+msgid "XRCEA project"
+msgstr "Проект XRCEA"
+
+#: ../../core/project.py:211
+msgid "Open XRCEA project"
+msgstr "Відкрити проект XRCEA"
+
+#: ../../core/project.py:240
+#, python-format
+msgid "The \"%s\" project contains unsaved changes."
+msgstr "Проект \"%s\" містить незбережені зміни."
+
+#: ../../core/qt/core.py:141
+#, python-format
+msgid ""
+"%s\n"
+"Exit anyway?"
+msgstr ""
+"%s\n"
+"Вийти в будь-якому разі?"
+
+#: ../../core/sett_dialogs.py:26
+msgid "Select components"
+msgstr "Вибрати модулі"
+
+#: ../../core/sett_dialogs.py:27
+msgid "Select required components"
+msgstr "Обрати потрібні модулі"
+
+#: ../../core/vi/plot.py:75
+msgid "Plot"
+msgstr "Графік"
