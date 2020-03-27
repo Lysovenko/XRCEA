@@ -24,6 +24,7 @@ from .mixins import DialogsMixin
 class Lister (DialogsMixin):
     def __init__(self, name, titles, lvalues, styles={},
                  class_name=None, identifier=None):
+        self.gui_functions = {}
         self.name = name
         self.styles = styles
         self.lvalues = lvalues
@@ -31,12 +32,21 @@ class Lister (DialogsMixin):
         self.identifier = identifier
         self.close_lock = None
         self.currently_alive = False
-        self.gui_functions = {}
         self.icon = None
         self.titles = titles
         self.class_name = class_name
         self.shortcuts = {}
         self.menu = DMenu()
+
+    @property
+    def name(self):
+        return self.__name
+
+    @name.setter
+    def name(self, name_):
+        if "set_name" in self.gui_functions:
+            self.gui_functions["set_name"](name_)
+        self.__name = name_
 
     def show(self):
         from ..application import get_actual_interface

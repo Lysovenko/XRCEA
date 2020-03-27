@@ -1,4 +1,4 @@
-# XRCEA (C) 2019 Serhii Lysovenko
+# XRCEA (C) 2019-2020 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@ class Project:
         self.UI = None
         self._components = []
         self._about = {"name": "New", "id": str(int(time()))}
+        self._content_modified = None
         if filename:
             self.read(filename)
 
@@ -67,6 +68,11 @@ class Project:
                 xml = c.get_xml()
                 zipf.writestr("item%d" % i, xml_string(xml))
             zipf.writestr("about", xml_string(self._about_xml()))
+            self._content_modified = False
+            try:
+                self.UI.name = self.name()
+            except AttributeError:
+                pass
 
     def read(self, filename):
         with ZipFile(filename, "r") as zipf:
@@ -78,12 +84,18 @@ class Project:
                 except KeyError:
                     pass
             self._about_from_xml(fromstring(zipf.read("about")))
+        self._content_modified = False
 
     def add_component(self, component):
         if component not in self._components:
             self._components.append(component)
             if self.UI:
                 self.UI.update_components()
+            try:
+                component.set_container(self)
+            except AttributeError:
+                pass
+            self.element_changed(component)
 
     def components(self):
         return iter(self._components)
@@ -95,6 +107,16 @@ class Project:
 
     def abouts(self):
         return self._about.items()
+
+    def element_changed(self, element):
+        self._content_modified = True
+        try:
+            self.UI.modified()
+        except AttributeError:
+            pass
+
+    def is_modified(self):
+        return self._content_modified
 
 
 class vi_Project(Lister):
@@ -138,6 +160,8 @@ class vi_Project(Lister):
         self.components.update([(c.type, c.name, None, c)
                                 for c in self.project.components()])
 
+    def modified(self):
+        self.name = "* " + self.project.name()
 
 
 _CURRENT_PROJECT = None
@@ -209,3 +233,17 @@ def open_later(fname):
 
 def add_object(component):
     _CURRENT_PROJECT.add_component(component)
+
+
+class PreventExit:
+    def __bool__(self):
+        try:
+            return bool(_CURRENT_PROJECT.is_modified())
+        except AttributeError:
+            return False
+
+    def __str__(self):
+        if self:
+            return _("The \"%s\" project contains unsaved changes.") % \
+                _CURRENT_PROJECT.name()
+        return ""

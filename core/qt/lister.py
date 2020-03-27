@@ -107,6 +107,9 @@ class Lister(qMainWindow):
         return tuple(get_widget_value(e) for e in self.form_edas[which])
 
     def closeEvent(self, event=None):
+        if event is not None:
+            if super().closeEvent(event, False):
+                return
         for t in self.timers:
             try:
                 t.stop()

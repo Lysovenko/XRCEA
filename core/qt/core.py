@@ -133,3 +133,16 @@ class qMainWindow(QMainWindow, DialogsMixin):
         global _WINDOWS
         _WINDOWS += 1
         self.destroyed.connect(_decrease)
+        vi_obj.gui_functions["set_name"] = self.setWindowTitle
+
+    def closeEvent(self, event, can_accept=True):
+        if _WINDOWS == 1 and APPLICATION.prevent_exit:
+            if QMessageBox.warning(
+                    self, "XRCEA", _("%s\nExit anyway?")
+                    % APPLICATION.prevent_exit,
+                    QMessageBox.Yes | QMessageBox.No
+            ) == QMessageBox.No:
+                event.ignore()
+                return True
+        if can_accept:
+            event.accept()

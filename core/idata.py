@@ -1,4 +1,4 @@
-# XRCEA (C) 2019 Serhii Lysovenko
+# XRCEA (C) 2019-2020 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -63,8 +63,9 @@ class XrayData:
     def __eq__(self, other):
         if not isinstance(other, np.ndarray):
             return False
-        return ((self.x_data == other.x_data) ==
-                (self.y_data == other.y_data)).all()
+        return (
+            (self.x_data == other.x_data) == (self.y_data == other.y_data)
+        ).all()
 
     def _from_dict(self, dct):
         self.__dict.update(dct)
@@ -88,6 +89,15 @@ class XrayData:
             self.__sample = dct['sample'].lower()
         if 'name' in dct:
             self.name = dct['name']
+
+    def _emit_changed(self):
+        try:
+            self._container.element_changed(self)
+        except AttributeError:
+            pass
+
+    def set_container(self, container):
+        self._container = container
 
     @staticmethod
     def open_xrd(fname):
@@ -248,6 +258,7 @@ class XrayData:
     def remember_plot(self, name, plot):
         self._saved_plots[name] = plot
         self.UI.add_plot(name, self.abstraction2plot(plot))
+        self._emit_changed()
 
     def make_plot(self):
         x_label = {"theta": "$\\theta$", "2theta": "$2\\theta$",
