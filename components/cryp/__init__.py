@@ -71,7 +71,7 @@ class Mcall:
         plot = dat.UI
         dlgr = plot.input_dialog(_("Calculate background"), [
             (_("Sigma multiplier:"), self.idat["bg_sigmul"]),
-            (_("Background poynom's range:"), self.idat["bg_polrang"]),
+            (_("Polynomial's degree:"), self.idat["bg_polrang"]),
         ])
         if dlgr is not None:
             sigmul, deg = dlgr
@@ -110,7 +110,7 @@ class Mcall:
             return
         itms = rv["items"]
         dat.extra_data["crypbells"] = np.array(itms).reshape(len(itms) * 4)
-        _name = _("Peak description")
+        _name = _("Peaks description")
         dat.remember_plot(_name, "cryp" + rv["shape"])
         dat.UI.draw(_name)
 
