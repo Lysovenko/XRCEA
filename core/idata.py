@@ -16,10 +16,7 @@
 """Input data"""
 
 import numpy as np
-try:
-    from lxml.etree import Element, SubElement
-except ImportError:
-    from xml.etree.ElementTree import Element, SubElement
+from xml.etree.ElementTree import Element, SubElement
 from os.path import basename
 from json import loads, dumps
 from .application import APPLICATION as APP, icon_file

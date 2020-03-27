@@ -18,21 +18,14 @@
 from zipfile import ZipFile, ZIP_DEFLATED
 from time import time
 from os.path import splitext, isfile
-try:
-    from lxml.etree import fromstring, tostring, Element, SubElement
-except ImportError:
-    from xml.etree.ElementTree import fromstring, tostring, Element, SubElement
+from xml.etree.ElementTree import fromstring, tostring, Element, SubElement
 from .vi import (Lister, input_dialog, print_error, ask_open_filename,
                  ask_save_filename, ask_question)
 from .vi.value import Value
 
 
 def xml_string(xml):
-    try:
-        res = tostring(xml, encoding="utf8", xml_declaration=True)
-    except TypeError:
-        res = tostring(xml, encoding="utf8")
-    return res
+    return tostring(xml, encoding="utf8")
 
 
 class Project:
