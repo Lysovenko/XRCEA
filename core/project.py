@@ -111,7 +111,6 @@ class vi_Project(Lister):
                          [(_("About"), (_("Name"), "Value")),
                           (_("Components"), (_("Type"), _("Name")))],
                          [abouts, components], styles)
-        self.menu.append_item((), _("&Project"), {}, None)
         self.show()
         self.set_choicer(self.click_component, False, 1)
 
