@@ -18,14 +18,10 @@
 from zipfile import ZipFile, ZIP_DEFLATED
 from time import time
 from os.path import splitext, isfile
-from xml.etree.ElementTree import fromstring, tostring, Element, SubElement
+from json import loads, dumps
 from .vi import (Lister, input_dialog, print_error, ask_open_filename,
                  ask_save_filename, ask_question)
 from .vi.value import Value
-
-
-def xml_string(xml):
-    return tostring(xml, encoding="utf8")
 
 
 class Project:
@@ -42,25 +38,14 @@ class Project:
 
     @classmethod
     def add_treater(self, treater):
-        assert treater.xmlroot not in self.__TREATERS
-        self.__TREATERS[treater.xmlroot] = treater
-
-    def _about_xml(self):
-        about = Element("about")
-        for k, v in self._about.items():
-            SubElement(about, k).text = v
-        return about
-
-    def _about_from_xml(self, xml):
-        assert xml.tag == "about"
-        self._about.update((i.tag, i.text) for i in xml)
+        assert treater.objtype not in self.__TREATERS
+        self.__TREATERS[treater.objtype] = treater
 
     def save(self, filename):
         with ZipFile(filename, "w", compression=ZIP_DEFLATED) as zipf:
             for i, c in enumerate(self._components):
-                xml = c.get_xml()
-                zipf.writestr("item%d" % i, xml_string(xml))
-            zipf.writestr("about", xml_string(self._about_xml()))
+                zipf.writestr("item%d" % i, dumps(c.get_obj()))
+            zipf.writestr("about", dumps(self._about))
             self._content_modified = False
             try:
                 self.UI.name = self.name()
@@ -70,13 +55,13 @@ class Project:
     def read(self, filename):
         with ZipFile(filename, "r") as zipf:
             for i in filter(lambda x: x.startswith("item"), zipf.namelist()):
-                xml = fromstring(zipf.read(i))
+                obj = loads(zipf.read(i))
                 try:
                     self._components.append(
-                        self.__TREATERS[xml.tag]().from_xml(xml))
-                except KeyError:
+                        self.__TREATERS[obj["objtype"]](obj))
+                except (KeyError, TypeError):
                     pass
-            self._about_from_xml(fromstring(zipf.read("about")))
+            self._about.update(loads(zipf.read("about")))
         self._content_modified = False
 
     def add_component(self, component):

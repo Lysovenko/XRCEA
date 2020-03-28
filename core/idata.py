@@ -16,7 +16,6 @@
 """Input data"""
 
 import numpy as np
-from xml.etree.ElementTree import Element, SubElement
 from os.path import basename
 from json import loads, dumps
 from .application import APPLICATION as APP, icon_file
@@ -37,10 +36,10 @@ class XrayData:
     loaders = []
     actions = {}
     plotters = {}
-    xmlroot = "xrd"
+    objtype = "xrd"
     type = _("Difractogram")
 
-    def __init__(self, fname=None):
+    def __init__(self, obj=None):
         self.__sample = None
         self.__dict = {}
         self.extra_data = {}
@@ -54,8 +53,10 @@ class XrayData:
             setattr(self, i, None)
         if not XrayData.loaders:
             XrayData.loaders.append(XrayData.open_xrd)
-        if fname is not None:
-            self.open(fname)
+        if isinstance(obj, str):
+            self.open(obj)
+        elif isinstance(obj, dict):
+            self.from_obj(obj)
 
     def __eq__(self, other):
         if not isinstance(other, np.ndarray):
@@ -265,46 +266,49 @@ class XrayData:
                 "x1label": x_label, "y1label": _("pps"),
                 "x1units": self.x_units}
 
-    def get_xml(self):
+    def get_obj(self):
         """Convets X-ray data into XML."""
-        xrd = Element(self.xmlroot)
+        xrd = {"objtype": self.objtype}
         for i in ("density", "alpha1", "alpha2", "lambda1", "lambda2",
                   "lambda3", "I2", "I3", "contains", "name", "x_units"):
             v = getattr(self, i, None)
             if v is not None:
-                SubElement(xrd, i).text = dumps(v)
+                xrd[i] = v
         for i in ("x_data", "y_data"):
             v = getattr(self, i, None)
             if v is not None:
-                SubElement(xrd, i).text = dumps(list(map(float, v)))
+                try:
+                    xrd[i] = v.tolist()
+                except AttributeError:
+                    xrd[i] = list(map(float, v))
         if self.extra_data:
-            e = SubElement(xrd, "extras")
+            xrd["extras"] = e = {}
             for n, v in self.extra_data.items():
-                SubElement(e, "array", name=n).text = dumps(
-                    list(map(float, v)))
+                e[n] = list(map(float, v))
         if self._saved_plots:
-            SubElement(xrd, "SavedPlots").text = dumps(self._saved_plots)
+            xrd["SavedPlots"] = self._saved_plots
         return xrd
 
-    def from_xml(self, xrd):
-        """Get X-ray data from XML."""
-        assert xrd.tag == self.xmlroot
-        for e in xrd:
-            if e.tag in {"density", "alpha1", "alpha2", "lambda1", "lambda2",
-                         "lambda3", "I2", "I3", "contains", "name", "x_units"}:
-                setattr(self, e.tag, loads(e.text))
-            if e.tag in {"x_data", "y_data"}:
-                setattr(self, e.tag, np.array(loads(e.text)))
-            if e.tag == "extras":
-                for l in e:
-                    if l.tag != "array":
-                        continue
-                    name = l.get("name")
-                    if name is None:
-                        continue
-                    self.extra_data[name] = np.array(loads(l.text))
-            if e.tag == "SavedPlots":
-                self._saved_plots = loads(e.text)
+    def from_obj(self, xrd):
+        """Get X-ray data from dict"""
+        assert xrd["objtype"] == self.objtype
+        for i in ("density", "alpha1", "alpha2", "lambda1", "lambda2",
+                  "lambda3", "I2", "I3", "contains", "name", "x_units"):
+            try:
+                setattr(self, i, xrd[i])
+            except KeyError:
+                pass
+        for i in ("x_data", "y_data"):
+            setattr(self, i, np.array(xrd[i]))
+        try:
+            for n, v in xrd["extras"].items():
+                self.extra_data[n] = np.array(v)
+        except (KeyError, TypeError):
+            pass
+        try:
+            self._saved_plots.update(xrd["SavedPlots"])
+        except (KeyError, TypeError):
+            pass
         return self
 
     def display(self):
