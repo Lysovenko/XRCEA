@@ -75,6 +75,13 @@ class Project:
                 pass
             self.element_changed(component)
 
+    def remove_component(self, component):
+        if component in self._components:
+            self._components.remove(component)
+            if self.UI:
+                self.UI.update_components()
+            self.element_changed(component)
+
     def components(self):
         return iter(self._components)
 
@@ -113,6 +120,7 @@ class vi_Project(Lister):
                          [abouts, components], styles)
         self.show()
         self.set_choicer(self.click_component, False, 1)
+        self.set_list_context_menu([(_("Delete"), self.del_component)], 1)
 
     @property
     def currently_alive(self):
@@ -132,6 +140,11 @@ class vi_Project(Lister):
         component = tup[-1]
         if hasattr(component, "display"):
             component.display()
+        component = tup[-1]
+
+    def del_component(self, tup, c=None):
+        component = tup[-1]
+        self.project.remove_component(component)
 
     def update_components(self):
         self.components.update([(c.type, c.name, None, c)
