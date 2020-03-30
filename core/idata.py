@@ -267,7 +267,7 @@ class XrayData:
                 "x1units": self.x_units}
 
     def get_obj(self):
-        """Convets X-ray data into XML."""
+        """Convets X-ray data into object."""
         xrd = {"objtype": self.objtype}
         for i in ("density", "alpha1", "alpha2", "lambda1", "lambda2",
                   "lambda3", "I2", "I3", "contains", "name", "x_units"):

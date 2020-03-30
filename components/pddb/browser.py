@@ -19,8 +19,8 @@ import locale
 from core.vi import Page, Button, print_error
 from core.vi.value import Value
 from core.application import APPLICATION as APP
-from .pddb import Database, formula_markup, switch_number
-
+from .pddb import switch_number
+from .opddb import ObjDB as Database
 
 PARAMS = {}
 
@@ -205,7 +205,7 @@ class Browser(Page):
 def show_browser():
     if not PARAMS.get("Browser"):
         try:
-            db = Database(APP.settings.get("db_file", "", "PDDB"))
+            db = Database(dbpath=APP.settings.get("db_file", "", "PDDB"))
         except RuntimeError as err:
             return print_error(_("DB opening error"),
                                _("Failed to open DB file: %s") % str(err))
