@@ -16,30 +16,69 @@
 """Representation of PDDB cards as Python's objects"""
 
 import numpy as np
-from .pddb import Database
+from core.application import APPLICATION as APP
+from .pddb import Database, formula_markup
+from .browser import PARAMS, Browser, print_error
 
 
 class ObjDB:
     objtype = "opddb"
     type = _("XRD cards")
 
-    def __init__(self, obj=None, dbpath=None):
-        try:
-            self._database = Database(dbpath)
-        except (RuntimeError, TypeError) as err:
-            self._database = None
-            if obj is None:
-                raise err
+    def __init__(self, obj=None):
         if obj is None:
+            err = self._database
+            if isinstance(err, Exception):
+                raise err
             self._db_obj = {"objtype": self.objtype, "cards": {}}
         else:
             self._db_obj = obj
+        cards = self._db_obj["cards"]
+        for k in list(cards.keys()):
+            try:
+                ik = int(k)
+                cards[ik] = cards.pop(k)
+            except ValueError:
+                pass
+
+    @property
+    def _database(self):
+        try:
+            return self._db
+        except AttributeError:
+            try:
+                self._db = Database(APP.settings.get("db_file", "", "PDDB"))
+                return self._db
+            except (RuntimeError, TypeError) as err:
+                self._db = None
+                return err
+
+    @property
+    def name(self):
+        return self._db_obj.get("name")
+
+    @name.setter
+    def name(self, _name):
+        assert isinstance(_name, str)
+        if self._db_obj.get("name") != _name:
+            self._emit_changed()
+        self._db_obj["name"] = _name
+
+    def __eq__(self, x):
+        if isinstance(x, str):
+            return x == self.name
+        if isinstance(x, type(self)):
+            return self.name == x.name
+        return False
 
     def get_obj(self):
         return self._db_obj
 
     def select_cards(self, query):
-        if self._database is not None:
+        if query is None:
+            return ((k, v["name"], v["formula"], v["quality"])
+                    for k, v in self._db_obj["cards"].items())
+        if isinstance(self._database, Database):
             return self._database.select_cards(query)
         return []
 
@@ -77,17 +116,21 @@ class ObjDB:
         if self._database is not None:
             return self._database.comment(cid)
 
-    def name(self, cid):
+    def card_name(self, cid):
         if cid in self._db_obj["cards"]:
             return self._db_obj["cards"][cid].get("name")
         if self._database is not None:
             return self._database.name(cid)
 
     def formula_markup(self, cid):
+        formula = None
         if cid in self._db_obj["cards"]:
-            return self._db_obj["cards"][cid].get("formula")
-        if self._database is not None:
-            return self._database.formula_markup(cid)
+            formula = self._db_obj["cards"][cid].get("formula")
+        elif self._database is not None:
+            formula = self._database.formula(cid)
+        if formula:
+            return formula_markup(formula)
+        return ''
 
     def citations(self, cid):
         if cid in self._db_obj["cards"]:
@@ -149,3 +192,65 @@ class ObjDB:
                     "set label \"(%d %d %d)\" at %g, second %g left rotate" %
                     (reflex + (pos, intens)))
         return "\n".join(out)
+
+    def display(self):
+        """Display pddb cards set"""
+        show_browser(self)
+
+    def _emit_changed(self):
+        try:
+            self._container.element_changed(self)
+        except AttributeError:
+            pass
+
+    def set_container(self, container):
+        self._container = container
+
+    def in_container(self):
+        return hasattr(self, "_container")
+
+    def update_content(self, cids):
+        cards = self._db_obj["cards"]
+        cset = set(cards.keys())
+        cids = set(cids)
+        to_drop = cset - cids
+        for cid in to_drop:
+            cards.pop(cid)
+        if to_drop:
+            self._emit_changed()
+        for cid in cids - cset:
+            self.add_card(cid)
+
+    def add_card(self, cid, cache=False):
+        """add card to "cache\""""
+        if cache and cid in self._db_obj["cards"]:
+            return
+        card = {}
+        card["quality"] = self.quality(cid)
+        card["params"] = self.cell_params(cid)
+        card["spacegroup"] = self.spacegroup(cid)
+        card["reflexes"] = self.reflexes(cid, True)
+        card["comment"] = list(self.comment(cid))
+        card["name"] = self.card_name(cid)
+        if self._database:
+            card["formula"] = self._database.formula(cid)
+        card["citations"] = self.citations(cid)
+        self._db_obj["cards"][cid] = card
+        self._emit_changed()
+
+
+def show_browser(objdb=None):
+    if not PARAMS.get("Browser"):
+        if objdb is None:
+            try:
+                db = ObjDB()
+            except RuntimeError as err:
+                return print_error(_("DB opening error"),
+                                   _("Failed to open DB file: %s") % str(err))
+        else:
+            db = objdb
+        PARAMS["Browser"] = Browser(db)
+    else:
+        PARAMS["Browser"].show()
+        if objdb is not None:
+            PARAMS["Browser"].set_list(objdb)

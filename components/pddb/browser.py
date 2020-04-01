@@ -16,11 +16,10 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import locale
-from core.vi import Page, Button, print_error
+from core.vi import Page, Button, print_error, input_dialog
 from core.vi.value import Value
 from core.application import APPLICATION as APP
 from .pddb import switch_number
-from .opddb import ObjDB as Database
 
 PARAMS = {}
 
@@ -31,23 +30,26 @@ class Browser(Page):
         self.nums = set()
         self._database = db
         self._cur_card = None
+        self._query = Value(str)
+        self.search()
         styles = {"D": (None, "red")}
         super().__init__(_("Database browser"),
                          self.cards,
                          (_("Number"), _("Name"), _("Formula")),
                          styles)
         self.show()
-        self._query = Value(str)
         self.set_form([(Button(_("Search:"), self.search), self._query)], True)
         self.set_choicer(self.click_card)
         self.set_list_context_menu([
             (_("Delete"), self.del_the_card),
+            (_("Print GNUPlot labels"), self.print_gp_labels),
             (_("Clear deleted"), self.remove_deleted),
-            (_("Print GNUPlot labels"), self.print_gp_labels)
+            (_("Save cards list"), self.save_list),
         ])
 
     def click_card(self, tup):
         card = tup[-1]
+        self._database.add_card(card, True)
         self._cur_card = card
         self.set_text(self.mkhtext(card))
         self.plot()
@@ -56,12 +58,14 @@ class Browser(Page):
         cl = self.cards.get()
         cl.remove(row)
         self.cards.update(cl)
+        self.nums = set(i[-1] for i in self.cards.get())
 
     def remove_deleted(self, row, c=None):
         cl = self.cards.get()
         self.cards.update(i for i in cl if "D" not in i[3][0])
+        self.nums = set(i[-1] for i in self.cards.get())
 
-    def search(self, query):
+    def search(self, query=None):
         ""
         try:
             cards = self._database.select_cards(query)
@@ -84,7 +88,7 @@ class Browser(Page):
 <tr><td>Formula:</td><td>%(fml)s</td></tr>
 <tr><td>Quality:</td><td>%(qlt)s</td></tr>
 """) %
-               {"num": switch_number(cid), "nam": db.name(cid),
+               {"num": switch_number(cid), "nam": db.card_name(cid),
                 "fml": db.formula_markup(cid), "qlt": qual})
         cell = db.cell_params(cid)
         if cell:
@@ -105,10 +109,10 @@ class Browser(Page):
         for reflex in db.reflexes(cid, True):
             if reflex[2] is None:
                 rtblr += "<td><pre> %s %3d </pre></td>" % \
-                    ((locale.format("%.5f", reflex[0]),) + reflex[1:2])
+                    ((locale.format("%.5f", reflex[0]),) + tuple(reflex[1:2]))
             else:
                 rtblr += "<td><pre> %s %3d  %4d%4d%4d </pre></td>" % \
-                    ((locale.format("%.5f", reflex[0]),) + reflex[1:])
+                    ((locale.format("%.5f", reflex[0]),) + tuple(reflex[1:]))
             rcels += 1
             if rcels == 3:
                 rtbl += rtblr + "</tr>\n"
@@ -201,17 +205,26 @@ class Browser(Page):
         wavels = tuple(i[0] for i in wavis)
         print(self._database.gnuplot_lables(cid, units, wavels[0]))
 
+    def save_list(self, r=None, c=None):
+        """Save cards list in project"""
+        db = self._database
+        if not db.name:
+            pars = input_dialog(_("Card list"), _("Card list"),
+                                [(_("Name:"), "")])
+            if not pars:
+                return
+            name, = pars
+            if not name:
+                return
+            db.name = name
+        db.update_content(self.nums)
+        if not db.in_container():
+            APP.add_object(db)
 
-def show_browser():
-    if not PARAMS.get("Browser"):
-        try:
-            db = Database(dbpath=APP.settings.get("db_file", "", "PDDB"))
-        except RuntimeError as err:
-            return print_error(_("DB opening error"),
-                               _("Failed to open DB file: %s") % str(err))
-        PARAMS["Browser"] = Browser(db)
-    else:
-        PARAMS["Browser"].show()
+    def set_list(self, objdb):
+        self._database = objdb
+        self.cards.update([])
+        self.search()
 
 
 def set_plot(plotting):

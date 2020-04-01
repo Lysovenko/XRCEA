@@ -345,12 +345,10 @@ class Database:
                 val = rval + val[spos:]
             yield cod, val
 
-    def formula_markup(self, cid, wiki=False):
-        fstr, = self.execute("SELECT formula FROM about WHERE cid=%d" % cid)[0]
-        if not fstr:
-            return ''
-        else:
-            return formula_markup(fstr, wiki)
+    def formula(self, cid):
+        fstr = self.execute("SELECT formula FROM about WHERE cid=%d" % cid)
+        if fstr is not None:
+            return fstr[0][0]
 
     def name(self, cid):
         return self.execute("SELECT name FROM about WHERE cid=%d" % cid)[0][0]
