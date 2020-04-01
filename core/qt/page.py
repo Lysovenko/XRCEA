@@ -127,6 +127,12 @@ class Page(qMainWindow):
         if e.key() == Qt.Key_Escape:
             self.parent.close()
 
+    def closeEvent(self, event=None):
+        if event is not None:
+            if super().closeEvent(event):
+                return
+        self.vi_obj.currently_alive = False
+
 
 def show_page(vi_obj):
     if vi_obj.gui_functions:
