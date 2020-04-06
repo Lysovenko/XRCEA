@@ -10,6 +10,7 @@ Welcome to XRCEA's documentation!
    :maxdepth: 2
 
    introduction
+   xrd_spec
    core
    pddb
 

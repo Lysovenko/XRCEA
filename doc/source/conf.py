@@ -23,7 +23,7 @@ __builtins__["_"] = str
 # -- Project information -----------------------------------------------------
 
 project = 'XRCEA'
-copyright = '2019, Serhii Lysovenko'
+copyright = '2019-2020, Serhii Lysovenko'
 author = 'Serhii Lysovenko'
 
 
@@ -40,7 +40,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.todo',
-    'sphinx.ext.imgmath',
+    'sphinx.ext.mathjax',
     'sphinx.ext.githubpages',
 ]
 
