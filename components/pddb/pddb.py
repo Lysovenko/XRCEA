@@ -17,6 +17,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import sqlite3 as sql
+from json import loads
 from os.path import isfile
 import numpy as np
 import locale as loc
@@ -316,7 +317,7 @@ class Database:
         if not cmt:
             return
         dcoduns = {"BF": "b", "IT": "i"}
-        for cod, val in eval(cmt):
+        for cod, val in loads(cmt):
             if '\\' in val:
                 coduns = []
                 spos = 0
