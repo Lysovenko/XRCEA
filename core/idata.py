@@ -313,6 +313,7 @@ class XrayData:
 
     def display(self):
         """Display X-ray data as plot."""
+        exp_data = _("Experimental data")
         if not self:
             return
         if self.UI:
@@ -329,10 +330,10 @@ class XrayData:
                 else:
                     plt.menu.append_item(mi[:-1], mi[-1],
                                          lambda x=self, f=args: f(x))
-            plt.add_plot("exp_data", self.make_plot())
+            plt.add_plot(exp_data, self.make_plot())
         self.restore_plots()
         plt.show()
-        plt.draw("exp_data")
+        plt.draw(exp_data)
 
 
 def open_xrd(fname):

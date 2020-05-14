@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Wrap a GUI plot"""
-# XRCEA (C) 2019 Serhii Lysovenko
+# XRCEA (C) 2019-2020 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from copy import deepcopy
+from os.path import splitext
 from .menu import DMenu
 from .mixins import DialogsMixin
 
@@ -35,6 +36,8 @@ class Plot(DialogsMixin):
         self.menu = DMenu()
         self.plots = {}
         self._currently_showing = None
+        self.menu.append_item((_("Plot"),), _("Export DAT"), self.export_dat)
+        self.menu.append_item((_("Plot"),), None, None)
 
     @property
     def name(self):
@@ -98,6 +101,47 @@ class Plot(DialogsMixin):
             self.gui_functions["add_shortcut"](key, func)
         except KeyError:
             pass
+
+    def _export_as_ssv(self, pl_name, fpout):
+        plot = self.plots.get(pl_name)
+        if plot is None:
+            return
+        plts = plot.get("plots")
+        if plts is None:
+            return
+        for k in ("x1label", "y1label", "x1units"):
+            v = plot.get(k)
+            if v:
+                print(f"#{k}\t{v}", file=fpout)
+        print("########## PLOTS ##########", file=fpout)
+        for plt in plts:
+            for k in ("type", "color"):
+                v = plt.get(k)
+                if v:
+                    print(f"#{k}\t{v}", file=fpout)
+            xarr = plt.get("x1")
+            yarr = plt.get("y1")
+            if yarr is None:
+                yarr = plt.get("y2")
+                print("#Second Y", file=fpout)
+            for x, y in zip(xarr, yarr):
+                print(x, y, sep='\t', file=fpout)
+            print('\n', file=fpout)
+
+    def export_dat(self):
+        if not self._currently_showing:
+            return
+        fname = self.ask_save_filename(
+            self._currently_showing + ".dat", [("*.dat", _("DAT files"))])
+        if fname:
+            if splitext(fname)[1] != ".dat":
+                fname += ".dat"
+            try:
+                with open(fname, "w") as fp:
+                    self._export_as_ssv(self._currently_showing, fp)
+            except OSError:
+                self.print_error(_("Unable to write %s") % fname)
+                return
 
     def __bool__(self):
         return self.currently_alive

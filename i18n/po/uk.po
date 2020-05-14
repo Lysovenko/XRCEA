@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-28 00:38+0200\n"
-"PO-Revision-Date: 2020-03-28 01:16+0200\n"
+"POT-Creation-Date: 2020-05-14 15:25+0300\n"
+"PO-Revision-Date: 2020-05-14 15:30+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -58,7 +58,7 @@ msgid "Polynomial's degree:"
 msgstr "Порядок поліному:"
 
 #: ../../components/cryp/__init__.py:89 ../../components/cryp/reflex.py:374
-#: ../../core/idata.py:262
+#: ../../core/idata.py:263
 msgid "Unknown"
 msgstr "Невідомо"
 
@@ -131,56 +131,56 @@ msgstr "Опис рефлексів"
 msgid "Mode"
 msgstr "Режим"
 
-#: ../../components/pddb/__init__.py:24 ../../core/application.py:110
+#: ../../components/pddb/__init__.py:25 ../../core/application.py:110
 msgid "&Options"
 msgstr "&Налаштування"
 
-#: ../../components/pddb/__init__.py:25
+#: ../../components/pddb/__init__.py:26
 msgid "&Tools"
 msgstr "&Інструменти"
 
-#: ../../components/pddb/__init__.py:30
+#: ../../components/pddb/__init__.py:31
 msgid "Configure PDDB..."
 msgstr "Налаштувати ПДБД..."
 
-#: ../../components/pddb/__init__.py:31
+#: ../../components/pddb/__init__.py:32
 msgid "DB browser"
 msgstr "Браузер БД"
 
-#: ../../components/pddb/__init__.py:33
+#: ../../components/pddb/__init__.py:34
 msgid "Compare with DB pattern"
 msgstr "Порівняти з шаблоном БД"
 
-#: ../../components/pddb/__init__.py:42
+#: ../../components/pddb/__init__.py:44
 msgid "DB Files"
 msgstr "Файли БД"
 
-#: ../../components/pddb/__init__.py:44
+#: ../../components/pddb/__init__.py:46
 msgid "PDDB settings"
 msgstr "Налаштування ПДБД"
 
-#: ../../components/pddb/__init__.py:44
+#: ../../components/pddb/__init__.py:46
 msgid "Database browser settings"
 msgstr "Налаштування браузера БД"
 
-#: ../../components/pddb/__init__.py:45
+#: ../../components/pddb/__init__.py:47
 msgid "Database file:"
 msgstr "Файл бази даних:"
 
-#: ../../components/pddb/browser.py:35
+#: ../../components/pddb/browser.py:36
 msgid "Database browser"
 msgstr "Браузер баз даних"
 
-#: ../../components/pddb/browser.py:37
+#: ../../components/pddb/browser.py:38
 msgid "Number"
 msgstr "№"
 
-#: ../../components/pddb/browser.py:37 ../../core/project.py:126
-#: ../../core/project.py:127 ../../core/project.py:171
+#: ../../components/pddb/browser.py:38 ../../core/project.py:118
+#: ../../core/project.py:119 ../../core/project.py:168
 msgid "Name"
 msgstr "Назва"
 
-#: ../../components/pddb/browser.py:37
+#: ../../components/pddb/browser.py:38
 msgid "Formula"
 msgstr "Формула"
 
@@ -188,31 +188,35 @@ msgstr "Формула"
 msgid "Search:"
 msgstr "Пошук:"
 
-#: ../../components/pddb/browser.py:44
+#: ../../components/pddb/browser.py:44 ../../core/project.py:123
 msgid "Delete"
 msgstr "Видалити"
 
 #: ../../components/pddb/browser.py:45
-msgid "Clear deleted"
-msgstr "Очистити видалені"
-
-#: ../../components/pddb/browser.py:46
 msgid "Print GNUPlot labels"
 msgstr "Надрукувати підписи GNUPlot"
 
-#: ../../components/pddb/browser.py:69
+#: ../../components/pddb/browser.py:46
+msgid "Clear deleted"
+msgstr "Очистити видалені"
+
+#: ../../components/pddb/browser.py:47
+msgid "Save cards list"
+msgstr "Зберегти список карток"
+
+#: ../../components/pddb/browser.py:73
 msgid "Query error"
 msgstr "Помилка запиту"
 
-#: ../../components/pddb/browser.py:69
+#: ../../components/pddb/browser.py:73
 msgid "Wrong Query"
 msgstr "Хибний запит"
 
-#: ../../components/pddb/browser.py:79
+#: ../../components/pddb/browser.py:83
 msgid " (Deleted)"
 msgstr " (Вилучено)"
 
-#: ../../components/pddb/browser.py:80
+#: ../../components/pddb/browser.py:84
 #, python-format
 msgid ""
 "\n"
@@ -229,35 +233,47 @@ msgstr ""
 "<tr><td>Формула:</td><td>%(fml)s</td></tr>\n"
 "<tr><td>Якість:</td><td>%(qlt)s</td></tr>\n"
 
-#: ../../components/pddb/browser.py:92
+#: ../../components/pddb/browser.py:96
 msgid "Cell parameters:"
 msgstr "параметри комірки:"
 
-#: ../../components/pddb/browser.py:100
+#: ../../components/pddb/browser.py:104
 msgid "Space group:"
 msgstr "Просторова група:"
 
-#: ../../components/pddb/browser.py:124
+#: ../../components/pddb/browser.py:128
 msgid "<h5>Comment</h5>"
 msgstr "<h5>Коментар</h5>"
 
-#: ../../components/pddb/browser.py:127
+#: ../../components/pddb/browser.py:131
 msgid "Color: "
 msgstr "Колір:"
 
-#: ../../components/pddb/browser.py:129
+#: ../../components/pddb/browser.py:133
 msgid "<h5>Bibliography</h5>\n"
 msgstr "<h5>Бібліографія</h5>\n"
 
-#: ../../components/pddb/browser.py:158
+#: ../../components/pddb/browser.py:162
 msgid "PDDB Pattern"
 msgstr "Шаблон ПДБД"
 
-#: ../../components/pddb/browser.py:210
+#: ../../components/pddb/browser.py:212
+msgid "Card list"
+msgstr "Список карток"
+
+#: ../../components/pddb/browser.py:213
+msgid "Name:"
+msgstr "Назва:"
+
+#: ../../components/pddb/opddb.py:26
+msgid "XRD cards"
+msgstr "Картки дифракції"
+
+#: ../../components/pddb/opddb.py:248
 msgid "DB opening error"
 msgstr "Помилка відкривання БД"
 
-#: ../../components/pddb/browser.py:211
+#: ../../components/pddb/opddb.py:249
 #, python-format
 msgid "Failed to open DB file: %s"
 msgstr "Збій відкривання файла БД: %s"
@@ -314,55 +330,55 @@ msgstr "&Відкрити"
 msgid "Contents"
 msgstr "Зміст"
 
-#: ../../core/idata.py:29
+#: ../../core/idata.py:28
 msgid "Difractograms"
 msgstr "Дифракторами"
 
-#: ../../core/idata.py:41
+#: ../../core/idata.py:40
 msgid "Difractogram"
 msgstr "Дифрактограма"
 
-#: ../../core/idata.py:265
+#: ../../core/idata.py:266
 msgid "pps"
 msgstr "імп./сек."
 
-#: ../../core/project.py:126
+#: ../../core/idata.py:316
+msgid "Experimental data"
+msgstr "Експериментальні дані"
+
+#: ../../core/project.py:118
 msgid "About"
 msgstr "Про"
 
-#: ../../core/project.py:127
+#: ../../core/project.py:119
 msgid "Components"
 msgstr "Складові"
 
-#: ../../core/project.py:127
+#: ../../core/project.py:119
 msgid "Type"
 msgstr "Тип"
 
-#: ../../core/project.py:129
-msgid "&Project"
-msgstr "&Проект"
-
-#: ../../core/project.py:169
+#: ../../core/project.py:166
 msgid "New project"
 msgstr "Новий проект"
 
-#: ../../core/project.py:170
+#: ../../core/project.py:167
 msgid "Project parameters"
 msgstr "Параметри проекту"
 
-#: ../../core/project.py:191
+#: ../../core/project.py:188
 msgid "Save project"
 msgstr "Зберегти проект"
 
-#: ../../core/project.py:192 ../../core/project.py:212
+#: ../../core/project.py:189 ../../core/project.py:209
 msgid "XRCEA project"
 msgstr "Проект XRCEA"
 
-#: ../../core/project.py:211
+#: ../../core/project.py:208
 msgid "Open XRCEA project"
 msgstr "Відкрити проект XRCEA"
 
-#: ../../core/project.py:240
+#: ../../core/project.py:237
 #, python-format
 msgid "The \"%s\" project contains unsaved changes."
 msgstr "Проект \"%s\" містить незбережені зміни."
@@ -384,6 +400,19 @@ msgstr "Вибрати модулі"
 msgid "Select required components"
 msgstr "Обрати потрібні модулі"
 
-#: ../../core/vi/plot.py:75
+#: ../../core/vi/plot.py:39 ../../core/vi/plot.py:40 ../../core/vi/plot.py:78
 msgid "Plot"
 msgstr "Графік"
+
+#: ../../core/vi/plot.py:39
+msgid "Export DAT"
+msgstr "Експортувати DAT"
+
+#: ../../core/vi/plot.py:135
+msgid "DAT files"
+msgstr "Файли DAT"
+
+#: ../../core/vi/plot.py:143
+#, python-format
+msgid "Unable to write %s"
+msgstr "Не можу записати %s"
