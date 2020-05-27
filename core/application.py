@@ -97,8 +97,10 @@ def _help():
     from webbrowser import open_new
     from os.path import abspath, isfile
     from .vi import print_error
+    from locale import getlocale
+    lang = {"uk": "ukr", "uk_UA": "ukr"}.get(getlocale()[0], "eng")
     fname = abspath(join(dirname(dirname(
-        __file__)), "doc", "html", "index.html"))
+        __file__)), "doc", lang, "html", "index.html"))
     if not (isfile(fname) and open_new(fname)):
         print_error(_("Help window"), _("Unable to open help page."))
 
