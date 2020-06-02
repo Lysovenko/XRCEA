@@ -37,6 +37,8 @@ class Plot(DialogsMixin):
         self.plots = {}
         self._currently_showing = None
         self.menu.append_item((_("Plot"),), _("Export DAT"), self.export_dat)
+        self.menu.append_item((_("Plot"),), _("Show comment"),
+                              self.show_comment)
         self.menu.append_item((_("Plot"),), None, None)
 
     @property
@@ -142,6 +144,14 @@ class Plot(DialogsMixin):
             except OSError:
                 self.print_error(_("Unable to write %s") % fname)
                 return
+
+    def show_comment(self):
+        if not self._currently_showing:
+            return
+        comment = self.plots.get(self._currently_showing, {}).get("Comment")
+        if comment is None:
+            return
+        self.print_information(comment)
 
     def __bool__(self):
         return self.currently_alive
