@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-14 15:25+0300\n"
-"PO-Revision-Date: 2020-05-14 15:30+0300\n"
+"POT-Creation-Date: 2020-06-05 16:54+0300\n"
+"PO-Revision-Date: 2020-06-05 16:59+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -131,7 +131,7 @@ msgstr "Опис рефлексів"
 msgid "Mode"
 msgstr "Режим"
 
-#: ../../components/pddb/__init__.py:25 ../../core/application.py:110
+#: ../../components/pddb/__init__.py:25 ../../core/application.py:112
 msgid "&Options"
 msgstr "&Налаштування"
 
@@ -176,7 +176,7 @@ msgid "Number"
 msgstr "№"
 
 #: ../../components/pddb/browser.py:38 ../../core/project.py:118
-#: ../../core/project.py:119 ../../core/project.py:168
+#: ../../core/project.py:119 ../../core/project.py:169
 msgid "Name"
 msgstr "Назва"
 
@@ -286,47 +286,55 @@ msgstr "Відкрити файл"
 msgid "All known files"
 msgstr "Всі відомі файли"
 
-#: ../../core/application.py:103
+#: ../../core/application.py:105
 msgid "Help window"
 msgstr "Вікно допомоги"
 
-#: ../../core/application.py:103
+#: ../../core/application.py:105
 msgid "Unable to open help page."
 msgstr "Не можу відкрити сторінку допомоги."
 
-#: ../../core/application.py:111
+#: ../../core/application.py:113
 msgid "&File"
 msgstr "&Файл"
 
-#: ../../core/application.py:112
+#: ../../core/application.py:114
 msgid "Project"
 msgstr "Проект"
 
-#: ../../core/application.py:113
+#: ../../core/application.py:115
 msgid "&Help"
 msgstr "&Допомога"
 
-#: ../../core/application.py:117
+#: ../../core/application.py:119
 msgid "Show"
 msgstr "Показати"
 
-#: ../../core/application.py:118
+#: ../../core/application.py:120
+msgid "Rename..."
+msgstr "Перейменувати..."
+
+#: ../../core/application.py:121
 msgid "Save"
 msgstr "Зберегти"
 
-#: ../../core/application.py:119
+#: ../../core/application.py:122
 msgid "Save as..."
 msgstr "Зберегти як..."
 
-#: ../../core/application.py:122
+#: ../../core/application.py:124
+msgid "Open..."
+msgstr "Відкрити..."
+
+#: ../../core/application.py:126
 msgid "Components..."
 msgstr "Компоненти..."
 
-#: ../../core/application.py:124
+#: ../../core/application.py:128
 msgid "&Open"
 msgstr "&Відкрити"
 
-#: ../../core/application.py:127
+#: ../../core/application.py:131
 msgid "Contents"
 msgstr "Зміст"
 
@@ -358,27 +366,36 @@ msgstr "Складові"
 msgid "Type"
 msgstr "Тип"
 
-#: ../../core/project.py:166
-msgid "New project"
-msgstr "Новий проект"
-
 #: ../../core/project.py:167
-msgid "Project parameters"
-msgstr "Параметри проекту"
+msgid "Rename project"
+msgstr "Перейменувати проект"
 
-#: ../../core/project.py:188
+#: ../../core/project.py:168
+msgid "New project name"
+msgstr "Нова назва проекту"
+
+#: ../../core/project.py:194 ../../core/project.py:214
 msgid "Save project"
 msgstr "Зберегти проект"
 
-#: ../../core/project.py:189 ../../core/project.py:209
+#: ../../core/project.py:195 ../../core/project.py:221
 msgid "XRCEA project"
 msgstr "Проект XRCEA"
 
-#: ../../core/project.py:208
+#: ../../core/project.py:215
+#, python-format
+msgid ""
+"The %s project was changed.\n"
+"Do you wish to save it before opening new?"
+msgstr ""
+"Проект %s містить зміни.\n"
+"Зберегти перед відкриттям нового?"
+
+#: ../../core/project.py:220
 msgid "Open XRCEA project"
 msgstr "Відкрити проект XRCEA"
 
-#: ../../core/project.py:237
+#: ../../core/project.py:253
 #, python-format
 msgid "The \"%s\" project contains unsaved changes."
 msgstr "Проект \"%s\" містить незбережені зміни."
@@ -400,7 +417,8 @@ msgstr "Вибрати модулі"
 msgid "Select required components"
 msgstr "Обрати потрібні модулі"
 
-#: ../../core/vi/plot.py:39 ../../core/vi/plot.py:40 ../../core/vi/plot.py:78
+#: ../../core/vi/plot.py:39 ../../core/vi/plot.py:40 ../../core/vi/plot.py:42
+#: ../../core/vi/plot.py:80
 msgid "Plot"
 msgstr "Графік"
 
@@ -408,11 +426,15 @@ msgstr "Графік"
 msgid "Export DAT"
 msgstr "Експортувати DAT"
 
-#: ../../core/vi/plot.py:135
+#: ../../core/vi/plot.py:40
+msgid "Show comment"
+msgstr "Показати коментар"
+
+#: ../../core/vi/plot.py:137
 msgid "DAT files"
 msgstr "Файли DAT"
 
-#: ../../core/vi/plot.py:143
+#: ../../core/vi/plot.py:145
 #, python-format
 msgid "Unable to write %s"
 msgstr "Не можу записати %s"

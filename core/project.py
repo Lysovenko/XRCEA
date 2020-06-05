@@ -107,7 +107,7 @@ class Project:
 class vi_Project(Lister):
     def __init__(self, project):
         self.project = project
-        abouts = Value(list)
+        self.abouts = abouts = Value(list)
         abouts.update([i + (None,) for i in project.abouts()])
         self.components = components = Value(list)
         components.update([(c.type, c.name, None, c)
@@ -150,6 +150,12 @@ class vi_Project(Lister):
         self.components.update([(c.type, c.name, None, c)
                                 for c in self.project.components()])
 
+    def update(self):
+        self.name = ("* " if self.project.is_modified() else "") + \
+            self.project.name()
+        self.abouts.update([i + (None,) for i in self.project.abouts()])
+        self.update_components()
+
     def modified(self):
         self.name = "* " + self.project.name()
 
@@ -158,22 +164,23 @@ _CURRENT_PROJECT = None
 _CURRENT_FILE = ""
 
 
+def rename_project():
+    pars = input_dialog(_("Rename project"),
+                        _("New project name"),
+                        [(_("Name"), _CURRENT_PROJECT.name())])
+    if pars:
+        name, = pars
+        _CURRENT_PROJECT.name(name)
+    if _CURRENT_PROJECT.UI:
+        _CURRENT_PROJECT.UI.update()
+
+
 def show_project():
     global _CURRENT_PROJECT
     if _CURRENT_PROJECT is None and _CURRENT_FILE != "":
         open_project(_CURRENT_FILE)
     if _CURRENT_PROJECT is None:
-        pars = input_dialog(_("New project"),
-                            _("Project parameters"),
-                            [(_("Name"), "New project")])
-        if pars:
-            name, = pars
-            _CURRENT_PROJECT = Project()
-            _CURRENT_PROJECT.name(name)
-        else:
-            open_project()
-            if _CURRENT_PROJECT is None:
-                return
+        _CURRENT_PROJECT = Project()
     if _CURRENT_PROJECT.UI is None:
         _CURRENT_PROJECT.UI = vi_Project(_CURRENT_PROJECT)
     else:
@@ -203,6 +210,12 @@ def save_project():
 def open_project(fname=None):
     global _CURRENT_PROJECT
     global _CURRENT_FILE
+    previous = _CURRENT_PROJECT
+    if previous is not None and previous.is_modified():
+        if ask_question(_("Save project"),
+                        _("""The %s project was changed.
+Do you wish to save it before opening new?""" % previous.name())):
+            save_project()
     if fname is None:
         fname = ask_open_filename(
             _("Open XRCEA project"), "",
@@ -211,6 +224,10 @@ def open_project(fname=None):
         return
     _CURRENT_PROJECT = Project(fname)
     _CURRENT_FILE = fname
+    if getattr(previous, "UI", None):
+        _CURRENT_PROJECT.UI = previous.UI
+        _CURRENT_PROJECT.UI.project = _CURRENT_PROJECT
+        _CURRENT_PROJECT.UI.update()
 
 
 def open_later(fname):

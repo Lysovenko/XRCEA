@@ -22,7 +22,7 @@ from .settings import Settings
 from .vi.menu import DMenu
 from .vi import input_dialog, print_error
 from .project import (Project, show_project, save_project_as, save_project,
-                      add_object, PreventExit)
+                      add_object, PreventExit, rename_project, open_project)
 
 _ACTUAL_INTERFACE = None
 
@@ -117,9 +117,11 @@ def _introduce_menu():
     mappend((_file,), _prj, {}, None)
     APPLICATION.prj_path = prj_p = (_file, _prj)
     mappend(prj_p, _("Show"), show_project, None)
+    mappend(prj_p, _("Rename..."), rename_project, None)
     mappend(prj_p, _("Save"), save_project, None)
     mappend(prj_p, _("Save as..."), save_project_as, None)
     mappend(prj_p, "separ", None, None)
+    mappend(prj_p, _("Open..."), open_project, None)
     mappend((), _opts, {}, None)
     mappend((_opts,), _("Components..."),
             edit_components, None, None)
