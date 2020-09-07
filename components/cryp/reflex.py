@@ -105,13 +105,12 @@ class ReflexDedect:
             the_x[:, 0] = x0
             the_x[:, 1:3] = x[nfl:].reshape(len(self.x0), 2)
             x = the_x.reshape(len(the_x) * 3)
-        the_x = self.x_ar
-        tpx = x.reshape(len(x) // 3, 3).transpose()
         if x.min() <= 0.:
             return np.inf
         shape = self.calc_shape(x)
         dev = self.y_ar - shape
-        return (dev ** 2).sum() / (len(the_x))
+        _x = x.reshape(len(x) // 3, 3)
+        return (dev ** 2).sum() / len(self.y_ar) * (np.var(_x[:, 2]) + 1)
 
     def calc_deviat2(self, x):
         the_x = np.array([self.x0, self.h] + x.tolist())
@@ -123,15 +122,10 @@ class ReflexDedect:
         the_x[:, :2] = x[: -1].reshape(len(the_x), 2)
         if the_x[:, 1].min() <= 0. or the_x[:, 1].max() > self.max_h:
             return np.inf
-        mulout = the_x[:, 0].min() < self.x_ar[0] or \
-            the_x[:, 0].max() > self.x_ar[-1]
         the_x[:, 2] = x[-1]
-        the_x = the_x.reshape(len(the_x) * 3)
-        shape = self.calc_shape(the_x)
+        shape = self.calc_shape(the_x.reshape(len(the_x) * 3))
         dev = self.y_ar - shape
-        rv = (dev ** 2).sum() / len(self.y_ar)
-        if mulout:
-            return rv * 100000.0
+        rv = (dev ** 2).sum() / len(self.y_ar) * (np.var(the_x[:, 2]) + 1)
         return rv
 
     def calc_shape(self, x=None):
@@ -190,9 +184,10 @@ class ReflexDedect:
             opt_x = np.zeros(done * 2 + 1)
             opt_x[:-1] = xh.reshape(done * 2)
             opt_x[-1] = w
-            opt_x, sig2, itr, fcs, wflg = \
+            opt_x, sigma2, itr, fcs, wflg = \
                 fmin(self.calc_deviat3, opt_x, full_output=True, disp=False)
-            if prev_sigma2 < sigma2:
+            print(f"previous: {prev_sigma2}; sigma2: {sigma2}")
+            if prev_sigma2 < sigma2 * (done + 1) / done:
                 if done > 1:
                     opt_x = prev_opt_x
                     done -= 1
@@ -260,64 +255,6 @@ class ReflexDedect:
                                disp=False)[:2]
         self.peaks = zip(*opt_x.reshape(nbells, 3).transpose())
         return self.peaks, np.sqrt(sig2)
-
-    def find_peaks(self, bg_sigma2, max_peaks=None):
-        "fit by multiple gausians"
-        y_ar = self.y_ar
-        x_ar = self.x_ar
-        mp = (len(x_ar)) // 4
-        if max_peaks is None or max_peaks <= 0 or max_peaks > mp:
-            max_peaks = mp
-        # No reducing
-        self.red_allow = 0
-        # TODO: Improve algorithm
-        sigma2 = (y_ar ** 2).sum() / len(y_ar)
-        opt_x = np.array([])
-        self.peaks = None
-        proc_search = True
-        done = 0
-        peak_add = True
-        while proc_search:
-            prev_opt_x = opt_x
-            prev_sigma2 = sigma2
-            dy_ar = y_ar - self.calc_shape(opt_x)
-            maxpt = x_ar[dy_ar.argmax()]
-            self.x0 = maxpt
-            self.dy_ar = dy_ar
-            wdth = (x_ar[-1] - x_ar[0]) ** 2 / 16.
-            if self.lambda21:
-                self.h = dy_ar.max() / 1.5
-            else:
-                self.h = dy_ar.max()
-            if peak_add:
-                hw = fmin(self.calc_deviat2, np.array([wdth]), disp=False)
-                opt_x = np.array(list(opt_x) + [maxpt, self.h] + hw.tolist())
-            else:
-                peak_add = True
-            opt_x, sigma2, itr, fcs, wflg = \
-                fmin(self.calc_deviat, opt_x, full_output=True, disp=False)
-            done += 1
-            tpx = opt_x.reshape(len(opt_x) // 3, 3).transpose()
-            if sigma2 >= prev_sigma2 or \
-                    opt_x.min() <= 0.:
-                print('Warning: on fail')
-                opt_x = prev_opt_x
-                break
-            if done >= max_peaks:
-                print('Warning: on max')
-                break
-            if sigma2 <= bg_sigma2:
-                opt_x, reduced, sgm = self.reduce_x(opt_x)
-                if reduced:
-                    peak_add = False
-                    sigma2 = sgm
-                else:
-                    break
-        self.peaks = zip(*opt_x.reshape(len(opt_x) // 3, 3).transpose())
-        if len(self.peaks) == 0:
-            print(x_ar)
-            print(y_ar)
-        return self.peaks
 
     def reduce_x(self, x):
         if len(x) < 6 or not self.red_allow:
