@@ -190,7 +190,7 @@ class ObjDB:
             if reflex[0] is not None:
                 out.append(
                     "set label \"(%d %d %d)\" at %g, second %g left rotate" %
-                    (reflex + (pos, intens)))
+                    (tuple(reflex) + (pos, intens)))
         return "\n".join(out)
 
     def display(self):

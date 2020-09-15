@@ -25,7 +25,7 @@ _DEFAULTS = {"bg_sigmul": 2.0, "bg_polrang": 2, "refl_sigmin": 1e-3,
              "refl_ptm": 4, "refloc_sz": "(640,480)", "refl_bf": 2.}
 _BELL_TYPES = ("Gaus", "Lorentz", "Voit")
 _BELL_NAMES = (_("Gaus"), _("Lorentz"), _("Pseudo Voit"))
-_data = {}
+_data = {"data": APP.runtime_data}
 
 
 def introduce():

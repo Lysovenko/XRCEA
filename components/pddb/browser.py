@@ -45,6 +45,7 @@ class Browser(Page):
             (_("Print GNUPlot labels"), self.print_gp_labels),
             (_("Clear deleted"), self.remove_deleted),
             (_("Save cards list"), self.save_list),
+            (_("Remember peaks positions"), self.predefine_reflexes),
         ])
 
     def click_card(self, tup):
@@ -225,6 +226,12 @@ class Browser(Page):
         self._database = objdb
         self.cards.update([])
         self.search()
+
+    def predefine_reflexes(self, row, c=None):
+        cid = row[-1]
+        APP.runtime_data["User refl"] = [
+            r[0] for r in self._database.reflexes(cid, True)]
+        print(APP.runtime_data["User refl"])
 
 
 def set_plot(plotting):
