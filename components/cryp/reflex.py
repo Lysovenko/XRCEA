@@ -92,7 +92,7 @@ class ReflexDedect:
 
     def calc_deviat(self, x, fixx=False, fixs=None):
         if fixx:
-            the_x = np.zeros((len(x) / 2, 3))
+            the_x = np.zeros((len(x) // 2, 3))
             the_x[:, 0] = self.x0
             the_x[:, 1:3] = x.reshape(len(x) // 2, 2)
             x = the_x.reshape(len(the_x) * 3)

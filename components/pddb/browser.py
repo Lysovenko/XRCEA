@@ -231,7 +231,6 @@ class Browser(Page):
         cid = row[-1]
         APP.runtime_data["User refl"] = [
             r[0] for r in self._database.reflexes(cid, True)]
-        print(APP.runtime_data["User refl"])
 
 
 def set_plot(plotting):

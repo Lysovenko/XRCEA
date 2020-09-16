@@ -207,6 +207,22 @@ class XrayData:
         c2a2 = np.cos(self.alpha2 * np.pi / 90.) ** 2
         return Iex / (c2a1 * c2a2 * np.cos(ang) ** 2 + 1.) * (1. + c2a1)
 
+    @property
+    def wavelength(self):
+        try:
+            res = getattr(self, "lambda1")
+            n = 1.
+        except AttributeError:
+            res = 0.
+            n = 0.
+        for i, j in (("lambda2", "I2"), ("lambda3", "I3")):
+            try:
+                n += getattr(self, j)
+                res += (getattr(self, i) - res) * getattr(self, j) / n
+            except (AttributeError, TypeError):
+                pass
+        return res
+
     def rev_intens(self, Icor):
         """reverse correct intensity"""
         ang = self.two_theta

@@ -205,7 +205,8 @@ def calculate_reflexes(idata):
     totreflexes = []
     totsigmas = []
     if algorithm == 1:
-        apposs = [(i[0], i[3]) for i in idata["data"]["User refl"].get()]
+        apposs = idata.wavelength / 2. / np.array(
+            APP.runtime_data.get("User refl", []))
 
     def progress(status):
         status["description"] = _("Calculating shapes of the reflexes...")
@@ -221,11 +222,9 @@ def calculate_reflexes(idata):
             else:
                 mi = sect[0][0]
                 ma = sect[-1][0]
-                pposs = [i for i in apposs if mi <= i[0] <= ma]
-                posfxs = [i for i in range(len(pposs)) if pposs[i][1]]
-                pposs = [i[0] for i in pposs]
+                pposs = [i for i in apposs if mi <= i <= ma]
                 reflexes, stdev = rfd.find_bells_pp(_BELL_TYPES[bell_t],
-                                                    pposs, posfxs)
+                                                    pposs, ())
             totreflexes.extend(reflexes)
             totsigmas.extend([stdev] * (len(totreflexes) - len(totsigmas)))
             rfd.x_ar = np.linspace(rfd.x_ar[0], rfd.x_ar[-1],
