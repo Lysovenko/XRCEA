@@ -110,10 +110,12 @@ class Browser(Page):
         for reflex in db.reflexes(cid, True):
             if reflex[2] is None:
                 rtblr += "<td><pre> %s %3d </pre></td>" % \
-                    ((locale.format("%.5f", reflex[0]),) + tuple(reflex[1:2]))
+                    ((locale.format_string("%.5f", reflex[0]),
+                      ) + tuple(reflex[1:2]))
             else:
                 rtblr += "<td><pre> %s %3d  %4d%4d%4d </pre></td>" % \
-                    ((locale.format("%.5f", reflex[0]),) + tuple(reflex[1:]))
+                    ((locale.format_string("%.5f", reflex[0]),
+                      ) + tuple(reflex[1:]))
             rcels += 1
             if rcels == 3:
                 rtbl += rtblr + "</tr>\n"
@@ -200,9 +202,9 @@ class Browser(Page):
         if plt is None:
             return
         units = plt["x1units"]
-        wavis = [(wavel, intens) for wavel, intens in (
+        wavis = [(wavelength, intensity) for wavelength, intensity in (
             (xrd.lambda1, 1.), (xrd.lambda2, xrd.I2), (xrd.lambda3, xrd.I3))
-            if wavel is not None and intens is not None]
+            if wavelength is not None and intensity is not None]
         wavels = tuple(i[0] for i in wavis)
         print(self._database.gnuplot_lables(cid, units, wavels[0]))
 

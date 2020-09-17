@@ -25,12 +25,12 @@ from .vi import Plot
 def introduce_input():
     """Introduce input"""
     APP.register_treater(XrayData)
-    APP.register_opener(".xrd", open_xrd, _("Difractograms"))
+    APP.register_opener(".xrd", open_xrd, _("Diffractograms"))
 
 
 class XrayData:
     """
-    :param fname: Path to file with X-ray difraction data.
+    :param fname: Path to file with X-ray diffraction data.
     :type fname: string
     """
     loaders = []
@@ -162,8 +162,8 @@ class XrayData:
             acoef = np.pi / 360.
         if self.x_units == "theta":
             acoef = np.pi / 180.
-        K = 4. * np.pi / self.wavel
-        return K * np.sin(self.x_data * acoef)
+        coffee = 4. * np.pi / self.wavelength
+        return coffee * np.sin(self.x_data * acoef)
 
     @property
     def theta(self):
@@ -264,7 +264,7 @@ class XrayData:
                     try:
                         axdata = self.extra_data[dname]
                     except KeyError:
-                        raise(RuntimeError(f"Incorrect dataname {dname}"))
+                        raise(RuntimeError(f"Incorrect data name {dname}"))
                 pplot[axis] = axdata
             pplots.append(pplot)
         return plt

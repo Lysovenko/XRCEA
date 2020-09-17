@@ -136,7 +136,8 @@ class vi_Project(Lister):
                 pass
         self.__currently_alive = cv
 
-    def click_component(self, tup):
+    @staticmethod
+    def click_component(tup):
         component = tup[-1]
         if hasattr(component, "display"):
             component.display()

@@ -31,7 +31,7 @@ def install_gt():
         from gettext import install
         locale_dir = join(dirname(__file__), pardir, 'i18n', 'locale')
         if isdir(locale_dir):
-            install('xrcea', locale_dir, True)
+            install('xrcea', locale_dir)
         else:
             install('xrcea')
     except ImportError:
@@ -39,7 +39,7 @@ def install_gt():
 
 
 def parse_args():
-    parser = ArgumentParser(description="XRC extensible analiser")
+    parser = ArgumentParser(description="XRC extensible analyzer")
     parser.add_argument("-v", "--verbose", dest="verbose", default=False,
                         action="store_true", help="be verbose")
     parser.add_argument('--debug', dest="debug", default=False,
