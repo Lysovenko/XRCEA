@@ -177,6 +177,7 @@ class XrayData:
 
     @property
     def two_theta(self):
+        acoef = 1.
         if self.x_units == "q":
             return None
         if self.x_units == "2theta":

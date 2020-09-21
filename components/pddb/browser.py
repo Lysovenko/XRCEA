@@ -67,7 +67,7 @@ class Browser(Page):
         self.nums = set(i[-1] for i in self.cards.get())
 
     def search(self, query=None):
-        ""
+        """Run search"""
         try:
             cards = self._database.select_cards(query)
         except ValueError:
@@ -97,7 +97,7 @@ class Browser(Page):
             res += "<tr><td>%s</td><td>" % _("Cell parameters:")
             ppr = []
             for p, v in cell:
-                ppr.append("%s=%s" % (pnr[p], locale.format("%g", v)))
+                ppr.append("%s=%s" % (pnr[p], locale.format_string("%g", v)))
             res += "; ".join(ppr) + "</td></tr>\n"
         spc_grp = db.spacegroup(cid)
         if spc_grp:
@@ -109,13 +109,11 @@ class Browser(Page):
         rcels = 0
         for reflex in db.reflexes(cid, True):
             if reflex[2] is None:
-                rtblr += "<td><pre> %s %3d </pre></td>" % \
-                    ((locale.format_string("%.5f", reflex[0]),
-                      ) + tuple(reflex[1:2]))
+                rtblr += locale.format_string(
+                    "<td><pre> %.5f %3d </pre></td>", *reflex[:2])
             else:
-                rtblr += "<td><pre> %s %3d  %4d%4d%4d </pre></td>" % \
-                    ((locale.format_string("%.5f", reflex[0]),
-                      ) + tuple(reflex[1:]))
+                rtblr += locale.format_string(
+                    "<td><pre> %.5f %3d  %4d%4d%4d </pre></td>", *reflex)
             rcels += 1
             if rcels == 3:
                 rtbl += rtblr + "</tr>\n"

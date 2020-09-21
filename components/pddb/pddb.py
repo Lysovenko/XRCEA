@@ -406,7 +406,7 @@ class Wiki_card:
             table.append("! hkl")
         for p, r in zip(pos, refl):
             table.append("|-")
-            table.append("\n".join(["| %s" % loc.format("%g", i)
+            table.append("\n".join(["| %s" % loc.format_string("%g", i)
                                     for i in ((p,) + r[:2])]))
             if r[2] is not None:
                 table.append("| %d %d %d" % r[2:])

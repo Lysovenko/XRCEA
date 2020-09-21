@@ -85,7 +85,7 @@ def lfloat(noless=None, nomore=None):
             return float.__new__(self, value)
 
         def __format__(self, spec):
-            return loc.format('%' + spec, self)
+            return loc.format_string('%' + spec, self)
 
         def __str__(self):
             return loc.str(self)
@@ -173,7 +173,8 @@ class Tabular:
         if row is not None:
             row = list(row)
         try:
-            self._data.insert(index, [None] * self.columns if row is None else row)
+            self._data.insert(
+                index, [None] * self.columns if row is None else row)
         except (AttributeError):
             self._data = [[None] * self.columns if row is None else row]
         self._update()
