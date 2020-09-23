@@ -19,7 +19,7 @@
 import numpy as np
 from scipy.optimize import fmin
 
-_SH_FUNCTIONS = {"Gaus": lambda the_x, x0, h, w:
+_SH_FUNCTIONS = {"Gauss": lambda the_x, x0, h, w:
                  h * np.exp(-(the_x - x0) ** 2 / w),
                  "Lorentz": lambda the_x, x0, h, w:
                  h / (1. + (the_x - x0) ** 2 / w),
@@ -31,6 +31,7 @@ def calc_bg(sig_x, sig_y, deg, bf=3.):
     tbg = np.polyval(np.polyfit(sig_x, sig_y, deg), sig_x)
     sigma2 = ((sig_y - tbg) ** 2).sum() / (len(tbg) - 1. - deg)
     sigma2p = None
+    coeffs = None
     while sigma2p != sigma2:
         sigma2p = sigma2
         sigma = sigma2 ** .5 * bf
@@ -70,7 +71,7 @@ def refl_sects(s_x, stripped_y, sigma2, bf=3.):
 
 class ReflexDedect:
     """treat sector of points positioned above background"""
-    def __init__(self, sector, lambda21=None, I2=.5):
+    def __init__(self, sector, lambda21=None, i2=.5):
         tps = np.array(sector).transpose()
         self.x_ar = tps[0]
         self.y_ar = tps[1]
@@ -86,7 +87,7 @@ class ReflexDedect:
             self.x_ar[-1] = x1 - y1 * (x2 - x1) / (y2 - y1)
         self.peaks = None
         self.lambda21 = lambda21
-        self.I2 = I2
+        self.I2 = i2
         self.sigma2 = (tps[1] ** 2).sum() / len(tps[0])
         self.y_max2 = tps[1].max() ** 2
 
@@ -132,7 +133,7 @@ class ReflexDedect:
         the_x = self.x_ar
         shape = np.zeros(len(the_x))
         l21 = self.lambda21
-        I2 = self.I2
+        i2 = self.I2
         sh_func = self.sh_func
         if x is None:
             peaks = self.peaks
@@ -146,11 +147,11 @@ class ReflexDedect:
         else:
             for x0, h, w in peaks:
                 shape += sh_func(the_x, x0, h, w)
-                shape += sh_func(the_x, x0 * l21, h * I2, w * l21 ** 2)
+                shape += sh_func(the_x, x0 * l21, h * i2, w * l21 ** 2)
         return shape
 
-    def find_bells(self, sigmin, varsig, max_peaks=None, sh_type="Gaus"):
-        "my new not so good algorithm"
+    def find_bells(self, sigmin, varsig, max_peaks=None, sh_type="Gauss"):
+        """my new not so good algorithm"""
         self.sh_type = sh_type
         self.sh_func = _SH_FUNCTIONS[sh_type]
         wmin = 2. * sigmin ** 2
@@ -167,9 +168,7 @@ class ReflexDedect:
             max_peaks = mp
         sigma2 = (y_ar ** 2).sum() / len(y_ar)
         self.peaks = None
-        proc_search = True
         done = 0
-        peak_add = True
         opt_x = np.array([])
         while True:
             prev_opt_x = opt_x
@@ -272,7 +271,6 @@ class ReflexDedect:
             pcs -= 1
             oxm = np.resize(oxm, (pcs, 3))
             oxm[:, 1] += self.sh_func(oxm[:, 0], x0, h, w)
-            x = oxm.reshape(pcs * 3)
             self.x0 = oxm[:, 0]
             tox = oxm[:, 1:].reshape(pcs * 2)
             tox, sigma2, itr, fcs, wflg = fmin(
@@ -306,7 +304,7 @@ class Cryplots:
         return shape
 
     @classmethod
-    def _plot(self, xrd, fname):
+    def _plot(cls, xrd, fname):
         x_label = {"theta": "$\\theta$", "2theta": "$2\\theta$",
                    "q": "q"}.get(xrd.x_units, _("Unknown"))
 
@@ -327,20 +325,20 @@ class Cryplots:
             elif xrd.x_units == "2theta":
                 x = np.arcsin(x) * 360. / np.pi
             plots.append({"x1": x, "y1": y, "color": "crp_refl"})
-        plots.append({"x1": xrd.x_data, "y1": self._calc_shape(xrd, shfunc),
+        plots.append({"x1": xrd.x_data, "y1": cls._calc_shape(xrd, shfunc),
                       "color": "crp_srefl"})
         plt["plots"] = plots
         plt["Comment"] = comment
         return plt
 
     @classmethod
-    def pGaus(self, xrd):
-        return self._plot(xrd, "Gaus")
+    def pGaus(cls, xrd):
+        return cls._plot(xrd, "Gauss")
 
     @classmethod
-    def pLorentz(self, xrd):
-        return self._plot(xrd, "Lorentz")
+    def pLorentz(cls, xrd):
+        return cls._plot(xrd, "Lorentz")
 
     @classmethod
-    def pVoit(self, xrd):
-        return self._plot(xrd, "Voit")
+    def pVoit(cls, xrd):
+        return cls._plot(xrd, "Voit")

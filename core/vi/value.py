@@ -17,10 +17,6 @@
 
 from locale import atof
 import locale as loc
-try:
-    type(unicode)
-except NameError:
-    unicode = str
 
 
 class Value:
@@ -66,12 +62,12 @@ class Value:
 
 
 def lfloat(noless=None, nomore=None):
-    "limited float"
+    """limited float"""
     if nomore is not None and noless is not None and nomore <= noless:
         raise ValueError("minimal value is more or equal than maximum")
 
     class efloat(float):
-        def __new__(self, value=0):
+        def __new__(cls, value=0):
             if isinstance(value, (str, unicode)):
                 value = atof(str(value))
             if value is None and noless is not None:
@@ -82,7 +78,7 @@ def lfloat(noless=None, nomore=None):
                nomore is not None and value > nomore:
                 raise ValueError("value is not in range {0}:{1}".format(
                     noless, nomore))
-            return float.__new__(self, value)
+            return float.__new__(cls, value)
 
         def __format__(self, spec):
             return loc.format_string('%' + spec, self)
@@ -175,7 +171,7 @@ class Tabular:
         try:
             self._data.insert(
                 index, [None] * self.columns if row is None else row)
-        except (AttributeError):
+        except AttributeError:
             self._data = [[None] * self.columns if row is None else row]
         self._update()
 

@@ -21,6 +21,9 @@ from cmd import Cmd
 class Xrcmd(Cmd):
     prompt = "XRCEA> "
 
+    def do_EOF(self, line):
+        return True
+
 
 def main():
     xrcmd = Xrcmd()

@@ -45,6 +45,8 @@ def parse_args():
     parser.add_argument('--debug', dest="debug", default=False,
                         action="store_true",
                         help="show debug messages")
+    parser.add_argument("-c", "--console", dest="console", default=False,
+                        action="store_true", help="run as command line")
     parser.add_argument('prjfile', help='Project file', nargs="?")
     args = parser.parse_args()
     if args.verbose:
@@ -53,6 +55,10 @@ def parse_args():
         logging.basicConfig(level=logging.DEBUG)
     if args.prjfile:
         open_later(args.prjfile)
+    if args.console:
+        location, = [p for p, m in enumerate(APPLICATION.modules)
+                     if m == ".stdio"]
+        APPLICATION.modules.insert(0, APPLICATION.modules.pop(location))
 
 
 def initialize():

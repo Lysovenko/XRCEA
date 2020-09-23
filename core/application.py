@@ -41,6 +41,7 @@ class Application:
         self.register_opener = Opener.register_opener
         self.add_object = add_object
         self.prevent_exit = PreventExit()
+        self.modules = [".qt", ".stdio"]
 
     @property
     def visual(self):
@@ -51,7 +52,12 @@ def start():
     global _ACTUAL_INTERFACE
     _introduce_menu()
     APPLICATION.settings.add_default_colors({"exp_dat": "black"})
-    _ACTUAL_INTERFACE = import_module(".qt", "core")
+    for module in APPLICATION.modules:
+        try:
+            _ACTUAL_INTERFACE = import_module(module, "core")
+            break
+        except ImportError:
+            pass
     _ACTUAL_INTERFACE.main()
 
 
