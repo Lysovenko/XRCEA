@@ -16,7 +16,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from importlib import import_module
-from os.path import join, dirname, realpath, splitext, normcase
+from os.path import join, dirname, realpath, splitext, normcase, isfile
 from .compman import CompMan
 from .settings import Settings
 from .vi.menu import DMenu
@@ -70,21 +70,29 @@ class Opener:
     _descriptions = {}
 
     @classmethod
-    def register_opener(self, ext, how, descr):
-        self._openers[ext] = how
-        self._descriptions['*' + ext] = descr
+    def register_opener(cls, ext, how, descr):
+        cls._openers[ext] = how
+        cls._descriptions['*' + ext] = descr
 
     @classmethod
-    def run_dialog(self):
+    def run_dialog(cls):
         fname = APPLICATION.visual.ask_open_filename(
             _("Open file"), "", [
-                (" ".join(self._descriptions.keys()),
-                 _("All known files"))] + sorted(self._descriptions.items()))
+                (" ".join(cls._descriptions.keys()),
+                 _("All known files"))] + sorted(cls._descriptions.items()))
         if fname is not None:
             ext = splitext(normcase(fname))[1]
-            if ext not in self._openers:
+            if ext not in cls._openers:
                 return
-            self._openers[ext](fname)
+            cls._openers[ext](fname)
+
+    @classmethod
+    def open_by_name(cls, fname: str):
+        if isinstance(fname, str) and isfile(fname):
+            ext = splitext(normcase(fname))[1]
+            if ext not in cls._openers:
+                return
+            cls._openers[ext](fname)
 
 
 APPLICATION = Application()

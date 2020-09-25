@@ -16,15 +16,36 @@
 """Command line interpreter"""
 
 from cmd import Cmd
+from ..application import APPLICATION as APP, Opener
 
 
 class Xrcmd(Cmd):
     prompt = "XRCEA> "
 
     def do_EOF(self, line):
+        """End Of File"""
         return True
+
+    def do_load(self, line):
+        """Load components by theit pathes"""
+        pset = set(line.split())
+        ids = set(d["id"] for d in APP.compman.descriptions
+                  if d["path"] in pset)
+        APP.compman.set_active(ids)
+        APP.compman.introduce()
+
+    def do_open(self, line):
+        """Open a file"""
+        Opener.open_by_name(line)
 
 
 def main():
     xrcmd = Xrcmd()
+    for e in APP.on_start:
+        e()
     xrcmd.cmdloop()
+
+
+def show_vi(vi_obj):
+    """Do nothing"""
+    vi_obj.gui_functions["set_choicer"] = lambda *args: None
