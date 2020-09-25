@@ -16,7 +16,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from sys import modules, path
-from imp import find_module, load_module
+from importlib import import_module
 from os import listdir
 from os.path import (dirname, realpath, split, splitext, join, isfile, exists,
                      isabs, normpath)
@@ -28,8 +28,8 @@ class CompMan:
         """searches and reads components descriptions files"""
         self.application = ref(app)
         pth1 = join(dirname(dirname(realpath(__file__))), 'components')
-        path.append(pth1)
         pth2 = app.settings.get_home("plugins")
+        path.append(pth2)
         adds = []
         # find *.comp files
         for pth in (pth1, pth2):
@@ -53,12 +53,6 @@ class CompMan:
                     add_descr[ls[0]] = ls[1].strip()
             # validating the result of scanning
             if not set(add_descr).issuperset(('path', 'name', 'id')):
-                continue
-            pth = add_descr['path']
-            if not isabs(pth):
-                pth = normpath(join(dirname(adf), pth))
-                add_descr['path'] = pth
-            if not exists(pth):
                 continue
             d_id = add_descr['id']
             if d_id.isdigit():
@@ -95,17 +89,18 @@ class CompMan:
         any_error = False
         for desc in self.descriptions:
             if desc['isactive'] and 'module' not in desc:
-                pth, nam = split(splitext(desc['path'])[0])
+                pth, nam = split(splitext(desc["path"])[0])
                 try:
-                    fptr, pth, dsc = find_module(nam, [pth])
-                    module = load_module(nam, fptr, pth, dsc)
+                    if isinstance(desc["id"], int) and desc["id"] < 1000:
+                        module = import_module("." + desc["path"],
+                                               "components")
+                    else:
+                        module = import_module(desc["path"])
                 except ImportError as err:
                     desc['isactive'] = False
                     any_error = True
                     print('ImportError: %s, %s' % (nam, err))
                     continue
-                if fptr:
-                    fptr.close()
                 if not hasattr(module, 'introduce') or \
                         module.introduce():
                     desc['isactive'] = False

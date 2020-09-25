@@ -20,7 +20,10 @@ from ..application import APPLICATION as APP, Opener
 
 
 class Xrcmd(Cmd):
-    prompt = "XRCEA> "
+    def __init__(self):
+        super().__init__()
+        self.prompt = "XRCEA> "
+        self._components = APP.compman
 
     def do_EOF(self, line):
         """End Of File"""
@@ -29,10 +32,15 @@ class Xrcmd(Cmd):
     def do_load(self, line):
         """Load components by theit pathes"""
         pset = set(line.split())
-        ids = set(d["id"] for d in APP.compman.descriptions
+        ids = set(d["id"] for d in self._components.descriptions
                   if d["path"] in pset)
-        APP.compman.set_active(ids)
-        APP.compman.introduce()
+        self._components.set_active(ids)
+        self._components.introduce()
+
+    def do_modules(self, line):
+        """Show modules"""
+        for d in self._components.descriptions:
+            print(f"{d['path']}:\t{d['name']}")
 
     def do_open(self, line):
         """Open a file"""
