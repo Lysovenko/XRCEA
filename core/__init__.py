@@ -22,20 +22,22 @@ from os.path import dirname, join, isdir, pardir
 from argparse import ArgumentParser
 from .application import APPLICATION
 from .project import open_later
-VERSION = '0.1'
-RELEASE = '0.1'
+VERSION = '0.2'
+RELEASE = '0.2'
 
 
 def install_gt():
     try:
+        if APPLICATION.modules[0] == ".stdio":
+            raise RuntimeError()
         from gettext import install
         locale_dir = join(dirname(__file__), pardir, 'i18n', 'locale')
         if isdir(locale_dir):
             install('xrcea', locale_dir)
         else:
             install('xrcea')
-    except ImportError:
-        __builtins__.__dict__["_"] = str
+    except (ImportError, RuntimeError):
+        __builtins__["_"] = str
 
 
 def parse_args():
@@ -59,10 +61,11 @@ def parse_args():
         location, = [p for p, m in enumerate(APPLICATION.modules)
                      if m == ".stdio"]
         APPLICATION.modules.insert(0, APPLICATION.modules.pop(location))
+    else:
+        locale.setlocale(locale.LC_NUMERIC, "")
 
 
 def initialize():
     parse_args()
     APPLICATION.compman.set_active()
-    locale.setlocale(locale.LC_NUMERIC, "")
     install_gt()
