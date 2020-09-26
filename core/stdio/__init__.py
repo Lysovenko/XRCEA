@@ -61,7 +61,7 @@ def show_vi(vi_obj):
     vi_obj.gui_functions["set_choicer"] = lambda *args: None
     _WIN_STACK.append(vi_obj)
     print("\n".join("/".join(p)
-          for p, i in yield_menu(vi_obj.menu, APP.menu, ())))
+                    for p, i in yield_menu(vi_obj.menu, APP.menu, ())))
 
 
 def yield_menu(menu, other, path: tuple):
