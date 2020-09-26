@@ -22,6 +22,8 @@ from os.path import (dirname, realpath, split, splitext, join, isfile, exists,
                      isabs, normpath)
 from weakref import ref
 
+from typing import Dict
+
 
 class CompMan:
     def __init__(self, app):
@@ -43,7 +45,7 @@ class CompMan:
         descrs = []
         found_ids = set()
         for adf in adds:
-            add_descr = {}
+            add_descr = {}  # type: Dict[AnyStr, AnyInt, ModuleType]
             # scanning *.comp file
             with open(adf) as fp:
                 for line in fp:

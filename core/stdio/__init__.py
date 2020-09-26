@@ -18,6 +18,8 @@
 from cmd import Cmd
 from ..application import APPLICATION as APP, Opener
 
+_WIN_STACK = []
+
 
 class Xrcmd(Cmd):
     def __init__(self):
@@ -57,3 +59,15 @@ def main():
 def show_vi(vi_obj):
     """Do nothing"""
     vi_obj.gui_functions["set_choicer"] = lambda *args: None
+    _WIN_STACK.append(vi_obj)
+    print("\n".join("/".join(p)
+          for p, i in yield_menu(vi_obj.menu, APP.menu, ())))
+
+
+def yield_menu(menu, other, path: tuple):
+    for n, mi in menu.get_items(path, other):
+        if isinstance(mi.function, dict):
+            for i in yield_menu(menu, other, path + (n,)):
+                yield i
+        elif mi.function is not None:
+            yield (path + (n,), mi.function)
