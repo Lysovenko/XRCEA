@@ -17,6 +17,9 @@
 
 from cmd import Cmd
 from ..application import APPLICATION as APP, Opener
+from .dialog import (
+    print_error, print_information, ask_question, ask_open_filename,
+    ask_save_filename, Dialogs)
 
 _WIN_STACK = []
 
@@ -48,6 +51,13 @@ class Xrcmd(Cmd):
         """Open a file"""
         Opener.open_by_name(line)
 
+    def do_menu(self, line):
+        path = tuple(line.split("/"))
+        last = dict(_WIN_STACK[-1].menu.get_items(path[:-1], APP.menu))
+        mi = last.get(path[-1])
+        if mi is not None and callable(mi.function):
+            mi.function()
+
 
 def main():
     xrcmd = Xrcmd()
@@ -59,6 +69,7 @@ def main():
 def show_vi(vi_obj):
     """Do nothing"""
     vi_obj.gui_functions["set_choicer"] = lambda *args: None
+    Dialogs(vi_obj)
     _WIN_STACK.append(vi_obj)
     print("\n".join(
         "/".join(p) for p, i in yield_menu(vi_obj.menu, APP.menu, ())))
