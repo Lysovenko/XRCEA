@@ -23,8 +23,8 @@ from .reflex import calc_bg, refl_sects, ReflexDedect, Cryplots
 _DEFAULTS = {"bg_sigmul": 2.0, "bg_polrang": 2, "refl_sigmin": 1e-3,
              "refl_consig": False, "refl_mbells": 10, "refl_bt": 0,
              "refl_ptm": 4, "refloc_sz": "(640,480)", "refl_bf": 2.}
-_BELL_TYPES = ("Gaus", "Lorentz", "Voit")
-_BELL_NAMES = (_("Gaus"), _("Lorentz"), _("Pseudo Voit"))
+_BELL_TYPES = ("Gauss", "Lorentz", "Voit")
+_BELL_NAMES = (_("Gauss"), _("Lorentz"), _("Pseudo Voit"))
 _data = {"data": APP.runtime_data}
 
 

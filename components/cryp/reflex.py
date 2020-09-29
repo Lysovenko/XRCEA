@@ -332,7 +332,7 @@ class Cryplots:
         return plt
 
     @classmethod
-    def pGaus(cls, xrd):
+    def pGauss(cls, xrd):
         return cls._plot(xrd, "Gauss")
 
     @classmethod

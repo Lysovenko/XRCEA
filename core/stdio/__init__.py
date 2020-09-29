@@ -20,8 +20,10 @@ from ..application import APPLICATION as APP, Opener
 from .dialog import (
     print_error, print_information, ask_question, ask_open_filename,
     ask_save_filename, input_dialog, Dialogs)
+from .plot import Drawer
 
 _WIN_STACK = []
+_DRAWER = Drawer()
 
 
 class Xrcmd(Cmd):
@@ -29,6 +31,8 @@ class Xrcmd(Cmd):
         super().__init__()
         self.prompt = "XRCEA> "
         self._components = APP.compman
+        self.do_m = self.do_menu
+        self.do_q = self.do_EOF
 
     def do_EOF(self, line):
         """End Of File"""
@@ -81,6 +85,7 @@ def main():
 def show_vi(vi_obj):
     """Do nothing"""
     vi_obj.gui_functions["set_choicer"] = lambda *args: None
+    vi_obj.gui_functions["draw"] = _DRAWER
     Dialogs(vi_obj)
     _WIN_STACK.append(vi_obj)
 

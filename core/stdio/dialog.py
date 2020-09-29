@@ -15,6 +15,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Dialogs"""
 from sys import stderr
+from os.path import isfile, isdir
 
 
 def print_error(title, info):
@@ -28,17 +29,27 @@ def print_information(title, info):
 def ask_question(title, info):
     print(f"QUESTION: {title}\n{info}")
     ans = input("Answer [yes]: ")
-    return not ans or ans.lower()[0] in "yt"
+    return not ans or ans.lower()[0] in "yt1"
 
 
 def ask_open_filename(title, filename, masks):
-    print(f"WARNING: {title}\n{filename}\n{masks}\n"
-          "Function ask_open_filename is not implemented", file=stderr)
+    print(f"WARNING: {title}\n{filename}\n{masks}\n", file=stderr)
+    fname = input("File name: ")
+    if isfile(fname):
+        return fname
 
 
 def ask_save_filename(title, filename, masks):
-    print(f"WARNING: {title}\n{filename}\n{masks}\n"
-          "Function ask_save_filename is not implemented", file=stderr)
+    print(f"WARNING: {title}\n{filename}\n{masks}\n", file=stderr)
+    fname = input("File name: ")
+    if isfile(fname):
+        ans = input(f"File: {fname}\nexists. Overwrite? [no]: ")
+        if not ans or ans.lower()[0] not in "yt1":
+            return
+    if isdir(fname):
+        print(f"{fname} is directory")
+        return
+    return fname
 
 
 def input_dialog(title, question, fields, parent=None):
@@ -56,15 +67,23 @@ def input_dialog(title, question, fields, parent=None):
                         res.append(t[2])
                     else:
                         res.append(0)
-                res.append(int(ans))
+                else:
+                    i = int(ans)
+                    if i <= 0 or i > len(v):
+                        raise ValueError(f"{i} is not in range 1..{len(v)}")
+                    res.append(i - 1)
             elif isinstance(v, bool):
-                res.append(not ans or ans.lower()[0] in "yt")
+                if not ans:
+                    res.append(v)
+                else:
+                    res.append(ans.lower()[0] in "yt1")
             else:
                 if not ans:
                     res.append(v)
                 else:
                     res.append(type(v)(ans))
-    except (ValueError, KeyboardInterrupt):
+    except (ValueError, KeyboardInterrupt) as err:
+        print(res, "aborted by:", err, file=stderr)
         return
     return res
 
