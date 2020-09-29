@@ -83,7 +83,6 @@ def main():
 
 
 def show_vi(vi_obj):
-    """Do nothing"""
     vi_obj.gui_functions["set_choicer"] = lambda *args: None
     vi_obj.gui_functions["draw"] = _DRAWER
     Dialogs(vi_obj)

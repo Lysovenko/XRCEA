@@ -115,5 +115,12 @@ class Dialogs:
     def ask_open_filename(self, filename, masks):
         ask_open_filename(self.vi_obj.name, filename, masks)
 
-    def bg_process(self, status):
+    def bg_process(self, status: dict):
+        from time import sleep
+        status["start"]()
+        prev = status["part"]
         print("Something is running...")
+        while not status['complete']:
+            sleep(1)
+            if prev < status["part"]:
+                print(status["part"], status["description"])
