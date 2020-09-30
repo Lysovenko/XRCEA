@@ -110,10 +110,10 @@ class Browser(Page):
         for reflex in db.reflexes(cid, True):
             if reflex[2] is None:
                 rtblr += locale.format_string(
-                    "<td><pre> %.5f %3d </pre></td>", *reflex[:2])
+                    "<td><pre> %.5f %3d </pre></td>", reflex[:2])
             else:
                 rtblr += locale.format_string(
-                    "<td><pre> %.5f %3d  %4d%4d%4d </pre></td>", *reflex)
+                    "<td><pre> %.5f %3d  %4d%4d%4d </pre></td>", reflex)
             rcels += 1
             if rcels == 3:
                 rtbl += rtblr + "</tr>\n"
