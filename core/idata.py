@@ -15,6 +15,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Input data"""
 
+from typing import Dict, Union
 import numpy as np
 from os.path import basename
 from json import loads, dumps
@@ -160,7 +161,7 @@ class XrayData:
             return self.x_data
         if self.x_units == "2theta":
             acoef = np.pi / 360.
-        if self.x_units == "theta":
+        else:  # self.x_units == "theta"
             acoef = np.pi / 180.
         coffee = 4. * np.pi / self.wavelength
         return coffee * np.sin(self.x_data * acoef)
@@ -171,7 +172,7 @@ class XrayData:
             return None
         if self.x_units == "2theta":
             acoef = np.pi / 360.
-        elif self.x_units == "theta":
+        else:  # self.x_units == "theta"
             acoef = np.pi / 180.
         return np.array(self.x_data) * acoef
 
@@ -182,7 +183,7 @@ class XrayData:
             return None
         if self.x_units == "2theta":
             acoef = np.pi / 180.
-        elif self.x_units == "theta":
+        else:  # self.x_units == "theta"
             acoef = np.pi / 90.
         return np.array(self.x_data) * acoef
 
@@ -244,7 +245,11 @@ class XrayData:
         for n, p in sorted(self._saved_plots.items()):
             plt.add_plot(n, self.abstraction2plot(p))
 
-    def abstraction2plot(self, abstr):
+    def abstraction2plot(self, abstr: Union[str, Dict[str, Dict]]):
+        """
+
+        :type abstr: Union[str, Dict[str, Any]]
+        """
         if isinstance(abstr, str):
             try:
                 return self.plotters[abstr](self)
@@ -252,6 +257,7 @@ class XrayData:
                 pass
         plt = dict(abstr)
         plt["plots"] = pplots = []
+        plot: Dict[str, str]
         for plot in abstr["plots"]:
             pplot = dict(plot)
             for axis in ("x1", "y1", "y2"):
