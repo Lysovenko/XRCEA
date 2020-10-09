@@ -68,6 +68,8 @@ class DisplayX0:
             return val
         if self.units == "d":
             return self._idata.lambda1 / 2. / val
+        if self.units == "d2":
+            return (2. * val / self._idata.lambda1) ** 2
         if self.units == "theta":
             return asin(val) * 180. / pi
         if self.units == "2theta":
@@ -78,17 +80,18 @@ def show_sheet(idat):
     cryb = idat.extra_data.get("crypbells")
     if cryb is None:
         return
-    val = Tabular(colnames=["x_0", "h", "w", "s", "h k l"])
+    val = Tabular(colnames=["x\u2080", "h", "w", "s", "h k l"])
     display = DisplayX0("sin", idat)
     for i, data in enumerate(cryb.reshape(len(cryb) // 4, 4)):
         val.insert_row(i, [X0Cell(data[0], display)] + [
             IFloat(i) for i in data[1:]] + [None])
-    p = Spreadsheet("XRCEA", val)
+    p = Spreadsheet(str(idat.name) + _(" (found reflexes)"), val)
     p.show()
 
     def select_units(u):
-        display.units = ["sin", "d", "theta", "2theta"][u]
+        display.units = ["sin", "d", "d2", "theta", "2theta"][u]
         val.refresh()
 
-    p.set_form([(Button(_("Show x_0 in such units"), select_units), (
-        "sin(\u03b8)", "d (\u212b)", "\u03b8 (\u00b0)", "2\u03b8 (\u00b0)"))])
+    p.set_form([(_("Units to display x\u2080:"), (
+        "sin(\u03b8)", "d (\u212b)", "d\u207b\u00b2 (\u212b\u207b\u00b2)",
+        "\u03b8 (\u00b0)", "2\u03b8 (\u00b0)"), select_units)])

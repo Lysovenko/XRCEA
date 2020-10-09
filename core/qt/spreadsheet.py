@@ -61,8 +61,16 @@ class Spreadsheet(qMainWindow):
         layout = self.form
         self.form_edas.clear()
         clearLayout(layout)
-        for n, f in form:
-            ew = get_widget_from_value(f)
+        for f in form:
+            n, f, o = tuple(f)[:3] + (None,) * (3 - len(f))
+            if isinstance(f, (bool, tuple)):
+                if callable(o):
+
+                    def fun(*args, opt=o):
+                        opt(*args)
+
+                    o = fun
+            ew = get_widget_from_value(f, o)
             try:
                 ew.setReadOnly(not is_editable)
             except AttributeError:
@@ -84,7 +92,7 @@ class Spreadsheet(qMainWindow):
     def get_form_vals(self, which):
         return tuple(get_widget_value(e) for e in self.form_edas)
 
-    def closeEvent(self, event=None):
+    def closeEvent(self, event=None, **kwargs):
         for t in self.timers:
             try:
                 t.stop()
@@ -106,7 +114,8 @@ def show_spreadsheet(vi_obj):
     if vi_obj.icon is not None:
         sheet.set_icon(vi_obj.icon)
     vi_obj.gui_functions["add_timer"] = sheet.add_timer
-    vi_obj.gui_functions["set_spreadsheet_context_menu"] = sheet.set_context_menu
+    vi_obj.gui_functions[
+        "set_spreadsheet_context_menu"] = sheet.set_context_menu
     vi_obj.gui_functions["set_form"] = sheet.update_form
     vi_obj.gui_functions["get_form_values"] = sheet.get_form_vals
     sheet.register_dialogs()

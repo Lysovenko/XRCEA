@@ -99,7 +99,10 @@ class TabCell:
 
 
 class Tabular:
-    def __init__(self, rows=None, colnames=None, coltypes=None):
+    def __init__(self, rows=None,  # type: Optional[int]
+                 colnames=None,    # type: Optional[List[String]]
+                 coltypes=None     # type: Optional[List[Any]]
+                 ):
         if rows is not None and cols is not None:
             self._data = [[None] * len(colnames)] * rows
         self._coltypes = coltypes
@@ -162,7 +165,9 @@ class Tabular:
         except Exception:
             pass
 
-    def insert_row(self, index, row=None):
+    def insert_row(self, index: int,
+                   row=None  # type: Optional[List[Any]]
+                   ):
         if row is not None and len(row) != self.columns:
             raise RuntimeError(f"length of row is not appropriate "
                                "({len(row)} vs {self.columns})")
