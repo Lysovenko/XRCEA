@@ -16,13 +16,15 @@
 """Spreadsheet with some peaks positions"""
 
 from locale import atof, format_string
+from math import asin, pi
 from core.vi.spreadsheet import Spreadsheet
 from core.application import APPLICATION as APP
 from core.vi.value import Tabular, TabCell, Value
 from core.vi import Button
 
 
-class FloatCell(TabCell):
+class IFloat(TabCell):
+    """Immutable cell with floating poin value"""
     def __init__(self, *args, **kvargs):
         self.__value = None
         super().__init__(*args, **kvargs)
@@ -36,19 +38,40 @@ class FloatCell(TabCell):
 
     @value.setter
     def value(self, val):
-        if isinstance(val, str):
-            try:
-                self.__value = atof(val)
-            except ValueError:
-                pass
-        elif isinstance(val, float):
+        if isinstance(val, float):
             self.__value = val
-        else:
-            raise TypeError("Unknown value type")
+
+
+class X0Cell(TabCell):
+    """Immutable cell with floating poin value"""
+    def __init__(self, value, display):
+        self.__value = value
+        self._display = display
+        super().__init__()
 
     @property
-    def real(self):
-        return self.__value
+    def value(self):
+        return format_string("%.5g", self._display(self.__value))
+
+    @value.setter
+    def value(self, val):
+        pass
+
+
+class DisplayX0:
+    def __init__(self, units, idat):
+        self.units = units
+        self._idata = idat
+
+    def __call__(self, val):
+        if self.units == "sin":
+            return val
+        if self.units == "d":
+            return self._idata.lambda1 / 2. / val
+        if self.units == "theta":
+            return asin(val) * 180. / pi
+        if self.units == "2theta":
+            return asin(val) * 360. / pi
 
 
 def show_sheet(idat):
@@ -56,7 +79,16 @@ def show_sheet(idat):
     if cryb is None:
         return
     val = Tabular(colnames=["x_0", "h", "w", "s", "h k l"])
+    display = DisplayX0("sin", idat)
     for i, data in enumerate(cryb.reshape(len(cryb) // 4, 4)):
-        val.insert_row(i, [FloatCell(i) for i in data] + [None])
+        val.insert_row(i, [X0Cell(data[0], display)] + [
+            IFloat(i) for i in data[1:]] + [None])
     p = Spreadsheet("XRCEA", val)
     p.show()
+
+    def select_units(u):
+        display.units = ["sin", "d", "theta", "2theta"][u]
+        val.refresh()
+
+    p.set_form([(Button(_("Show x_0 in such units"), select_units), (
+        "sin(\u03b8)", "d (\u212b)", "\u03b8 (\u00b0)", "2\u03b8 (\u00b0)"))])

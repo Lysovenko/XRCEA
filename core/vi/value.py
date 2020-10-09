@@ -156,7 +156,7 @@ class Tabular:
     def set_updater(self, updater):
         self._updater = updater
 
-    def _update(self):
+    def refresh(self):
         try:
             self._updater()
         except Exception:
@@ -173,7 +173,7 @@ class Tabular:
                 index, [None] * self.columns if row is None else row)
         except AttributeError:
             self._data = [[None] * self.columns if row is None else row]
-        self._update()
+        self.refresh()
 
     def insert_column(self, index, colname, coltype=None):
         try:
@@ -188,11 +188,11 @@ class Tabular:
                 i.insert(index, None)
         except TypeError:
             self._data = []
-        self._update()
+        self.refresh()
 
     def remove_row(self, index):
         self._data.pop(index)
-        self._update()
+        self.refresh()
 
     def remove_column(self, index):
         self._colnames.pop(index)
@@ -200,4 +200,4 @@ class Tabular:
             self._coltypes.pop(index)
         for row in self._data:
             row.pop(index)
-        self._update()
+        self.refresh()
