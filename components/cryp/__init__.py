@@ -20,6 +20,7 @@ import numpy as np
 from core.application import APPLICATION as APP
 from core.idata import XrayData
 from .reflex import calc_bg, refl_sects, ReflexDedect, Cryplots
+from .positions import show_sheet
 _DEFAULTS = {"bg_sigmul": 2.0, "bg_polrang": 2, "refl_sigmin": 1e-3,
              "refl_consig": False, "refl_mbells": 10, "refl_bt": 0,
              "refl_ptm": 4, "refloc_sz": "(640,480)", "refl_bf": 2.}
@@ -36,6 +37,8 @@ def introduce():
                Mcall(_data, 'calc_bg')),
               (p + (_("Calc. refl. shapes..."),),
                Mcall(_data, 'calc_reflexes')),
+              (p + (_("Show found refl. shapes"),),
+               Mcall(_data, 'show_sheet')),
               (p + (_("Predefined reflexes..."),),
                pdr.call_grid)]
     for p, e in mitems:
@@ -109,10 +112,14 @@ class Mcall:
         if rv is None:
             return
         itms = rv["items"]
-        dat.extra_data["crypbells"] = np.array(itms).reshape(len(itms) * 4)
+        dat.extra_data["crypbells"] = np.array(itms).flatten()
         _name = _("Peaks description")
         dat.remember_plot(_name, "cryp" + rv["shape"])
         dat.UI.draw(_name)
+
+    def show_sheet(self):
+        dat = self.data
+        show_sheet(dat)
 
 
 class PredefRefl:
