@@ -21,6 +21,8 @@ from core.vi.spreadsheet import Spreadsheet
 from core.application import APPLICATION as APP
 from core.vi.value import Tabular, TabCell, Value
 from core.vi import Button
+from .integers import find_integers
+_treat = _("Treat")
 
 
 class IFloat(TabCell):
@@ -86,6 +88,11 @@ def show_sheet(idat):
         val.insert_row(i, [X0Cell(data[0], display)] + [
             IFloat(i) for i in data[1:]] + [None])
     p = Spreadsheet(str(idat.name) + _(" (found reflexes)"), val)
+
+    def _find_ints():
+        find_integers(cryb)
+
+    p.menu.append_item((_treat,), _("Find integers"), _find_ints, None)
     p.show()
 
     def select_units(u):
