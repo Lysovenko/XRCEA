@@ -18,37 +18,50 @@ from numpy import min, ceil, floor, pi, arcsin, sin, ndarray, max, average
 from scipy.optimize import fmin_powell
 
 
-def theta_correction(delta: float, x_: ndarray, this: ndarray,
+def theta_correction(delta: ndarray, x_: ndarray, this: ndarray,
                      p: int, m: int):
-    y = sin(arcsin(x_) + delta) ** 2
-    y = y / y[p] * m
-    return average(min([y - floor(y), ceil(y) - y], axis=0)[this])
+    y = sin(arcsin(x_) + delta[0]) ** 2
+    y = y / y[p] * (m + delta[1])
+    return average(min([y - floor(y), ceil(y) - y], axis=0)[this] ** 2)
+
+
+def like_inter(arr, dx):
+    return min([arr - floor(arr), ceil(arr) - arr], axis=0) < dx
 
 
 def find_integers(cryb):
     sinx = cryb.reshape(len(cryb) // 4, 4)[:, 0]
+    groups = []
     for i in range(len(sinx)):
         for j in range(1, 6):
             y = sinx ** 2
             y = y / y[i] * j
-            found = min([y - floor(y), ceil(y) - y], axis=0) < .09
-            print(i, j, y[found], theta_correction(0., sinx, found, i, j))
-            delta = fmin_powell(theta_correction, 0., args=(sinx, found, i, j),
-                                direc=[.002], disp=0)
-            print("x_min:", delta / pi * 180., "f_min:",
-                  theta_correction(delta, sinx, found, i, j))
-            y = sin(arcsin(sinx) + delta) ** 2
-            y = y / y[i] * j
-            print(y[found])
+            found = like_inter(y, .09)
+            dev = theta_correction([0., 0.], sinx, found, i, j)
+            print(i, j, y)
+            print(y[found], dev)
+            delta = fmin_powell(theta_correction, [0., 0.],
+                                args=(sinx, found, i, j), disp=0)
+            dev1 = theta_correction(delta, sinx, found, i, j)
+            print("x_min:", delta / pi * 180., "f_min:", dev1)
+            y1 = sin(arcsin(sinx) + delta[0]) ** 2
+            y1 = y1 / y1[i] * (j + delta[1])
+            le = len(y[found])
+            if le > 2:
+                groups.append((i, j, delta, dev, dev1, le))
+            print(y1[found])
+    groups.sort(key=lambda x: x[4] / x[5])
+    return groups
 
 
 if __name__ == "__main__":
     from numpy import frombuffer, zeros
     from base64 import b64decode
+    from pprint import pprint
     x = frombuffer(b64decode(
         "5shDxKGE0z/0PuUcDlLRP7xlqNnAGNo/LeE06kpQ4T9VZPfs9+bgP1P+dlSs5uM/"
         "kGbvLWSJ4z93i4n09QLjP/wZKisxYOU/GBY1NAs66D/gwQIOoibqP6B4akjV5ek/"
         "KAo+DOnk6T8SzWnwQFbrPw=="))
     example = zeros(len(x) * 4)
     example.reshape(len(x), 4)[:, 0] = x
-    print(find_integers(example))
+    pprint(find_integers(example))
