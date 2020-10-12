@@ -14,29 +14,32 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Find integers in sin^2 correlations"""
-from numpy import min, ceil, floor, pi, arcsin, sin, ndarray, max
-from scipy.optimize import minimize, Bounds
+from numpy import min, ceil, floor, pi, arcsin, sin, ndarray, max, average
+from scipy.optimize import fmin_powell
 
 
-def theta_correction(delta: ndarray, x_: ndarray, this: ndarray,
+def theta_correction(delta: float, x_: ndarray, this: ndarray,
                      p: int, m: int):
-    y = sin(arcsin(x_) + delta)
+    y = sin(arcsin(x_) + delta) ** 2
     y = y / y[p] * m
-    return max(min([y - floor(y), ceil(y) - y], axis=0)[this])
+    return average(min([y - floor(y), ceil(y) - y], axis=0)[this])
 
 
 def find_integers(cryb):
-    sin2x = cryb.reshape(len(cryb) // 4, 4)[:, 0] ** 2
-    bounds = Bounds(-pi / 2., pi / 2.)
-    for i in range(len(sin2x)):
+    sinx = cryb.reshape(len(cryb) // 4, 4)[:, 0]
+    for i in range(len(sinx)):
         for j in range(1, 6):
-            y = sin2x / sin2x[i] * j
+            y = sinx ** 2
+            y = y / y[i] * j
             found = min([y - floor(y), ceil(y) - y], axis=0) < .09
-            print(i, j, y[found], theta_correction([0], sin2x, found, i, j))
-            x = ndarray(1)
-            x[0] = 0.
-            print(minimize(theta_correction, x, (sin2x, found, i, j),
-                           'Powell', bounds))
+            print(i, j, y[found], theta_correction(0., sinx, found, i, j))
+            delta = fmin_powell(theta_correction, 0., args=(sinx, found, i, j),
+                                direc=[.002], disp=0)
+            print("x_min:", delta / pi * 180., "f_min:",
+                  theta_correction(delta, sinx, found, i, j))
+            y = sin(arcsin(sinx) + delta) ** 2
+            y = y / y[i] * j
+            print(y[found])
 
 
 if __name__ == "__main__":
