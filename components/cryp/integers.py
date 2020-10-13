@@ -14,7 +14,8 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Find integers in sin^2 correlations"""
-from numpy import min, ceil, floor, pi, arcsin, sin, ndarray, max, average
+from numpy import (
+    min, ceil, floor, pi, arcsin, sin, ndarray, std, average, round)
 from scipy.optimize import fmin_powell
 
 
@@ -25,7 +26,7 @@ def theta_correction(delta: ndarray, x_: ndarray, this: ndarray,
     return average(min([y - floor(y), ceil(y) - y], axis=0)[this] ** 2)
 
 
-def like_inter(arr, dx):
+def like_integer(arr, dx):
     return min([arr - floor(arr), ceil(arr) - arr], axis=0) < dx
 
 
@@ -36,21 +37,17 @@ def find_integers(cryb):
         for j in range(1, 6):
             y = sinx ** 2
             y = y / y[i] * j
-            found = like_inter(y, .09)
+            found = like_integer(y, .09)
             dev = theta_correction([0., 0.], sinx, found, i, j)
-            print(i, j, y)
-            print(y[found], dev)
-            delta = fmin_powell(theta_correction, [0., 0.],
-                                args=(sinx, found, i, j), disp=0)
-            dev1 = theta_correction(delta, sinx, found, i, j)
-            print("x_min:", delta / pi * 180., "f_min:", dev1)
-            y1 = sin(arcsin(sinx) + delta[0]) ** 2
-            y1 = y1 / y1[i] * (j + delta[1])
             le = len(y[found])
-            if le > 2:
-                groups.append((i, j, delta, dev, dev1, le))
-            print(y1[found])
-    groups.sort(key=lambda x: x[4] / x[5])
+            if j == 1:
+                j1l = le
+            if le > 2 and (j == 1 or le > j1l) and std(y[found]) > 0.5:
+                group = {k: int(i) for k, (i, t) in
+                         enumerate(zip(round(y), found)) if t}
+                groups.append((group, dev))
+            # print(y1[found])
+    groups.sort(key=lambda x: x[-1])
     return groups
 
 
@@ -64,4 +61,4 @@ if __name__ == "__main__":
         "KAo+DOnk6T8SzWnwQFbrPw=="))
     example = zeros(len(x) * 4)
     example.reshape(len(x), 4)[:, 0] = x
-    pprint(find_integers(example))
+    pprint(find_integers(example), width=120)

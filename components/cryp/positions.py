@@ -90,7 +90,13 @@ def show_sheet(idat):
     p = Spreadsheet(str(idat.name) + _(" (found reflexes)"), val)
 
     def _find_ints():
-        find_integers(cryb)
+        grps = find_integers(cryb)
+        if grps:
+            val.insert_column(val.columns, "ints", int)
+            grp = grps[0][0]
+            j = val.columns - 1
+            for i, k in grp.items():
+                val.set(i, j, k)
 
     p.menu.append_item((_treat,), _("Find integers"), _find_ints, None)
     p.show()
