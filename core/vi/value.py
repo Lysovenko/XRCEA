@@ -97,6 +97,10 @@ class TabCell:
     def __str__(self):
         return str(self.value)
 
+    @property
+    def edit(self):
+        return str(self)
+
 
 class Tabular:
     def __init__(self, rows=None,  # type: Optional[int]

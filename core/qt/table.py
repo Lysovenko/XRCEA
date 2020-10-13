@@ -45,6 +45,14 @@ class VisualTableModel(QAbstractTableModel):
             if v is None:
                 return None
             return str(v)
+        if role == Qt.EditRole:
+            v = self.value.get(index.row(), index.column())
+            if v is None:
+                return None
+            try:
+                return v.edit
+            except AttributeError:
+                return str(v)
         if role == Qt.BackgroundRole or role == Qt.ForegroundRole:
             tc = self.value.get(index.row(), index.column())
             try:
