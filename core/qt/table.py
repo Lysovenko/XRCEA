@@ -32,14 +32,14 @@ class VisualTableModel(QAbstractTableModel):
     def updater(self):
         self.layoutChanged.emit()
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return self.value.colname(section)
         if orientation == Qt.Vertical and role == Qt.DisplayRole:
             return section + 1
         return None
 
-    def data(self, index, role):
+    def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
             v = self.value.get(index.row(), index.column())
             if v is None:
@@ -64,7 +64,7 @@ class VisualTableModel(QAbstractTableModel):
                 return None
         return None
 
-    def setData(self, index, data, role):
+    def setData(self, index, data, role=Qt.DisplayRole):
         self.value.set(index.row(), index.column(), data)
         return True
 
@@ -88,7 +88,7 @@ class VisualTableModel(QAbstractTableModel):
 
 
 class VisualTable(QTableView):
-    def __init__(self, parent, value, styles={}):
+    def __init__(self, parent, value, styles=None):
         super().__init__(parent)
         self.value = value
         self.styles = styles
@@ -115,7 +115,10 @@ class VisualTable(QTableView):
         else:
             styles = {style}
         for style in styles:
-            fg, bg = self.styles.get(style, (None, None))
+            try:
+                fg, bg = self.styles.get(style, (None, None))
+            except AttributeError:
+                fg = bg = None
             try:
                 if fg is not None:
                     cell.setForeground(QColor(fg))
