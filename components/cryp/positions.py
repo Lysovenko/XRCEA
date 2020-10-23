@@ -20,8 +20,8 @@ from math import asin, pi
 from core.vi.spreadsheet import Spreadsheet
 from core.application import APPLICATION as APP
 from core.vi.value import Tabular, TabCell, Value
-from core.vi import Button
-from .integers import find_integers
+from core.vi import Button, print_information
+from .integers import find_integers, correct_angle
 _treat = _("Treat")
 
 
@@ -88,17 +88,30 @@ def show_sheet(idat):
         val.insert_row(i, [X0Cell(data[0], display)] + [
             IFloat(i) for i in data[1:]] + [None])
     p = Spreadsheet(str(idat.name) + _(" (found reflexes)"), val)
+    group = (None, None)
 
     def _find_ints():
         grps = find_integers(cryb)
+        nonlocal group
         if grps:
             val.insert_column(val.columns, "ints", int)
             grp = grps[0][0]
+            group = grps[0][1]
             j = val.columns - 1
             for i, k in grp.items():
                 val.set(i, j, k)
 
+    def _theta_correction():
+        if val.columns < 6:
+            return
+        c = 5
+        keys = set(r for r in range(val.rows) if val.get(r, c))
+        ang = correct_angle(cryb, keys, *group)
+        print_information("Corrected angle",
+                          f"Angle is {ang}\n{keys}\n{group}")
+
     p.menu.append_item((_treat,), _("Find integers"), _find_ints, None)
+    p.menu.append_item((_treat,), _("Correct angle"), _theta_correction, None)
     p.show()
 
     def select_units(u):

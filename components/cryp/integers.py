@@ -15,12 +15,20 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Find integers in sin^2 correlations"""
 from numpy import (
-    min, ceil, floor, pi, arcsin, sin, ndarray, std, average, round)
+    min, ceil, floor, pi, arcsin, sin, ndarray, std, average, round, array)
 from scipy.optimize import fmin_powell
 
 
 def theta_correction(delta: ndarray, x_: ndarray, this: ndarray,
                      p: int, m: int):
+    """
+    :param delta: [d alpha, d m]
+    :param x_: sin theta
+    :param this: boolean list of integers
+    :param p: position
+    :param m: multiplier
+    :returns: mean square deviation
+    """
     y = sin(arcsin(x_) + delta[0]) ** 2
     y = y / y[p] * (m + delta[1])
     return average(min([y - floor(y), ceil(y) - y], axis=0)[this] ** 2)
@@ -33,8 +41,11 @@ def like_integer(arr, dx):
 def find_integers(cryb):
     sinx = cryb.reshape(len(cryb) // 4, 4)[:, 0]
     groups = []
+    j1l = 0
     for i in range(len(sinx)):
+        # param i: position
         for j in range(1, 6):
+            # param j: multiplier
             y = sinx ** 2
             y = y / y[i] * j
             found = like_integer(y, .09)
@@ -45,16 +56,24 @@ def find_integers(cryb):
             if le > 2 and (j == 1 or le > j1l) and std(y[found]) > 0.5:
                 group = {k: int(i) for k, (i, t) in
                          enumerate(zip(round(y), found)) if t}
-                groups.append((group, dev))
-            # print(y1[found])
-    groups.sort(key=lambda x: x[-1])
+                groups.append((group, (i, j), dev))
+    groups.sort(key=lambda x_: x_[-1])
     return groups
+
+
+def correct_angle(cryb: ndarray, keys: set, position: int, multiplier: int):
+    sinx = cryb.reshape(len(cryb) // 4, 4)[:, 0]
+    found = array([i in keys for i in range(len(sinx))], dtype=bool)
+    delta = fmin_powell(theta_correction, [0., 0.],
+                        args=(sinx, found, position, multiplier), disp=0)
+    return delta[0] / pi * 180.
 
 
 if __name__ == "__main__":
     from numpy import frombuffer, zeros
     from base64 import b64decode
     from pprint import pprint
+
     x = frombuffer(b64decode(
         "5shDxKGE0z/0PuUcDlLRP7xlqNnAGNo/LeE06kpQ4T9VZPfs9+bgP1P+dlSs5uM/"
         "kGbvLWSJ4z93i4n09QLjP/wZKisxYOU/GBY1NAs66D/gwQIOoibqP6B4akjV5ek/"
