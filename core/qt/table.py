@@ -65,8 +65,10 @@ class VisualTableModel(QAbstractTableModel):
         return None
 
     def setData(self, index, data, role=Qt.DisplayRole):
-        self.value.set(index.row(), index.column(), data)
-        return True
+        if role == Qt.EditRole:
+            self.value.set(index.row(), index.column(), data)
+            return True
+        print(role, index.row(), index.column(), data)
 
     def rowCount(self, *dummy):
         return self.value.rows
@@ -100,6 +102,13 @@ class VisualTable(QTableView):
         self.context_menu = None
         self.separate_items = False
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Delete:
+            for i in self.selectedIndexes():
+                self.model.value.set(i.row(), i.column(), None)
+            self.model.updater()
+        super().keyPressEvent(event)
+
     def on_activated(self, model_index):
         if self.choicer is not None and model_index.isValid() \
            and self.value is not None:
@@ -119,13 +128,10 @@ class VisualTable(QTableView):
                 fg, bg = self.styles.get(style, (None, None))
             except AttributeError:
                 fg = bg = None
-            try:
-                if fg is not None:
-                    cell.setForeground(QColor(fg))
-                if bg is not None:
-                    cell.setBackground(QColor(bg))
-            except Exception:
-                print('bad colors:', fg, bg)
+            if fg is not None:
+                cell.setForeground(QColor(fg))
+            if bg is not None:
+                cell.setBackground(QColor(bg))
 
     def set_choicer(self, choicer, separate_items=False):
         if separate_items:
