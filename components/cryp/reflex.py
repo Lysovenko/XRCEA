@@ -17,7 +17,7 @@
 """
 
 import numpy as np
-from scipy.optimize import fmin
+from scipy.optimize import fmin, curve_fit
 
 _SH_FUNCTIONS = {"Gauss": lambda the_x, x0, h, w:
                  h * np.exp(-(the_x - x0) ** 2 / w),
@@ -129,7 +129,13 @@ class ReflexDedect:
         rv = (dev ** 2).sum() / len(self.y_ar) * (np.var(the_x[:, 2]) + 1)
         return rv
 
-    def calc_shape(self, x=None):
+    def calc_shape(self, *args):
+        if len(args) == 0:
+            x = None
+        elif len(args) == 1:
+            x, = args
+        else:
+            x = np.array(args[1:])
         the_x = self.x_ar
         shape = np.zeros(len(the_x))
         l21 = self.lambda21
@@ -149,6 +155,10 @@ class ReflexDedect:
                 shape += sh_func(the_x, x0, h, w)
                 shape += sh_func(the_x, x0 * l21, h * i2, w * l21 ** 2)
         return shape
+
+    def curve_fit(self, opt_args, x_ar, y_ar):
+        popt, pcov = curve_fit(self.calc_shape, x_ar, y_ar, p0=opt_args)
+        return popt, ((self.calc_shape(popt) - y_ar) ** 2).sum() / len(y_ar)
 
     def find_bells(self, sigmin, varsig, max_peaks=None, sh_type="Gauss"):
         """my new not so good algorithm"""
@@ -174,17 +184,17 @@ class ReflexDedect:
             prev_opt_x = opt_x
             prev_sigma2 = sigma2
             done += 1
-            xh = np.zeros(done * 2)
+            opt_x = np.zeros(done * 3)
             h = hght / done
             w = ((area / done) / h) ** 2 / np.pi
-            xh = xh.reshape(done, 2)
-            xh[:, 0] = np.linspace(x_ar[0], x_ar[-1], done + 2)[1: -1]
-            xh[:, 1] = h
-            opt_x = np.zeros(done * 2 + 1)
-            opt_x[:-1] = xh.reshape(done * 2)
-            opt_x[-1] = w
-            opt_x, sigma2, itr, fcs, wflg = \
-                fmin(self.calc_deviat3, opt_x, full_output=True, disp=False)
+            opt_x = opt_x.reshape(done, 3)
+            opt_x[:, 0] = np.linspace(x_ar[0], x_ar[-1], done + 2)[1: -1]
+            opt_x[:, 1] = h
+            opt_x[:, 2] = w
+            opt_x = opt_x.flatten()
+            opt_x, sigma2 = self.curve_fit(opt_x, x_ar, y_ar)
+            # opt_x, sigma2, itr, fcs, wflg = \
+            #     fmin(self.calc_deviat3, opt_x, full_output=True, disp=False)
             print(f"previous: {prev_sigma2}; sigma2: {sigma2}")
             if prev_sigma2 < sigma2 * (done + 1) / done:
                 if done > 1:
