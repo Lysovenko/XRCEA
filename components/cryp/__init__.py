@@ -222,10 +222,14 @@ def calculate_reflexes(idata):
             status["part"] = i / lsec
             if status.get("stop"):
                 break
+            print(len(sect), np.arcsin(
+                np.array(sect)[(0, -1), 0]) / np.pi * 360.)
             rfd = ReflexDedect(sect, l21, I2)
             if algorithm == 0:
                 reflexes, stdev = rfd.find_bells(sigmin, not consig,
                                                  mbells, _BELL_TYPES[bell_t])
+                reflexes = list(reflexes)
+                print(reflexes, stdev)
             else:
                 mi = sect[0][0]
                 ma = sect[-1][0]
@@ -237,9 +241,8 @@ def calculate_reflexes(idata):
             rfd.x_ar = np.linspace(rfd.x_ar[0], rfd.x_ar[-1],
                                    len(rfd.x_ar) * 10)
             rfd.lambda21 = None
-            for peak in reflexes:
-                pv = np.array(peak)[:3]
         status["complete"] = True
+
     plot.bg_process(progress)
     dreflexes["shape"] = _BELL_TYPES[bell_t]
     dreflexes["items"] = [i + (j,) for i, j in zip(totreflexes, totsigmas)]

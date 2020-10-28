@@ -158,6 +158,7 @@ class ReflexDedect:
 
     def curve_fit(self, opt_args, x_ar, y_ar):
         popt, pcov = curve_fit(self.calc_shape, x_ar, y_ar, p0=opt_args)
+        print(popt, pcov)
         return popt, ((self.calc_shape(popt) - y_ar) ** 2).sum() / len(y_ar)
 
     def find_bells(self, sigmin, varsig, max_peaks=None, sh_type="Gauss"):
@@ -193,8 +194,6 @@ class ReflexDedect:
             opt_x[:, 2] = w
             opt_x = opt_x.flatten()
             opt_x, sigma2 = self.curve_fit(opt_x, x_ar, y_ar)
-            # opt_x, sigma2, itr, fcs, wflg = \
-            #     fmin(self.calc_deviat3, opt_x, full_output=True, disp=False)
             print(f"previous: {prev_sigma2}; sigma2: {sigma2}")
             if prev_sigma2 < sigma2 * (done + 1) / done:
                 if done > 1:
@@ -203,20 +202,8 @@ class ReflexDedect:
                 break
             if done == max_peaks:
                 break
-        bls = np.zeros((done, 3))
-        bls[:, :2] = opt_x[:-1].reshape(done, 2)
-        bls[:, 2] = opt_x[-1]
-        bls = bls.reshape(done * 3)
-        if varsig:
-            bls, sig2 = fmin(self.calc_deviat, bls,
-                             full_output=True, disp=False)[:2]
-        bft = [i for i in bls.reshape(done, 3) if i[2] > wmin]
-        if len(bft) < done:
-            done = len(bft)
-            bls = np.array(bft).reshape(done * 3)
-            if done > 0:
-                bls, sig2 = fmin(self.calc_deviat, bls,
-                                 full_output=True, disp=False)[:2]
+        bls = opt_x
+        sig2 = 0.
         self.peaks = zip(*bls.reshape(done, 3).transpose())
         return self.peaks, np.sqrt(sig2)
 
