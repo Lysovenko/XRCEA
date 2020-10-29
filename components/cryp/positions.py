@@ -88,15 +88,21 @@ def show_sheet(idat):
         val.insert_row(i, [X0Cell(data[0], display)] + [
             IFloat(i) for i in data[1:]] + [None])
     p = Spreadsheet(str(idat.name) + _(" (found reflexes)"), val)
-    group = (None, None)
+    int_groups = []
 
     def _find_ints():
-        grps = find_integers(cryb)
-        nonlocal group
-        if grps:
-            val.insert_column(val.columns, "ints", int)
-            grp = grps[0][0]
-            group = grps[0][1]
+        groups = find_integers(cryb)
+        nonlocal int_groups
+        ngroups = 0
+        shown_groups = []
+        for group in groups:
+            grp = group[0]
+            if grp in shown_groups:
+                continue
+            shown_groups.append(grp)
+            ngroups += 1
+            val.insert_column(val.columns, f"ints ({ngroups})", int)
+            int_groups.append(group[1])
             j = val.columns - 1
             for i, k in grp.items():
                 val.set(i, j, k)
@@ -106,9 +112,9 @@ def show_sheet(idat):
             return
         c = 5
         keys = set(r for r in range(val.rows) if val.get(r, c))
-        ang = correct_angle(cryb, keys, *group)
+        ang = correct_angle(cryb, keys, *int_groups[-1])
         print_information("Corrected angle",
-                          f"Angle is {ang}\n{keys}\n{group}")
+                          f"Angle is {ang}\n{keys}\n{int_groups[-1]}")
 
     p.menu.append_item((_treat,), _("Find integers"), _find_ints, None)
     p.menu.append_item((_treat,), _("Correct angle"), _theta_correction, None)
