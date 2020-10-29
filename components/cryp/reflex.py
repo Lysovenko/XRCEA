@@ -96,7 +96,7 @@ class ReflexDedect:
             the_x = np.zeros((len(x) // 2, 3))
             the_x[:, 0] = self.x0
             the_x[:, 1:3] = x.reshape(len(x) // 2, 2)
-            x = the_x.reshape(len(the_x) * 3)
+            x = the_x.flatten()
         elif fixs:
             the_x = np.zeros((len(self.x0), 3))
             nfl = len(self.x0) - len(fixs)
@@ -105,7 +105,7 @@ class ReflexDedect:
                 x0.insert(i, self.x0[i])
             the_x[:, 0] = x0
             the_x[:, 1:3] = x[nfl:].reshape(len(self.x0), 2)
-            x = the_x.reshape(len(the_x) * 3)
+            x = the_x.flatten()
         if x.min() <= 0.:
             return np.inf
         shape = self.calc_shape(x)
@@ -124,7 +124,7 @@ class ReflexDedect:
         if the_x[:, 1].min() <= 0. or the_x[:, 1].max() > self.max_h:
             return np.inf
         the_x[:, 2] = x[-1]
-        shape = self.calc_shape(the_x.reshape(len(the_x) * 3))
+        shape = self.calc_shape(the_x.flatten())
         dev = self.y_ar - shape
         rv = (dev ** 2).sum() / len(self.y_ar) * (np.var(the_x[:, 2]) + 1)
         return rv
@@ -227,7 +227,7 @@ class ReflexDedect:
         opt_x[:, 0] = h
         opt_x[:, 1] = w
         self.x0 = np.array(poss)
-        opt_x = opt_x.reshape(nbells * 2)
+        opt_x = opt_x.flatten()
         opt_x, sig2 = fmin(self.calc_deviat, opt_x, args=(True,),
                            full_output=True, disp=False)[:2]
         fx = np.zeros((nbells, 3))
@@ -242,42 +242,15 @@ class ReflexDedect:
                 x0.insert(i, self.x0[i])
             fx[:, 0] = x0
             fx[:, 1:] = opt_x[nfx:].reshape(nbells, 2)
-            opt_x = fx.reshape(nbells * 3)
+            opt_x = fx.flatten()
         else:
             fx[:, 0] = self.x0
             fx[:, 1:] = opt_x.reshape(nbells, 2)
-            opt_x = fx.reshape(nbells * 3)
+            opt_x = fx.flatten()
             opt_x, sig2 = fmin(self.calc_deviat, opt_x, full_output=True,
                                disp=False)[:2]
         self.peaks = zip(*opt_x.reshape(nbells, 3).transpose())
         return self.peaks, np.sqrt(sig2)
-
-    def reduce_x(self, x):
-        if len(x) < 6 or not self.red_allow:
-            return x, False, None
-        pcs = len(x) / 3
-        oxm = x.reshape(pcs, 3)
-        reduced = False
-        sigma2 = None
-        if oxm[:, 2].mean() * 6 < oxm[:, 2].max():
-            reduced = True
-            self.red_allow -= 1
-            pm = oxm[:, 2].argmax()
-            x0, h, w = oxm[pm]
-            oxm[pm:-1] = oxm[pm + 1:]
-            pcs -= 1
-            oxm = np.resize(oxm, (pcs, 3))
-            oxm[:, 1] += self.sh_func(oxm[:, 0], x0, h, w)
-            self.x0 = oxm[:, 0]
-            tox = oxm[:, 1:].reshape(pcs * 2)
-            tox, sigma2, itr, fcs, wflg = fmin(
-                self.calc_deviat, tox, args=(True,), full_output=True,
-                disp=False)
-            x = np.zeros((pcs, 3))
-            x[:, 0] = self.x0
-            x[:, 1:] = tox.reshape(pcs, 2)
-            x = x.reshape(pcs * 3)
-        return x, reduced, sigma2
 
 
 class Cryplots:
