@@ -20,7 +20,7 @@ from math import asin, pi
 from core.vi.spreadsheet import Spreadsheet
 from core.application import APPLICATION as APP
 from core.vi.value import Tabular, TabCell, Value
-from core.vi import Button, print_information
+from core.vi import Button, print_information, print_error
 from .integers import find_integers, correct_angle
 _treat = _("Treat")
 
@@ -110,11 +110,20 @@ def show_sheet(idat):
     def _theta_correction():
         if val.columns < 6:
             return
-        c = 5
+        if val.columns > 6:
+            sels = p.get_selected_cells()
+            if not sels or sels[0][1] < 5:
+                print_error(_("select at least one cell "
+                              "from appropriate ints column"))
+                return
+            c = sels[0][1]
+        else:
+            c = 5
+        grp = c - 5
         keys = set(r for r in range(val.rows) if val.get(r, c))
-        ang = correct_angle(cryb, keys, *int_groups[-1])
+        ang = correct_angle(cryb, keys, *int_groups[grp])
         print_information("Corrected angle",
-                          f"Angle is {ang}\n{keys}\n{int_groups[-1]}")
+                          f"Angle is {ang}\n{keys}\n{int_groups[grp]}")
 
     p.menu.append_item((_treat,), _("Find integers"), _find_ints, None)
     p.menu.append_item((_treat,), _("Correct angle"), _theta_correction, None)

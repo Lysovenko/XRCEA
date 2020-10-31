@@ -48,6 +48,9 @@ class Spreadsheet(qMainWindow):
     def set_context_menu(self, cmenu):
         self.table.set_context_menu(cmenu)
 
+    def get_selected_cells(self):
+        return [(i.row(), i.column()) for i in self.table.selectedIndexes()]
+
     def set_icon(self, icon):
         self.setWindowIcon(QIcon(icon))
 
@@ -118,6 +121,7 @@ def show_spreadsheet(vi_obj):
         "set_spreadsheet_context_menu"] = sheet.set_context_menu
     vi_obj.gui_functions["set_form"] = sheet.update_form
     vi_obj.gui_functions["get_form_values"] = sheet.get_form_vals
+    vi_obj.gui_functions["get_selected_cells"] = sheet.get_selected_cells
     sheet.register_dialogs()
     sheet.show()
     vi_obj.currently_alive = True

@@ -81,6 +81,13 @@ class Spreadsheet (DialogsMixin):
         except KeyError:
             return ()
 
+    def get_selected_cells(self):
+        """returns list of selected cells as (row, col) tuples"""
+        try:
+            return self.gui_functions["get_selected_cells"]()
+        except KeyError:
+            return ()
+
     def __bool__(self):
         return self.currently_alive
 
