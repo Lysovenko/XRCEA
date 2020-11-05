@@ -104,8 +104,8 @@ def show_sheet(idat):
             val.insert_column(val.columns, f"ints ({ngroups})", int)
             int_groups.append(group[1])
             j = val.columns - 1
-            for i, k in grp.items():
-                val.set(i, j, k)
+            for k, v in grp.items():
+                val.set(k, j, v)
 
     def _theta_correction():
         if val.columns < 6:
@@ -113,7 +113,7 @@ def show_sheet(idat):
         if val.columns > 6:
             sels = p.get_selected_cells()
             if not sels or sels[0][1] < 5:
-                print_error(_("select at least one cell "
+                p.print_error(_("select at least one cell "
                               "from appropriate ints column"))
                 return
             c = sels[0][1]
