@@ -72,7 +72,7 @@ class Mcall:
 
     def calc_bg(self):
         dat = self.data
-        plot = dat.UI
+        plot = dat.UIs.get("main")
         dlgr = plot.input_dialog(_("Calculate background"), [
             (_("Sigma multiplier:"), self.idat["bg_sigmul"]),
             (_("Polynomial's degree:"), self.idat["bg_polrang"]),
@@ -116,7 +116,7 @@ class Mcall:
         dat.extra_data["crypbells"] = np.array(itms).flatten()
         _name = _("Peaks description")
         dat.remember_plot(_name, "cryp" + rv["shape"])
-        dat.UI.draw(_name)
+        dat.UIs["main"].draw(_name)
 
     def show_sheet(self):
         dat = self.data
@@ -125,7 +125,7 @@ class Mcall:
 
 def calculate_reflexes(idata):
     "Search reflexes shapes"
-    plot = idata.UI
+    plot = idata.UIs.get("main")
     if idata.x_units != "q":
         x = np.sin(idata.theta)
     else:

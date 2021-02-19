@@ -45,7 +45,7 @@ class XrayData:
         self.__dict = {}
         self.extra_data = {}
         self._saved_plots = {}
-        self.UI = None
+        self.UIs = {}
         for i in ("contains", "density", "x_data", "y_data",
                   # diffraction angle of monochromer
                   "alpha1", "alpha2", "name",
@@ -241,7 +241,7 @@ class XrayData:
         return Icor * (c2a1 * c2a2 * np.cos(ang) ** 2 + 1.) / (1. + c2a1)
 
     def restore_plots(self):
-        plt = self.UI
+        plt = self.UIs.get("main")
         for n, p in sorted(self._saved_plots.items()):
             plt.add_plot(n, self.abstraction2plot(p))
 
@@ -278,7 +278,7 @@ class XrayData:
 
     def remember_plot(self, name, plot):
         self._saved_plots[name] = plot
-        self.UI.add_plot(name, self.abstraction2plot(plot))
+        self.UIs["main"].add_plot(name, self.abstraction2plot(plot))
         self._emit_changed()
 
     def make_plot(self):
@@ -339,11 +339,10 @@ class XrayData:
         exp_data = _("Experimental data")
         if not self:
             return
-        if self.UI:
-            plt = self.UI
-        else:
+        plt = self.UIs.get("main")
+        if not plt:
             actions = type(self).actions
-            self.UI = plt = Plot(self.name, "exp_plot")
+            self.UIs["main"] = plt = Plot(self.name, "exp_plot")
             for mi in sorted(actions.keys()):
                 args = actions[mi]
                 if isinstance(args, tuple):

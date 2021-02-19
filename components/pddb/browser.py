@@ -234,7 +234,7 @@ class Browser(Page):
 
 
 def set_plot(plotting):
-    PARAMS["Plot"] = plotting.UI
+    PARAMS["Plot"] = plotting.UIs.get("main")
     PARAMS["XRD"] = plotting
     if PARAMS.get("Browser"):
         PARAMS["Browser"].plot()

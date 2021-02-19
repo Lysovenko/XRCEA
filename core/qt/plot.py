@@ -45,6 +45,7 @@ from .idialog import DialogsMixin
 from .core import qMainWindow
 from ..application import APPLICATION as APP
 
+
 class Canvas(FigureCanvas):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
 
@@ -114,6 +115,7 @@ class PlotWindow(qMainWindow):
 
     def closeEvent(self, event):
         self.vi_obj.currently_alive = False
+        self.vi_obj.gui_functions.clear()
 
     def set_icon(self, icon):
         self.setWindowIcon(QIcon(icon))
