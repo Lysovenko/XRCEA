@@ -82,12 +82,17 @@ def show_sheet(idat):
     cryb = idat.extra_data.get("crypbells")
     if cryb is None:
         return
+    p = idat.UIs.get("FoundReflexes")
+    if p:
+        p.show()
+        return
     val = Tabular(colnames=["x\u2080", "h", "w", "s", "h k l"])
     display = DisplayX0("sin", idat)
     for i, data in enumerate(cryb.reshape(len(cryb) // 4, 4)):
         val.insert_row(i, [X0Cell(data[0], display)] + [
             IFloat(i) for i in data[1:]] + [None])
     p = Spreadsheet(str(idat.name) + _(" (found reflexes)"), val)
+    idat.UIs["FoundReflexes"] = p
     int_groups = []
 
     def _find_ints():
