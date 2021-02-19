@@ -20,6 +20,7 @@ import numpy as np
 from core.application import APPLICATION as APP
 from core.idata import XrayData
 from .reflex import calc_bg, refl_sects, ReflexDedect, Cryplots
+from .preflex import PredefRefl
 from .positions import show_sheet
 _DEFAULTS = {"bg_sigmul": 2.0, "bg_polrang": 2, "refl_sigmin": 1e-3,
              "refl_consig": False, "refl_mbells": 10, "refl_bt": 0,
@@ -120,53 +121,6 @@ class Mcall:
     def show_sheet(self):
         dat = self.data
         show_sheet(dat)
-
-
-class PredefRefl:
-    def __init__(self, gdata):
-        self.gdata = gdata
-        self.ispowder = False
-        self.data = []
-        self.from_user = None
-        self.frame = None
-        self.user_reset = None
-
-    def __nonzero__(self):
-        return len(self.data) > 0
-
-    def clear_data(self, evt):
-        self.data = []
-
-    def get(self, update=True):
-        if update and self.from_user is not None:
-            self.set(self.from_user())
-        return sorted(self.data)
-
-    def append(self, data):
-        resd = dict([(i[0], i) for i in self.data])
-        for i in data:
-            resd[i[0]] = tuple(i) + (False,)
-        self.data = resd.values()
-        self.data.sort()
-        if self.user_reset is not None:
-            self.user_reset(self.data[:])
-
-    def set(self, data):
-        self.data = sorted(data)
-
-    def call_grid(self, evt):
-        if self.frame is None:
-            from v_powder_tbl import RefLocFrame
-            self.frame = RefLocFrame(self.gdata, self)
-            self.from_user = self.frame.get_refpos
-            self.user_reset = self.frame.set_cells
-        else:
-            self.frame.Raise()
-
-    def del_frame(self):
-        self.frame = None
-        self.from_user = None
-        self.user_reset = None
 
 
 def calculate_reflexes(idata):
