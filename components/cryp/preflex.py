@@ -15,50 +15,98 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """
 """
+from locale import atof, format_string
+from math import asin, pi, sin
+from core.application import APPLICATION as APP
+from core.vi.value import Tabular, TabCell, Value
+from core.vi.spreadsheet import Spreadsheet
+
+
+class PeakLocator:
+    def __init__(self, units, wavel):
+        self.units = units
+        self.wavel = wavel
+
+    def to_units(self, val):
+        if self.units == "sin":
+            return self.wavel / (2. * val)
+        if self.units == "d":
+            return val
+        if self.units == "d2":
+            return val**2
+        if self.units == "theta":
+            return asin(self.wavel / (2. * val)) * 180. / pi
+        if self.units == "2theta":
+            return asin(self.wavel / (2. * val)) * 360. / pi
+
+    def to_d(self, val):
+        if self.units == "sin":
+            return self.wavel / (2. * val)
+        if self.units == "d":
+            return val
+        if self.units == "d2":
+            return val**.5
+        if self.units == "theta":
+            return self.wavel / (2. * sin(val * pi / 180.))
+        if self.units == "2theta":
+            return self.wavel / (2. * sin(val * pi / 360.))
+
+
+class PosCell(TabCell):
+    """Cell with peak position"""
+    def __init__(self, value, locator):
+        self.__value = value
+        self._locator = locator
+        super().__init__()
+
+    @property
+    def value(self):
+        return self.__value
+
+    @value.setter
+    def value(self, val):
+        if val is None:
+            return
+        try:
+            arr = APP.runtime_data.get("User refl", [])
+            try:
+                i = arr.index(self.__value)
+            except ValueError:
+                i = None
+            self.__value = self._locator.to_d(atof(str(val)))
+            if i is not None:
+                arr[i] = self.__value
+        except ValueError:
+            pass
+
+    def __str__(self):
+        try:
+            return format_string("%.5g", self._locator.to_units(self.__value))
+        except ValueError:
+            return ""
 
 
 class PredefRefl:
     def __init__(self, gdata):
         self.gdata = gdata
-        self.ispowder = False
-        self.data = []
-        self.from_user = None
-        self.frame = None
-        self.user_reset = None
+        self.spreadsheet = None
 
-    def __nonzero__(self):
-        return len(self.data) > 0
+    def call_grid(self, idat):
+        if self.spreadsheet:
+            self.spreadsheet.show()
+            return
+        val = Tabular(colnames=["x\u2080", "?", "?", "?"])
+        to_show = PeakLocator("sin", idat.lambda1)
+        for i, pos in enumerate(APP.runtime_data.get("User refl", [])):
+            val.insert_row(i, [PosCell(pos, to_show)] + [None] * 3)
+        sps = Spreadsheet(str(idat.name) + _(" (found reflexes)"), val)
+        self.spreadsheet = sps
+        sps.show()
 
-    def clear_data(self, evt):
-        self.data = []
+        def select_units(u):
+            to_show.units = ["sin", "d", "d2", "theta", "2theta"][u]
+            val.refresh()
 
-    def get(self, update=True):
-        if update and self.from_user is not None:
-            self.set(self.from_user())
-        return sorted(self.data)
-
-    def append(self, data):
-        resd = dict([(i[0], i) for i in self.data])
-        for i in data:
-            resd[i[0]] = tuple(i) + (False,)
-        self.data = resd.values()
-        self.data.sort()
-        if self.user_reset is not None:
-            self.user_reset(self.data[:])
-
-    def set(self, data):
-        self.data = sorted(data)
-
-    def call_grid(self, evt):
-        if self.frame is None:
-            from v_powder_tbl import RefLocFrame
-            self.frame = RefLocFrame(self.gdata, self)
-            self.from_user = self.frame.get_refpos
-            self.user_reset = self.frame.set_cells
-        else:
-            self.frame.Raise()
-
-    def del_frame(self):
-        self.frame = None
-        self.from_user = None
-        self.user_reset = None
+        sps.set_form([(_("Units to display x\u2080:"), (
+            "sin(\u03b8)", "d (\u212b)", "d\u207b\u00b2 (\u212b\u207b\u00b2)",
+            "\u03b8 (\u00b0)", "2\u03b8 (\u00b0)"), select_units)])
