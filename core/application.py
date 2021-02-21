@@ -122,6 +122,7 @@ def _help():
 def _introduce_menu():
     from .sett_dialogs import edit_components
     from .idata import introduce_input
+    from .vi import gui_exit
     mappend = APPLICATION.menu.append_item
     _opts = _("&Options")
     _file = _("&File")
@@ -141,6 +142,7 @@ def _introduce_menu():
             edit_components, None, None)
     mappend((_file,), _("&Open"), Opener.run_dialog, None, None,
             icon_file("open"))
+    APPLICATION.menu.insert_item((_file,), 99, _("&Quit"), gui_exit, None)
     APPLICATION.menu.insert_item((), 99, _hlp, {}, None)
     mappend((_hlp,), _("Contents"), _help, None)
     introduce_input()

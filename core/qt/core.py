@@ -146,3 +146,8 @@ class qMainWindow(QMainWindow, DialogsMixin):
                 return True
         if can_accept:
             event.accept()
+
+
+def gui_exit():
+    """Not too smart, I presume"""
+    QApplication.instance().quit()

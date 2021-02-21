@@ -114,3 +114,10 @@ class Button:
 
     def __call__(self, val):
         self.func(val)
+
+
+def gui_exit():
+    """
+    Quit the GUI.
+    """
+    return _actual().gui_exit()

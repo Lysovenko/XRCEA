@@ -16,7 +16,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from .core import (main, show_vi, print_status, copy_to_clipboard,
-                   register_dialog)
+                   register_dialog, gui_exit)
 from .dialog import (run_dialog, print_information, print_error, ask_question,
                      ask_open_filename, ask_save_filename)
 from .idialog import input_dialog
