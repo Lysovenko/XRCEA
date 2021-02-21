@@ -37,6 +37,7 @@ class Spreadsheet(qMainWindow):
     def draw_shape(self, value):
         """Internal. Draw window shape"""
         self.table = vt = VisualTable(self, value)
+        vt.set_del_pressed(value.on_del_pressed)
         layout = QVBoxLayout()
         self.form = QFormLayout()
         layout.addLayout(self.form)
@@ -104,6 +105,7 @@ class Spreadsheet(qMainWindow):
             else:
                 t.deleteLater()
         self.timers.clear()
+        self.vi_obj.gui_functions.clear()
         self.vi_obj.currently_alive = False
 
 

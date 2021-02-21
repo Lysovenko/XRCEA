@@ -109,6 +109,8 @@ class Tabular:
                  ):
         if rows is not None and cols is not None:
             self._data = [[None] * len(colnames)] * rows
+        else:
+            self._data = []
         self._coltypes = coltypes
         self._colnames = colnames
         if coltypes is not None and type(coltypes) is not type(colnames):
@@ -203,6 +205,14 @@ class Tabular:
         self._data.pop(index)
         self.refresh()
 
+    def remove_rows(self, indexes=None):
+        if indexes is None:
+            self._data.clear()
+        else:
+            for index in sorted(indexes, reverse=True):
+                self._data.pop(index)
+        self.refresh()
+
     def remove_column(self, index):
         self._colnames.pop(index)
         if self._coltypes is not None:
@@ -210,3 +220,7 @@ class Tabular:
         for row in self._data:
             row.pop(index)
         self.refresh()
+
+    def on_del_pressed(self, cells):
+        for cell in cells:
+            self.set(*cell, None)

@@ -104,9 +104,13 @@ class VisualTable(QTableView):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Delete:
-            for i in self.selectedIndexes():
-                self.model.value.set(i.row(), i.column(), None)
-            self.model.updater()
+            try:
+                self._del_pressed([(i.row(), i.column())
+                                   for i in self.selectedIndexes()])
+            except AttributeError:
+                pass
+            else:
+                self.model.updater()
         super().keyPressEvent(event)
 
     def on_activated(self, model_index):
@@ -140,6 +144,9 @@ class VisualTable(QTableView):
             self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.choicer = choicer
         self.separate_items = separate_items
+
+    def set_del_pressed(self, callback):
+        self._del_pressed = callback
 
     def set_context_menu(self, menu):
         self.context_menu = menu
