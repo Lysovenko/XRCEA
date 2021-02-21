@@ -307,7 +307,10 @@ class XrayData:
         if self.extra_data:
             xrd["extras"] = e = {}
             for n, v in self.extra_data.items():
-                e[n] = list(map(float, v))
+                if isinstance(v, np.ndarray):
+                    e[n] = v.tolist()
+                else:
+                    e[n] = v
         if self._saved_plots:
             xrd["SavedPlots"] = self._saved_plots
         return xrd
@@ -325,7 +328,11 @@ class XrayData:
             setattr(self, i, np.array(xrd[i]))
         try:
             for n, v in xrd["extras"].items():
-                self.extra_data[n] = np.array(v)
+                nda = np.array(v)
+                if nda.dtype.kind in 'if':
+                    self.extra_data[n] = nda
+                else:
+                    self.extra_data[n] = v
         except (KeyError, TypeError):
             pass
         try:
