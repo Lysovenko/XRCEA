@@ -54,9 +54,10 @@ class PeakLocator:
 
 class PosCell(TabCell):
     """Cell with peak position"""
-    def __init__(self, value, locator):
-        self.__value = value
+    def __init__(self, cont, locator):
+        self.__value = cont[0]
         self._locator = locator
+        self.__cont = cont
         super().__init__()
 
     @property
@@ -68,45 +69,71 @@ class PosCell(TabCell):
         if val is None:
             return
         try:
-            arr = APP.runtime_data.get("User refl", [])
-            try:
-                i = arr.index(self.__value)
-            except ValueError:
-                i = None
             self.__value = self._locator.to_d(atof(str(val)))
-            if i is not None:
-                arr[i] = self.__value
-        except ValueError:
+            self.__cont[0] = self.__value
+        except (ValueError, ZeroDivisionError):
             pass
 
     def __str__(self):
         try:
             return format_string("%.5g", self._locator.to_units(self.__value))
-        except ValueError:
+        except (ValueError, ZeroDivisionError):
             return ""
 
 
-class PredefRefl:
-    def __init__(self, gdata):
-        self.gdata = gdata
-        self.spreadsheet = None
+class Table(Tabular):
+    def __init__(self, origin, colnames):
+        self._origin = origin
+        super().__init__(colnames=colnames)
 
-    def call_grid(self, idat):
-        if self.spreadsheet:
-            self.spreadsheet.show()
-            return
-        val = Tabular(colnames=["x\u2080", "?", "?", "?"])
-        to_show = PeakLocator("sin", idat.lambda1)
-        for i, pos in enumerate(APP.runtime_data.get("User refl", [])):
-            val.insert_row(i, [PosCell(pos, to_show)] + [None] * 3)
-        sps = Spreadsheet(str(idat.name) + _(" (found reflexes)"), val)
-        self.spreadsheet = sps
-        sps.show()
+    def set(self, r, c, v):
+        if c == 1:
+            self._origin[r][1] = str(v)
+        super().set(r, c, v)
+
+    def on_del_pressed(self, cells):
+        origin = self._origin
+        rows = sorted(set(i[0] for i in cells), reverse=True)
+        try:
+            for i in rows:
+                origin.pop(i)
+        except IndexError:
+            pass
+        else:
+            self.remove_rows(rows)
+
+    def from_origin(self, locator):
+        self.remove_rows()
+        for i, row in enumerate(self._origin):
+            self.insert_row(i, [PosCell(row, locator), row[1]])
+
+
+class AssumedRefl(Spreadsheet):
+    def __init__(self, idat):
+        self._xrd = idat
+        self._tab = tab = Table(
+            idat.extra_data.setdefault("AssumedReflexes", []),
+            ["x\u2080", _("Comment")])
+        self._ploc = to_show = PeakLocator("sin", idat.lambda1)
+        super().__init__(str(idat.name) + _(" (found reflexes)"), tab)
+        self.reread()
+        self.show()
 
         def select_units(u):
             to_show.units = ["sin", "d", "d2", "theta", "2theta"][u]
-            val.refresh()
+            tab.refresh()
 
-        sps.set_form([(_("Units to display x\u2080:"), (
+        self.set_form([(_("Units to display x\u2080:"), (
             "sin(\u03b8)", "d (\u212b)", "d\u207b\u00b2 (\u212b\u207b\u00b2)",
             "\u03b8 (\u00b0)", "2\u03b8 (\u00b0)"), select_units)])
+
+    def reread(self):
+        self._tab.from_origin(self._ploc)
+
+
+def show_assumed(idat):
+    predef = idat.UIs.get("AssumedReflexes")
+    if predef:
+        predef.show()
+        return
+    idat.UIs["AssumedReflexes"] = AssumedRefl(idat)

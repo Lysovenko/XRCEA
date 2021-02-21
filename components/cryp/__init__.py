@@ -20,7 +20,7 @@ import numpy as np
 from core.application import APPLICATION as APP
 from core.idata import XrayData
 from .reflex import calc_bg, refl_sects, ReflexDedect, Cryplots
-from .preflex import PredefRefl
+from .preflex import show_assumed
 from .positions import show_sheet
 _DEFAULTS = {"bg_sigmul": 2.0, "bg_polrang": 2, "refl_sigmin": 1e-3,
              "refl_consig": False, "refl_mbells": 10, "refl_bt": 0,
@@ -33,7 +33,6 @@ _data = {"data": APP.runtime_data}
 def introduce():
     """Entry point. Declares menu items."""
     p = (_("Diffractogram"),)
-    pdr = PredefRefl(_data)
     mitems = [(p + (_("Find background..."),),
                Mcall(_data, 'calc_bg')),
               (p + (_("Calc. refl. shapes..."),),
@@ -41,7 +40,7 @@ def introduce():
               (p + (_("Show found refl. shapes"),),
                Mcall(_data, 'show_sheet')),
               (p + (_("Predefined reflexes..."),),
-               pdr.call_grid)]
+               show_assumed)]
     for p, e in mitems:
         XrayData.actions[p] = e
     for i in _BELL_TYPES:
@@ -166,8 +165,8 @@ def calculate_reflexes(idata):
     totreflexes = []
     totsigmas = []
     if algorithm == 1:
-        apposs = idata.wavelength / 2. / np.array(
-            APP.runtime_data.get("User refl", []))
+        apposs = idata.wavelength / 2. / np.array([
+            i[0] for i in idata.extra_data.get("AssumedReflexes", [])])
 
     def progress(status):
         status["description"] = _("Calculating shapes of the reflexes...")

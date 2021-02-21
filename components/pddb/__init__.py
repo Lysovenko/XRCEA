@@ -19,7 +19,7 @@
 from core.application import APPLICATION as APP
 from core.vi import input_dialog
 from core.idata import XrayData
-from .browser import set_plot
+from .browser import set_plot, set_positions
 from .opddb import show_browser, ObjDB
 show_me = show_browser
 _opts = _("&Options")
@@ -32,6 +32,7 @@ def introduce():
     APP.menu.append_item((_tools,), _("DB browser"), show_browser, None)
     APP.settings.declare_section("PDDB")
     XrayData.actions[(_tools, _("Compare with DB pattern"))] = set_plot
+    XrayData.actions[(_tools, _("Use DB card positions"))] = set_positions
     APP.register_treater(ObjDB)
 
 

@@ -45,7 +45,6 @@ class Browser(Page):
             (_("Print GNUPlot labels"), self.print_gp_labels),
             (_("Clear deleted"), self.remove_deleted),
             (_("Save cards list"), self.save_list),
-            (_("Remember peaks positions"), self.predefine_reflexes),
         ])
 
     def click_card(self, tup):
@@ -227,10 +226,23 @@ class Browser(Page):
         self.cards.update([])
         self.search()
 
-    def predefine_reflexes(self, row, c=None):
-        cid = row[-1]
-        APP.runtime_data["User refl"] = [
-            r[0] for r in self._database.reflexes(cid, True)]
+    def export_to_xrd(self, xrd):
+        cid = self._cur_card
+        name = self._database.card_name(cid)
+        tail = "%s %s" % (name, switch_number(cid))
+        assumed = xrd.extra_data.setdefault("AssumedReflexes", [])
+        old = set(i[0] for i in assumed)
+        for r in self._database.reflexes(cid, True):
+            if r[0] in old:
+                continue
+            if r[2] is None:
+                comment = "%d%% %s" % (r[1], tail)
+            else:
+                comment = "%d%% (%d%3d%3d) %s" % (r[1:] + (tail,))
+            assumed.append([r[0], comment])
+        ui = xrd.UIs.get("AssumedReflexes")
+        if ui:
+            ui.reread()
 
 
 def set_plot(plotting):
@@ -238,3 +250,8 @@ def set_plot(plotting):
     PARAMS["XRD"] = plotting
     if PARAMS.get("Browser"):
         PARAMS["Browser"].plot()
+
+
+def set_positions(xrd):
+    if PARAMS.get("Browser"):
+        PARAMS["Browser"].export_to_xrd(xrd)
