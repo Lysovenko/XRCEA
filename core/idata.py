@@ -305,12 +305,16 @@ class XrayData:
                 except AttributeError:
                     xrd[i] = list(map(float, v))
         if self.extra_data:
-            xrd["extras"] = e = {}
+            e = {}
             for n, v in self.extra_data.items():
+                if not len(v):
+                    continue
                 if isinstance(v, np.ndarray):
                     e[n] = v.tolist()
                 else:
                     e[n] = v
+            if e:
+                xrd["extras"] = e
         if self._saved_plots:
             xrd["SavedPlots"] = self._saved_plots
         return xrd
