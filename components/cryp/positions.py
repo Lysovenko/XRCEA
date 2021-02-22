@@ -80,23 +80,24 @@ class DisplayX0:
 
 def show_sheet(idat):
     cryb = idat.extra_data.get("crypbells")
+    cryb = sorted(map(tuple, cryb.reshape(len(cryb) // 4, 4)))
     if cryb is None:
         return
     p = idat.UIs.get("FoundReflexes")
     if p:
         p.show()
         return
-    val = Tabular(colnames=["x\u2080", "h", "w", "s", "h k l"])
+    val = Tabular(colnames=["x\u2080", "h", "w", "s"])
     display = DisplayX0("sin", idat)
-    for i, data in enumerate(cryb.reshape(len(cryb) // 4, 4)):
+    for i, data in enumerate(cryb):
         val.insert_row(i, [X0Cell(data[0], display)] + [
-            IFloat(i) for i in data[1:]] + [None])
+            IFloat(i) for i in data[1:]])
     p = Spreadsheet(str(idat.name) + _(" (found reflexes)"), val)
     idat.UIs["FoundReflexes"] = p
     int_groups = []
 
     def _find_ints():
-        groups = find_integers(cryb)
+        groups = find_integers([i[0] for i in cryb])
         nonlocal int_groups
         ngroups = 0
         shown_groups = []
@@ -117,7 +118,7 @@ def show_sheet(idat):
             return
         if val.columns > 6:
             sels = p.get_selected_cells()
-            if not sels or sels[0][1] < 5:
+            if not sels or not val.colname(sels[0][1]).startswith("ints ("):
                 p.print_error(_("select at least one cell "
                               "from appropriate ints column"))
                 return
@@ -126,7 +127,7 @@ def show_sheet(idat):
             c = 5
         grp = c - 5
         keys = set(r for r in range(val.rows) if val.get(r, c))
-        ang = correct_angle(cryb, keys, *int_groups[grp])
+        ang = correct_angle([i[0] for i in cryb], keys, *int_groups[grp])
         print_information("Corrected angle",
                           f"Angle is {ang}\n{keys}\n{int_groups[grp]}")
 

@@ -39,7 +39,7 @@ def like_integer(arr, dx):
 
 
 def find_integers(cryb):
-    sinx = cryb.reshape(len(cryb) // 4, 4)[:, 0]
+    sinx = array(cryb)
     groups = []
     j1l = 0
     for i in range(len(sinx)):
@@ -61,8 +61,8 @@ def find_integers(cryb):
     return groups
 
 
-def correct_angle(cryb: ndarray, keys: set, position: int, multiplier: int):
-    sinx = cryb.reshape(len(cryb) // 4, 4)[:, 0]
+def correct_angle(cryb: list, keys: set, position: int, multiplier: int):
+    sinx = array(cryb)
     found = array([i in keys for i in range(len(sinx))], dtype=bool)
     delta = fmin_powell(theta_correction, [0., 0.],
                         args=(sinx, found, position, multiplier), disp=0)
