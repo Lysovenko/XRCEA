@@ -78,27 +78,30 @@ class DisplayX0:
             return asin(val) * 360. / pi
 
 
-def show_sheet(idat):
-    cryb = idat.extra_data.get("crypbells")
-    cryb = sorted(map(tuple, cryb.reshape(len(cryb) // 4, 4)))
-    if cryb is None:
-        return
-    p = idat.UIs.get("FoundReflexes")
-    if p:
-        p.show()
-        return
-    val = Tabular(colnames=["x\u2080", "h", "w", "s"])
-    display = DisplayX0("sin", idat)
-    for i, data in enumerate(cryb):
-        val.insert_row(i, [X0Cell(data[0], display)] + [
-            IFloat(i) for i in data[1:]])
-    p = Spreadsheet(str(idat.name) + _(" (found reflexes)"), val)
-    idat.UIs["FoundReflexes"] = p
-    int_groups = []
+class FoundBells(Spreadsheet):
+    def __init__(self, xrd):
+        self._xrd = xrd
+        cryb = xrd.extra_data.get("crypbells")
+        self.cryb = cryb = sorted(map(tuple, cryb.reshape(len(cryb) // 4, 4)))
+        val = Tabular(colnames=["x\u2080", "h", "w", "s"])
+        self.display = display = DisplayX0("sin", xrd)
+        for i, data in enumerate(cryb):
+            val.insert_row(i, [X0Cell(data[0], display)] + [
+                IFloat(i) for i in data[1:]])
+        super().__init__(str(xrd.name) + _(" (found reflexes)"), val)
+        self.int_groups = []
+        self.menu.append_item((_treat,), _("Find integers"),
+                              self._find_ints, None)
+        self.menu.append_item((_treat,), _("Correct angle"),
+                              self._theta_correction, None)
+        self.show()
+        self.set_form([(_("Units to display x\u2080:"), (
+            "sin(\u03b8)", "d (\u212b)", "d\u207b\u00b2 (\u212b\u207b\u00b2)",
+            "\u03b8 (\u00b0)", "2\u03b8 (\u00b0)"), self.select_units)])
 
-    def _find_ints():
-        groups = find_integers([i[0] for i in cryb])
-        nonlocal int_groups
+    def _find_ints(self):
+        groups = find_integers([i[0] for i in self.cryb])
+        int_groups = self.int_groups
         ngroups = 0
         shown_groups = []
         for group in groups:
@@ -107,38 +110,45 @@ def show_sheet(idat):
                 continue
             shown_groups.append(grp)
             ngroups += 1
-            val.insert_column(val.columns, f"ints ({ngroups})", int)
+            self.value.insert_column(self.value.columns,
+                                     f"ints ({ngroups})", int)
             int_groups.append(group[1])
-            j = val.columns - 1
+            j = self.value.columns - 1
             for k, v in grp.items():
-                val.set(k, j, v)
+                self.value.set(k, j, v)
 
-    def _theta_correction():
-        if val.columns < 6:
+    def _theta_correction(self):
+        if self.value.columns < 6:
             return
-        if val.columns > 6:
-            sels = p.get_selected_cells()
-            if not sels or not val.colname(sels[0][1]).startswith("ints ("):
-                p.print_error(_("select at least one cell "
-                              "from appropriate ints column"))
+        if self.value.columns > 6:
+            sels = self.get_selected_cells()
+            if not sels or not self.value.colname(sels[0][1]).startswith(
+                    "ints ("):
+                self.print_error(_("select at least one cell "
+                                   "from appropriate ints column"))
                 return
             c = sels[0][1]
         else:
             c = 5
         grp = c - 5
-        keys = set(r for r in range(val.rows) if val.get(r, c))
-        ang = correct_angle([i[0] for i in cryb], keys, *int_groups[grp])
+        keys = set(r for r in range(self.value.rows) if self.value.get(r, c))
+        ang = correct_angle([i[0] for i in self.cryb],
+                            keys, *self.int_groups[grp])
         print_information("Corrected angle",
-                          f"Angle is {ang}\n{keys}\n{int_groups[grp]}")
+                          f"Angle is {ang}\n{keys}\n{self.int_groups[grp]}")
 
-    p.menu.append_item((_treat,), _("Find integers"), _find_ints, None)
-    p.menu.append_item((_treat,), _("Correct angle"), _theta_correction, None)
-    p.show()
+    def select_units(self, u):
+        self.display.units = ["sin", "d", "d2", "theta", "2theta"][u]
+        self.value.refresh()
 
-    def select_units(u):
-        display.units = ["sin", "d", "d2", "theta", "2theta"][u]
-        val.refresh()
 
-    p.set_form([(_("Units to display x\u2080:"), (
-        "sin(\u03b8)", "d (\u212b)", "d\u207b\u00b2 (\u212b\u207b\u00b2)",
-        "\u03b8 (\u00b0)", "2\u03b8 (\u00b0)"), select_units)])
+def show_sheet(xrd):
+    if "crypbells" not in xrd.extra_data:
+        return
+    cryb = xrd.extra_data.get("crypbells")
+    cryb = sorted(map(tuple, cryb.reshape(len(cryb) // 4, 4)))
+    p = xrd.UIs.get("FoundReflexes")
+    if p:
+        p.show()
+        return
+    xrd.UIs["FoundReflexes"] = FoundBells(xrd)
