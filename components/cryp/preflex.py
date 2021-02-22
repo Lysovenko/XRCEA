@@ -33,7 +33,7 @@ class PeakLocator:
         if self.units == "d":
             return val
         if self.units == "d2":
-            return val**2
+            return val**-2
         if self.units == "theta":
             return asin(self.wavel / (2. * val)) * 180. / pi
         if self.units == "2theta":
@@ -45,7 +45,7 @@ class PeakLocator:
         if self.units == "d":
             return val
         if self.units == "d2":
-            return val**.5
+            return val**-.5
         if self.units == "theta":
             return self.wavel / (2. * sin(val * pi / 180.))
         if self.units == "2theta":
