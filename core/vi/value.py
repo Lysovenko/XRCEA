@@ -93,6 +93,8 @@ class TabCell:
         self.value = value
         self.background = background
         self.foreground = foreground
+        self.row = None
+        self.col = None
 
     def __str__(self):
         return str(self.value)
@@ -184,6 +186,17 @@ class Tabular:
                 index, [None] * self.columns if row is None else row)
         except AttributeError:
             self._data = [[None] * self.columns if row is None else row]
+        for i, c in enumerate(self._data[index]):
+            try:
+                c.col = i
+            except AttributeError:
+                pass
+        for i, row in enumerate(self._data[index:], index):
+            for c in row:
+                try:
+                    c.row = i
+                except AttributeError:
+                    pass
         self.refresh()
 
     def insert_column(self, index, colname, coltype=None):
@@ -199,10 +212,27 @@ class Tabular:
                 i.insert(index, None)
         except TypeError:
             self._data = []
+        try:
+            for i in range(len(self._data)):
+                self._data[i][index].row = i
+        except AttributeError:
+            pass
+        for row in self._data:
+            for i, c in enumerate(row[index:], index):
+                try:
+                    c.col = i
+                except AttributeError:
+                    pass
         self.refresh()
 
     def remove_row(self, index):
         self._data.pop(index)
+        for r in self._data[index:]:
+            for c in r:
+                try:
+                    c.row -= 1
+                except AttributeError:
+                    pass
         self.refresh()
 
     def remove_rows(self, indexes=None):
@@ -211,6 +241,12 @@ class Tabular:
         else:
             for index in sorted(indexes, reverse=True):
                 self._data.pop(index)
+            for r, dr in enumerate(self._data[index:], index):
+                for c in dr:
+                    try:
+                        c.row = r
+                    except AttributeError:
+                        pass
         self.refresh()
 
     def remove_column(self, index):
@@ -219,6 +255,11 @@ class Tabular:
             self._coltypes.pop(index)
         for row in self._data:
             row.pop(index)
+            for c in row[index:]:
+                try:
+                    c.col -= 1
+                except AttributeError:
+                    pass
         self.refresh()
 
     def on_del_pressed(self, cells):
