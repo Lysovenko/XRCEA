@@ -209,7 +209,10 @@ class Tabular:
             self._coltypes = [coltype]
         try:
             for i in self._data:
-                i.insert(index, None)
+                if coltype is not None:
+                    i.insert(index, coltype())
+                else:
+                    i.insert(index, None)
         except TypeError:
             self._data = []
         try:
