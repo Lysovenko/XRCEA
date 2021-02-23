@@ -133,16 +133,16 @@ class Tabular:
             return None
 
     def set(self, row, col, data):
+        if isinstance(self._data[row][col], TabCell):
+            self._data[row][col].value = data
+            return
         try:
             value = self._coltypes[col](data)
         except TypeError:
             value = data
         except ValueError:
             value = None
-        if isinstance(self._data[row][col], TabCell):
-            self._data[row][col].value = value
-        else:
-            self._data[row][col] = value
+        self._data[row][col] = value
 
     @property
     def rows(self):
