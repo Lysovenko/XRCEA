@@ -22,6 +22,7 @@ from core.application import APPLICATION as APP
 from core.vi.value import Tabular, TabCell, Value
 from core.vi import Button, print_information, print_error
 from .integers import find_integers, correct_angle
+from .vcellparams import show_cell_params
 _treat = _("Treat")
 CELL_TYPE_C, CELL_TYPE_N = zip(*(
     ("hex", _("Hexagonal")),
@@ -128,6 +129,8 @@ class FoundBells(Spreadsheet):
                               self._theta_correction, None)
         self.menu.append_item((_treat,), _("Add user indexes..."),
                               self.add_user_indexes, None)
+        self.menu.append_item((_treat,), _("Calculate Cell parameters"),
+                              self.calc_cell_params, None)
         self.show()
         self.set_form([(_("Units to display x\u2080:"), (
             "sin(\u03b8)", "d (\u212b)", "d\u207b\u00b2 (\u212b\u207b\u00b2)",
@@ -203,6 +206,9 @@ class FoundBells(Spreadsheet):
             self._uindex[name]["indices"] = indices
             self.value.insert_column(self.value.columns, name,
                                      lambda x=indices: HklCell(x))
+
+    def calc_cell_params(self):
+        show_cell_params(self._xrd)
 
 
 def show_sheet(xrd):
