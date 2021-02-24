@@ -208,8 +208,6 @@ class FoundBells(Spreadsheet):
 def show_sheet(xrd):
     if "crypbells" not in xrd.extra_data:
         return
-    cryb = xrd.extra_data.get("crypbells")
-    cryb = sorted(map(tuple, cryb.reshape(len(cryb) // 4, 4)))
     p = xrd.UIs.get("FoundReflexes")
     if p:
         p.show()
