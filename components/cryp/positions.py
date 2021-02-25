@@ -26,6 +26,8 @@ from .vcellparams import show_cell_params
 _treat = _("Treat")
 CELL_TYPE_C, CELL_TYPE_N = zip(*(
     ("hex", _("Hexagonal")),
+    ("tetra", _("Tetragonal")),
+    ("cubic", _("Cubic")),
 ))
 
 
