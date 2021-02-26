@@ -24,6 +24,31 @@ def get_dhkl(ipd, inds):
     return dinds.transpose()
 
 
+def calc_orhomb(ipd, inds):
+    """Orthorhombic"""
+    d, h, k, el = get_dhkl(ipd, inds)
+    y = d ** -2
+    bl = el ** 2
+    bk = k ** 2
+    bh = h ** 2
+    yh = aver(bh * y)
+    yk = aver(bk * y)
+    yl = aver(bl * y)
+    h2 = aver(bh ** 2)
+    k2 = aver(bk ** 2)
+    l2 = aver(bl ** 2)
+    hk = aver(bh * bk)
+    hl = aver(bh * bl)
+    kl = aver(bk * bl)
+    matrA = array([[h2, hk, hl], [hk, k2, kl], [hl, kl, l2]])
+    colB = array([yh, yk, yl])
+    ba, bb, bc = solve(matrA, colB)
+    a = ba ** -.5
+    b = bb ** -.5
+    c = bc ** -.5
+    return a, b, c, None, None, None
+
+
 def calc_hex(ipd, inds):
     d, h, k, el = get_dhkl(ipd, inds)
     y = d ** -2
@@ -72,4 +97,4 @@ def calc_cubic(ipd, inds):
 
 
 CALCULATORS = {"hex": calc_hex, "tetra": calc_tetra,
-               "cubic": calc_cubic}
+               "cubic": calc_cubic, "orhomb", calc_orhomb}

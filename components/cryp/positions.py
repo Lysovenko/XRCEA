@@ -25,6 +25,7 @@ from .integers import find_integers, correct_angle
 from .vcellparams import show_cell_params
 _treat = _("Treat")
 CELL_TYPE_C, CELL_TYPE_N = zip(*(
+    ("orhomb", _("Orthorhombic")),
     ("hex", _("Hexagonal")),
     ("tetra", _("Tetragonal")),
     ("cubic", _("Cubic")),
