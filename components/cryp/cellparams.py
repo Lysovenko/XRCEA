@@ -97,4 +97,4 @@ def calc_cubic(ipd, inds):
 
 
 CALCULATORS = {"hex": calc_hex, "tetra": calc_tetra,
-               "cubic": calc_cubic, "orhomb", calc_orhomb}
+               "cubic": calc_cubic, "orhomb": calc_orhomb}
