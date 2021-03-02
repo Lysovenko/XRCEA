@@ -43,7 +43,10 @@ class DisplayCellParams(Page):
         return res
 
     def print_res(self, res):
-        pnr = ["a", "b", "c", "\u03b1", "\u03b2", "\u03b3"]
+        pnr = ["a", "b", "c", "\u03b1", "\u03b2", "\u03b3", "\\chi^2",
+               "\\sigma^2_a", "\\sigma^2_b", "\\sigma^2_c",
+               "\\sigma^2_\\alpha", "\\sigma^2_\\beta",
+               "\\sigma^2_\\gamma"]
         cells = []
         self.set_text(
             "\n".join(

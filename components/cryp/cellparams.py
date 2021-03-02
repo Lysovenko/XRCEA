@@ -46,7 +46,8 @@ def calc_orhomb(ipd, inds):
     a = ba ** -.5
     b = bb ** -.5
     c = bc ** -.5
-    return a, b, c, None, None, None
+    return (a, b, c, None, None, None,
+            None, None, None, None, None, None, None)
 
 
 def calc_hex(ipd, inds):
@@ -64,7 +65,16 @@ def calc_hex(ipd, inds):
     ba, bb = solve(matrA, colB)
     a = (4. / 3. / ba) ** .5
     c = bb ** -.5
-    return a, None, c, None, None, 120.
+    y2 = aver(y ** 2)
+    chi2 = ba ** 2 * m2 + 2. * ba * bb * lm - 2. * ba * ym + \
+        bb ** 2 * l2 - 2. * bb * yl + y2
+    delta = m2 * l2 - lm ** 2
+    sig2a = l2 / delta * chi2
+    sig2b = m2 / delta * chi2
+    sig2a /= 4 * ba ** 3
+    sig2b /= 4 * bb ** 3
+    return (a, None, c, None, None, 120.,
+            chi2, sig2a, None, sig2b, None, None, None)
 
 
 def calc_tetra(ipd, inds):
@@ -82,7 +92,8 @@ def calc_tetra(ipd, inds):
     ba, bb = solve(matrA, colB)
     a = ba ** -.5
     c = bb ** -.5
-    return a, None, c, None, None, None
+    return (a, None, c, None, None, None,
+            None, None, None, None, None, None, None)
 
 
 def calc_cubic(ipd, inds):
@@ -93,7 +104,8 @@ def calc_cubic(ipd, inds):
     m2 = aver(bm ** 2)
     ba = ym / m2
     a = ba ** -.5
-    return a, None, None, None, None, None
+    return (a, None, None, None, None, None,
+            None, None, None, None, None, None, None)
 
 
 CALCULATORS = {"hex": calc_hex, "tetra": calc_tetra,
