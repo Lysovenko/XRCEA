@@ -20,13 +20,14 @@ import numpy as np
 from os.path import basename
 from json import loads, dumps
 from .application import APPLICATION as APP, icon_file
-from .vi import Plot
+from .vi import Plot, input_dialog
 
 
 def introduce_input():
     """Introduce input"""
     APP.register_treater(XrayData)
     APP.register_opener(".xrd", open_xrd, _("Diffractograms"))
+    APP.register_opener(".dat", open_xrd, _("Generic diffractograms"))
 
 
 class XrayData:
@@ -54,6 +55,7 @@ class XrayData:
             setattr(self, i, None)
         if not XrayData.loaders:
             XrayData.loaders.append(XrayData.open_xrd)
+            XrayData.loaders.append(XrayData.open_dat)
         if isinstance(obj, str):
             self.open(obj)
         elif isinstance(obj, dict):
@@ -122,13 +124,45 @@ class XrayData:
                     arr.append((x, y))
                 except ValueError:
                     pass
-        if arr:
-            arr.sort()
-            arr = np.array(arr)
-            x = arr.transpose()[0]
-            y = arr.transpose()[1]
-        else:
-            x, y = None, None
+        if not (arr and odict):
+            return
+        arr.sort()
+        arr = np.array(arr)
+        x = arr.transpose()[0]
+        y = arr.transpose()[1]
+        return x, y, odict
+
+    @staticmethod
+    def open_dat(fname):
+        """
+        Open dat file.
+
+        :param fname: Path to dat file.
+        :type fname: string
+        """
+        arr = []
+        odict = {}
+        fobj = open(fname)
+        with fobj:
+            for line in fobj:
+                line = line.strip()
+                if line.startswith('#'):
+                    n, p, v = (i.strip() for i in line[1:].partition(':'))
+                    if p:
+                        odict[n] = v
+                    continue
+                try:
+                    x, y = map(float, line.split()[:2])
+                    arr.append((x, y))
+                except ValueError:
+                    pass
+        if not arr:
+            return
+        arr.sort()
+        arr = np.array(arr)
+        x = arr.transpose()[0]
+        y = arr.transpose()[1]
+        odict = ask_about_sample(odict)
         return x, y, odict
 
     def open(self, fname):
@@ -143,12 +177,15 @@ class XrayData:
                 x, y, dct = loader(fname)
             except IOError:
                 return
+            except (TypeError, ValueError):
+                continue
             if all(i is not None for i in (x, y, dct)):
                 self.x_data = x
                 self.y_data = y
                 self._from_dict(dct)
                 if self.name is None:
                     self.name = basename(fname)
+                return
 
     def __bool__(self):
         return self.x_data is not None and self.y_data is not None
@@ -375,3 +412,50 @@ def open_xrd(fname):
     if xrd:
         APP.add_object(xrd)
         xrd.display()
+
+
+def ask_about_sample(sdict):
+    """Ask some details about the sample"""
+    # Lambda in Angstroms:
+    # Cr, Co, Cu, Mo
+    # According to the last re-examination of Holzer et al. (1997)
+    #    Ka1      Ka2      Kb1
+    ANODES = {"Cr": (2.289760, 2.293663, 2.084920, .506, .21),
+              "Fe": (1.93604, 1.93998, 1.75661, .491, .182),
+              "Co": (1.789010, 1.792900, 1.620830, .532, .191),
+              "Cu": (1.540598, 1.544426, 1.392250, .46, .158),
+              "Mo": (0.709319, 0.713609, 0.632305, .506, .233),
+              "Ni": (1.65784, 1.66169, 1.50010, .476, .171),
+              "Ag": (0.55936, 0.56378, 0.49701, .5, .2),
+              "W": (0.208992, 0.213813, 0.18439, .5, .2)}
+    danodes = tuple(sorted(ANODES.keys()))
+    filterings = (_("Monochromed"), _("With \u03b2-filter"), _("No filtering"))
+    axes = ["2theta", "theta", "q"]
+    daxes = ("2\u03b8", "\u03b8", "q: 4\u03c0 sin(\u03b8)/\u03bb")
+    samples = ("powder", "liquid")
+    dsamples = (_("Powder"), _("Liquid"))
+    fields = [(_("Name:"), sdict.get("name", "")), (_("Sample:"), dsamples),
+              (_("Anticatode:"), danodes), (_("Filtering:"), filterings),
+              (_("X axis:"), daxes), (_("Comment:"), sdict.get("comment", ""))]
+    res = input_dialog(_("What about sample?"), _("Some questions"), fields)
+    if res is None:
+        return
+    name, sample, anode, filtering, xaxis, rem = res
+    sdict["name"] = name
+    sdict["comment"] = rem
+    sdict["sample"] = samples[sample]
+    sdict["x_units"] = axes[xaxis]
+    anode = ANODES[danodes[anode]]
+    if filtering == 0:
+        sdict["lambda1"] = anode[0]
+    elif filtering == 1:
+        sdict["lambda1"] = anode[0]
+        sdict["lambda2"] = anode[1]
+        sdict["I2"] = anode[3]
+    elif filtering == 2:
+        sdict["lambda1"] = anode[0]
+        sdict["lambda2"] = anode[1]
+        sdict["lambda2"] = anode[2]
+        sdict["I2"] = anode[3]
+        sdict["I3"] = anode[3]
+    return sdict
