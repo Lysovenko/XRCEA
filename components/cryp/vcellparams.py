@@ -36,7 +36,8 @@ class DisplayCellParams(Page):
         for name in indset:
             inds = indset[name]["indices"]
             try:
-                res[name] = CALCULATORS[indset[name]["cell"]](ipd, inds)
+                res[name] = CALCULATORS[indset[name]["cell"]](ipd, inds), \
+                    indset[name]["cell"]
             except KeyError:
                 print(f"TODO: calculator for {indset[name]['cell']}")
                 pass
@@ -50,8 +51,8 @@ class DisplayCellParams(Page):
         cells = []
         self.set_text(
             "\n".join(
-                "%s:\t" % k + "\t".join(
-                    "%s= %g" % t for t in zip(pnr, v) if t[1] is not None)
+                "%s (%s):\t" % (k, v[1]) + "\t".join(
+                    "%s= %g" % t for t in zip(pnr, v[0]) if t[1] is not None)
                 for k, v in res.items()))
 
 

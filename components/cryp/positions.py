@@ -188,8 +188,12 @@ class FoundBells(Spreadsheet):
             return
         name, cell = dlgr
         if name in self._uindex:
-            self.print_error(
-                _("Index with name `%s' already exists") % name)
+            if self._uindex[name]["cell"] != CELL_TYPE_C[cell]:
+                self._uindex[name]["cell"] = CELL_TYPE_C[cell]
+            else:
+                self.print_error(
+                    _("Index with name `%s' of type %s already exists")
+                    % (name, CELL_TYPE_N))
             return
         indices = {}
         self._uindex[name] = {"cell": CELL_TYPE_C[cell], "indices": indices}
