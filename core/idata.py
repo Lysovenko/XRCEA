@@ -429,18 +429,27 @@ def ask_about_sample(sdict):
               "Ag": (0.55936, 0.56378, 0.49701, .5, .2),
               "W": (0.208992, 0.213813, 0.18439, .5, .2)}
     danodes = tuple(sorted(ANODES.keys()))
+    sett = APP.settings.get
     filterings = (_("Monochromed"), _("With \u03b2-filter"), _("No filtering"))
     axes = ["2theta", "theta", "q"]
     daxes = ("2\u03b8", "\u03b8", "q: 4\u03c0 sin(\u03b8)/\u03bb")
     samples = ("powder", "liquid")
     dsamples = (_("Powder"), _("Liquid"))
-    fields = [(_("Name:"), sdict.get("name", "")), (_("Sample:"), dsamples),
-              (_("Anticatode:"), danodes), (_("Filtering:"), filterings),
-              (_("X axis:"), daxes), (_("Comment:"), sdict.get("comment", ""))]
+    fields = [(_("Name:"), sdict.get("name", "")),
+              (_("Sample:"), dsamples, sett("last_sample", 0)),
+              (_("Anticatode:"), danodes, sett("last_anode", 0)),
+              (_("Filtering:"), filterings, sett("last_filtering", 0)),
+              (_("X axis:"), daxes, sett("last_axis", 0)),
+              (_("Comment:"), sdict.get("comment", ""))]
     res = input_dialog(_("What about sample?"), _("Some questions"), fields)
     if res is None:
         return
     name, sample, anode, filtering, xaxis, rem = res
+    sett = APP.settings.set
+    sett("last_sample", sample)
+    sett("last_anode", anode)
+    sett("last_filtering", filtering)
+    sett("last_axis", xaxis)
     sdict["name"] = name
     sdict["comment"] = rem
     sdict["sample"] = samples[sample]
