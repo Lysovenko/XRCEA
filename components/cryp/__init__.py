@@ -141,14 +141,15 @@ def calculate_reflexes(idata):
     dreflexes = {}
     dreflexes["lambda"] = idata.lambda1
     I2 = idata.I2
-    sigmin = _("Min. \u03c3:"), _data["refl_sigmin"]
-    consig = _("Const. \u03c3"), _data["refl_consig"]
+    sigmin = _("Min. %s:") % "\u03c3", _data["refl_sigmin"]
+    consig = _("Const. %s") % "\u03c3", _data["refl_consig"]
     mbells = _("Max. bells:"), _data["refl_mbells"]
     bell_t = _("Shape function:"), _BELL_NAMES, _data["refl_bt"]
     pts_mi = _("Ignore points:"), _data["refl_ptm"], 4
     bf = _("Believe factor:"), _data["refl_bf"]
     alg = 0  # TODO: select optimal algorithm
-    algorithm = _("Algorithm:"), (_("alg 1"), _("alg 2")), alg
+    algorithm = _("Mode:"), (_("Without any user assumption"),
+                             _("By predefined reflexes")), alg
     rv = plot.input_dialog(_("Shapes of reflexes"), [
         sigmin, consig, mbells, bell_t, bf, pts_mi, algorithm])
     if rv is None:

@@ -135,7 +135,7 @@ class FoundBells(Spreadsheet):
         self.menu.append_item((_treat,), _("Calculate Cell parameters"),
                               self.calc_cell_params, None)
         self.show()
-        self.set_form([(_("Units to display x\u2080:"), (
+        self.set_form([(_("Units to display %s:") % "x\u2080", (
             "sin(\u03b8)", "d (\u212b)", "d\u207b\u00b2 (\u212b\u207b\u00b2)",
             "\u03b8 (\u00b0)", "2\u03b8 (\u00b0)"), self.select_units)])
 
@@ -164,7 +164,7 @@ class FoundBells(Spreadsheet):
             sels = self.get_selected_cells()
             if not sels or not self.value.colname(sels[0][1]).startswith(
                     "ints ("):
-                self.print_error(_("select at least one cell "
+                self.print_error(_("Select at least one cell "
                                    "from appropriate ints column"))
                 return
             c = sels[0][1]
@@ -192,8 +192,8 @@ class FoundBells(Spreadsheet):
                 self._uindex[name]["cell"] = CELL_TYPE_C[cell]
             else:
                 self.print_error(
-                    _("Index with name `%s' of type %s already exists")
-                    % (name, CELL_TYPE_N))
+                    _("Index with name `%(n)s' of type %(t)s already exists")
+                    % {"n": name, "t": CELL_TYPE_N})
             return
         indices = {}
         self._uindex[name] = {"cell": CELL_TYPE_C[cell], "indices": indices}

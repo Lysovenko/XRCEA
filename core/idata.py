@@ -430,7 +430,8 @@ def ask_about_sample(sdict):
               "W": (0.208992, 0.213813, 0.18439, .5, .2)}
     danodes = tuple(sorted(ANODES.keys()))
     sett = APP.settings.get
-    filterings = (_("Monochromed"), _("With \u03b2-filter"), _("No filtering"))
+    filterings = (_("Monochromed"), _("With %s-filter") % "\u03b2",
+                  _("No filtering"))
     axes = ["2theta", "theta", "q"]
     daxes = ("2\u03b8", "\u03b8", "q: 4\u03c0 sin(\u03b8)/\u03bb")
     samples = ("powder", "liquid")
@@ -438,10 +439,10 @@ def ask_about_sample(sdict):
     fields = [(_("Name:"), sdict.get("name", "")),
               (_("Sample:"), dsamples, sett("last_sample", 0)),
               (_("Anticatode:"), danodes, sett("last_anode", 0)),
-              (_("Filtering:"), filterings, sett("last_filtering", 0)),
+              (_("Radiation:"), filterings, sett("last_filtering", 0)),
               (_("X axis:"), daxes, sett("last_axis", 0)),
               (_("Comment:"), sdict.get("comment", ""))]
-    res = input_dialog(_("What about sample?"), _("Some questions"), fields)
+    res = input_dialog(_("Sample description"), "", fields)
     if res is None:
         return
     name, sample, anode, filtering, xaxis, rem = res

@@ -123,7 +123,7 @@ class AssumedRefl(Spreadsheet):
             to_show.units = ["sin", "d", "d2", "theta", "2theta"][u]
             tab.refresh()
 
-        self.set_form([(_("Units to display x\u2080:"), (
+        self.set_form([(_("Units to display %s:") % "x\u2080", (
             "sin(\u03b8)", "d (\u212b)", "d\u207b\u00b2 (\u212b\u207b\u00b2)",
             "\u03b8 (\u00b0)", "2\u03b8 (\u00b0)"), select_units)])
 
