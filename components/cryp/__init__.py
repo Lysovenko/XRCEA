@@ -147,7 +147,7 @@ def calculate_reflexes(idata):
     bell_t = _("Shape function:"), _BELL_NAMES, _data["refl_bt"]
     pts_mi = _("Ignore points:"), _data["refl_ptm"], 4
     bf = _("Believe factor:"), _data["refl_bf"]
-    alg = 0  # TODO: select optimal algorithm
+    alg = 1 if idata.extra_data.get("AssumedReflexes") else 0
     algorithm = _("Mode:"), (_("Without any user assumption"),
                              _("By predefined reflexes")), alg
     rv = plot.input_dialog(_("Shapes of reflexes"), [
@@ -166,7 +166,7 @@ def calculate_reflexes(idata):
     totreflexes = []
     totsigmas = []
     if algorithm == 1:
-        apposs = idata.wavelength / 2. / np.array([
+        apposs = idata.lambda1 / 2. / np.array([
             i[0] for i in idata.extra_data.get("AssumedReflexes", [])])
 
     def progress(status):
