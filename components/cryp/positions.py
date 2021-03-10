@@ -70,9 +70,8 @@ class X0Cell(TabCell):
 class HklCell(TabCell):
     """Cell with Miller indices"""
     def __init__(self, indices):
-        self.__value = None
         self._indices = indices
-        super().__init__()
+        super().__init__(False)
 
     @property
     def value(self):
@@ -83,9 +82,11 @@ class HklCell(TabCell):
         try:
             ls = list(map(int, val.split()[:3]))
         except (ValueError, AttributeError):
+            if val is None:
+                self._indices.pop(self.row, None)
             return
         ls += [0] * (3 - len(ls))
-        self._indices[self.row] = self.__value = ls
+        self._indices[self.row] = ls
 
     def __str__(self):
         v = self.value
