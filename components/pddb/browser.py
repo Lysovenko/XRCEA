@@ -203,7 +203,7 @@ class Browser(Page):
             (xrd.lambda1, 1.), (xrd.lambda2, xrd.I2), (xrd.lambda3, xrd.I3))
             if wavelength is not None and intensity is not None]
         wavels = tuple(i[0] for i in wavis)
-        print(self._database.gnuplot_lables(cid, units, wavels[0]))
+        self.set_text(self._database.gnuplot_lables(cid, units, wavels[0]))
 
     def save_list(self, r=None, c=None):
         """Save cards list in project"""
