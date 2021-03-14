@@ -364,22 +364,6 @@ class Database:
             "sources ON citations.sid=sources.sid WHERE cid=%d "
             "ORDER BY year DESC" % cid, False)
 
-    def gnuplot_lables(self, cid, xtype="q", wavel=()):
-        refl = [i[2:] for i in self.reflexes(cid, True)]
-        dis = self.get_di(cid, xtype, wavel)
-        if isinstance(dis, list):
-            return ""
-        out = []
-        for pos, intens, reflex in zip(dis[0], dis[1], refl):
-            out.append(
-                "set arrow from %g, second 0 rto 0, second %g nohead" %
-                (pos, intens))
-            if reflex[0] is not None:
-                out.append(
-                    "set label \"(%d %d %d)\" at %g, second %g left rotate" %
-                    (reflex + (pos, intens)))
-        return "\n".join(out)
-
 
 class Wiki_card:
     def __init__(self, db, cid, xtype, wavels, pld):

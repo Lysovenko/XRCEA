@@ -17,7 +17,7 @@
 
 import numpy as np
 from core.application import APPLICATION as APP
-from .pddb import Database, formula_markup
+from .pddb import Database, formula_markup, switch_number
 from .browser import PARAMS, Browser, print_error
 
 
@@ -189,8 +189,14 @@ class ObjDB:
                 (pos, intens))
             if reflex[0] is not None:
                 out.append(
-                    "set label \"(%d %d %d)\" at %g, second %g left rotate" %
-                    (tuple(reflex) + (pos, intens)))
+                    "set label \"%s (%d %d %d)\" "
+                    "at %g, second %g left rotate" %
+                    ((switch_number(cid),) + reflex + (pos, intens)))
+            else:
+                out.append(
+                    "set label \"%s\" "
+                    "at %g, second %g left rotate" %
+                    (switch_number(cid), pos, intens))
         return "\n".join(out)
 
     def display(self):
