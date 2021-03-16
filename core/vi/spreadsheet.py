@@ -40,9 +40,10 @@ class Spreadsheet (DialogsMixin):
         from ..application import get_actual_interface
         get_actual_interface().show_vi(self)
 
-    def set_spreadsheet_context_menu(self, list_context_menu):
+    def set_context_menu(self, list_context_menu):
         if "set_spreadsheet_context_menu" in self.gui_functions:
-            self.gui_functions["set_list_context_menu"](list_context_menu)
+            self.gui_functions["set_spreadsheet_context_menu"](
+                list_context_menu)
 
     def set_close_lock(self, close_lock):
         self.close_lock = close_lock

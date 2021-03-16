@@ -168,10 +168,11 @@ class VisualTable(QTableView):
         for action, function in actlist:
             if do_action == action:
                 try:
-                    tup = self.value.get()[model_index.row()]
+                    val = self.value.get(model_index.row(),
+                                         model_index.column())
                 except IndexError:
-                    tup = ()
-                function(tup, model_index.column())
+                    val = None
+                function(val, model_index.row(), model_index.column())
                 break
 
     def set_selected(self, index):

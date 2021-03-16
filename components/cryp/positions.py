@@ -20,7 +20,7 @@ from math import asin, pi
 from core.vi.spreadsheet import Spreadsheet
 from core.application import APPLICATION as APP
 from core.vi.value import Tabular, TabCell, Value
-from core.vi import Button, print_information, print_error
+from core.vi import (Button, print_information, print_error, copy_to_clipboard)
 from .integers import find_integers, correct_angle
 from .vcellparams import show_cell_params
 _treat = _("Treat")
@@ -139,6 +139,11 @@ class FoundBells(Spreadsheet):
         self.set_form([(_("Units to display %s:") % "x\u2080", (
             "sin(\u03b8)", "d (\u212b)", "d\u207b\u00b2 (\u212b\u207b\u00b2)",
             "\u03b8 (\u00b0)", "2\u03b8 (\u00b0)"), self.select_units)])
+        self.set_context_menu([
+            (_("Copy all"), lambda a, b, c: copy_to_clipboard(
+                "\n".join("\t".join(
+                    str(val.get(r, c)) for c in range(
+                        val.columns)) for r in range(val.rows))))])
 
     def _find_ints(self):
         groups = find_integers([i[0] for i in self.cryb])
