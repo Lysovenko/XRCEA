@@ -22,12 +22,13 @@ from core.idata import XrayData
 from .reflex import calc_bg, refl_sects, ReflexDedect, Cryplots
 from .preflex import show_assumed
 from .positions import show_sheet
+from .cellparams import CALCULATORS
 _DEFAULTS = {"bg_sigmul": 2.0, "bg_polrang": 2, "refl_sigmin": 1e-3,
              "refl_consig": False, "refl_mbells": 10, "refl_bt": 0,
              "refl_ptm": 4, "refloc_sz": "(640,480)", "refl_bf": 2.}
 _BELL_TYPES = ("Gauss", "Lorentz", "Voit")
 _BELL_NAMES = (_("Gauss"), _("Lorentz"), _("Pseudo Voit"))
-_data = {"data": APP.runtime_data}
+_data = {"data": APP.runtime_data.setdefault("cryp", {})}
 
 
 def introduce():
@@ -52,6 +53,8 @@ def introduce():
     APP.settings.add_default_colors(
         {"crp_strip": "blue", "crp_bg": "#FF4500", "crp_refl": "red",
          "crp_srefl": "magenta"})
+    _data["data"]["cell_calc"] = CALCULATORS
+    _data["data"]["extra_calcs"] = []
 
 
 def terminate():

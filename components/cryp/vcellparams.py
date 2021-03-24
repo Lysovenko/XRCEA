@@ -17,14 +17,21 @@
 
 from core.vi import Page
 from .cellparams import CALCULATORS
+from core.application import APPLICATION as APP
+_calculate = _("Calculate")
 
 
 class DisplayCellParams(Page):
     def __init__(self, xrd):
         self._xrd = xrd
         super().__init__(str(xrd.name) + _(" (cell params)"), None)
+        self.menu.append_item((_calculate,), _("Cell parameters"),
+                              self.calc_pars, None)
+        for name, func in APP.runtime_data["cryp"].get("extra_calcs", []):
+            self.menu.append_item((_calculate,), name,
+                                  self.wrap_extras(func), None)
         self.show()
-        self.print_res(self.calc_pars())
+        self.calc_pars()
 
     def calc_pars(self):
         cryb = self._xrd.extra_data.get("crypbells")
@@ -41,7 +48,7 @@ class DisplayCellParams(Page):
             except KeyError:
                 print(f"TODO: calculator for {indset[name]['cell']}")
                 pass
-        return res
+        self.print_res(res)
 
     def print_res(self, res):
         pnr = ["a", "b", "c", "\u03b1", "\u03b2", "\u03b3", "\\chi^2",
@@ -54,6 +61,12 @@ class DisplayCellParams(Page):
                 "%s (%s):\t" % (k, v[1]) + "\t".join(
                     "%s= %g" % t for t in zip(pnr, v[0]) if t[1] is not None)
                 for k, v in res.items()))
+
+    def wrap_extras(self, extra):
+        def wrapped():
+            extra(self._xrd, self)
+
+        return wrapped
 
 
 def show_cell_params(xrd):
