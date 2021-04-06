@@ -21,6 +21,7 @@ from core.application import APPLICATION as APP
 from core.idata import XrayData
 from numpy import arcsin, sin, polyval
 from scipy.optimize import fmin
+from locale import format_string
 
 
 def introduce():
@@ -47,12 +48,19 @@ def fix_angle(xrd, vis):
             no_fix = callb([1., 0.])
             if no_fix is None:
                 continue
-            xopt = fmin(callb, [0., 0., 1., 0.])
-            res[name] = str((no_fix, xopt, callb(xopt)))
+            xopt = fmin(callb, [0., 0., 1., 0.], initial_simplex=[
+                [0.01, 0., 1., 0.],
+                [0., 0.01, 1., 0.],
+                [0., 0., 1.01, 0.],
+                [0., 0., 1., 0.01],
+                [-0.01, -0.01, .99, -0.01]])
+            res[name] = "%s <b>%g => %g</b>" % (callb.to_markup(xopt),
+                                                no_fix, callb(xopt))
         except KeyError:
             print(f"TODO: calculator for {indset[name]['cell']}")
             pass
-    vis.set_text("\n".join("%s: %s" % i for i in res.items()))
+    vis.set_text("<html><body>%s</body></html>" %
+                 "<br/>".join("%s: %s" % i for i in res.items()))
 
 
 class ModAngle:
@@ -70,3 +78,32 @@ class ModAngle:
         crybp = sin(polyval(corvec, arcsin(self.crybp)))
         ipd = sorted(self.hwave / crybp, reverse=True)
         return self.calc(ipd, self.inds)[6]
+
+    def to_markup(self, corvec):
+        """Convert correction vector to text"""
+        rng = len(corvec)
+        parts = []
+        for m in corvec:
+            rng -= 1
+            if not m:
+                continue
+            if m < 0.:
+                sign = "-"
+            elif parts:
+                sign = "+"
+            else:
+                sign = ""
+            sr = ("%g" % abs(m)).split("e")
+            if len(sr) == 2:
+                sr[1] = "\u00b710<sup>%d</sup>" % int(sr[1])
+            sr[0] = format_string("%g", float(sr[0]))
+            if rng > 1:
+                sr.append(" <i>x</i><sup>%d</sup>" % rng)
+            elif rng == 1:
+                sr.append(" <i>x</i>")
+            if parts:
+                parts.append(sign)
+            else:
+                sr.insert(0, sign)
+            parts.append("".join(sr))
+        return " ".join(parts)
