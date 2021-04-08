@@ -48,14 +48,17 @@ def fix_angle(xrd, vis):
             no_fix = callb([1., 0.])
             if no_fix is None:
                 continue
-            xopt = fmin(callb, [0., 0., 1., 0.], initial_simplex=[
-                [0.01, 0., 1., 0.],
-                [0., 0.01, 1., 0.],
-                [0., 0., 1.01, 0.],
-                [0., 0., 1., 0.01],
-                [-0.01, -0.01, .99, -0.01]])
-            res[name] = "%s <b>%g => %g</b>" % (callb.to_markup(xopt),
-                                                no_fix, callb(xopt))
+            xopt = fmin(callb, [0., 0., 0., 1., 0.], initial_simplex=[
+                [0.0001, 0., 0., 1., 0.],
+                [0., 0.0001, 0., 1., 0.],
+                [0., 0., 0.0001, 1., 0.],
+                [0., 0., 0., 1.0001, 0.],
+                [0., 0., 0., 1., 0.0001],
+                [-0.0001, -0.0001, -0.0001, .9999, -0.0001]])
+            res[name] = ("%s <b>%g => %g</b>"
+                         "<div>%s</div><div>%s</div>") % (
+                callb.to_markup(xopt), no_fix, callb(xopt),
+                callb.mark_params([1, 0]), callb.mark_params(xopt))
         except KeyError:
             print(f"TODO: calculator for {indset[name]['cell']}")
             pass
@@ -107,3 +110,18 @@ class ModAngle:
                 sr.insert(0, sign)
             parts.append("".join(sr))
         return " ".join(parts)
+
+    def mark_params(self, corvec):
+        crybp = sin(polyval(corvec, arcsin(self.crybp)))
+        ipd = sorted(self.hwave / crybp, reverse=True)
+        res = self.calc(ipd, self.inds)
+        pnr = ["a", "b", "c", "\u03b1", "\u03b2", "\u03b3",
+               "\u03c7<sup>2</sup>",
+               "\u03c3<sup>2</sup><sub>a</sub>",
+               "\u03c3<sup>2</sup><sub>b</sub>",
+               "\u03c3<sup>2</sup><sub>c</sub>",
+               "\u03c3<sup>2</sup><sub>\u03b1</sub>",
+               "\u03c3<sup>2</sup><sub>\u03b2</sub>",
+               "\u03c3<sup>2</sup><sub>\u03b3</sub>"]
+        return "; ".join("%s= %s" % (n, format_string("%g", v))
+                         for n, v in zip(pnr, res) if v is not None)
