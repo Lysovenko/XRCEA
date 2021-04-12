@@ -19,7 +19,7 @@ Bragg-Brentano geometry
 
 from core.application import APPLICATION as APP
 from core.idata import XrayData
-from numpy import arcsin, sin, polyval
+from numpy import arcsin, sin, polyval, zeros, sqrt
 from scipy.optimize import fmin
 from locale import format_string
 
@@ -29,6 +29,7 @@ def introduce():
     cryp = APP.runtime_data.setdefault("cryp", {})
     extra = cryp.setdefault("extra_calcs", [])
     extra.append((_("Fix angle"), fix_angle))
+    APP.settings.declare_section("BBG")
 
 
 def terminate():
@@ -37,6 +38,23 @@ def terminate():
 
 def fix_angle(xrd, vis):
     """ """
+    aps = APP.settings
+    params = vis.input_dialog(
+        _("Initial simplex params"),
+        [(_("Range:"), aps.get("range", 3, "BBG")),
+         (_("Radius:"), aps.get("radius", 1.e-5, "BBG"))])
+    if params is None:
+        return
+    rng, rad = params
+    if rng < 1 or rad < 0.:
+        return
+    aps.set("range", rng, "BBG")
+    aps.set("radius", rad, "BBG")
+    simplex = zeros((rng + 2, rng + 1), float)
+    simplex[:, -2] = 1.
+    simplex[-1] -= rad / sqrt(rng + 1)
+    for i in range(rng + 1):
+        simplex[i][i] += rad
     indset = xrd.extra_data.get("UserIndexes")
     res = {}
     calculs = APP.runtime_data.get("cryp", {}).get("cell_calc", {})
@@ -48,13 +66,7 @@ def fix_angle(xrd, vis):
             no_fix = callb([1., 0.])
             if no_fix is None:
                 continue
-            xopt = fmin(callb, [0., 0., 0., 1., 0.], initial_simplex=[
-                [0.0001, 0., 0., 1., 0.],
-                [0., 0.0001, 0., 1., 0.],
-                [0., 0., 0.0001, 1., 0.],
-                [0., 0., 0., 1.0001, 0.],
-                [0., 0., 0., 1., 0.0001],
-                [-0.0001, -0.0001, -0.0001, .9999, -0.0001]])
+            xopt = fmin(callb, simplex[0], initial_simplex=simplex)
             res[name] = ("%s <b>%g => %g</b>"
                          "<div>%s</div><div>%s</div>") % (
                 callb.to_markup(xopt), no_fix, callb(xopt),
