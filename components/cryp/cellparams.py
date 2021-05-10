@@ -25,7 +25,12 @@ def get_dhkl(ipd, inds):
 
 
 def calc_orhomb(ipd, inds):
-    """Orthorhombic"""
+    """
+    Orthorhombic
+
+    Quadratic form:
+    1 / d^2 = h^2 / a^2 + k^2 / b^2 + l^2 / c^2
+    """
     d, h, k, el = get_dhkl(ipd, inds)
     y = d ** -2
     bl = el ** 2
@@ -51,6 +56,12 @@ def calc_orhomb(ipd, inds):
 
 
 def calc_hex(ipd, inds):
+    """
+    Hexagonal
+
+    Quadratic form:
+    1 / d^2 = 4/3 (h^2 + hk + k^2) / a^2 + l^2 / c^2
+    """
     d, h, k, el = get_dhkl(ipd, inds)
     y = d ** -2
     bl = el ** 2
@@ -78,6 +89,12 @@ def calc_hex(ipd, inds):
 
 
 def calc_tetra(ipd, inds):
+    """
+    Tetrahonal
+
+    Quadratic form:
+    1 / d^2 = (h^2 + k^2) / a^2 + l^2 / c^2
+    """
     d, h, k, el = get_dhkl(ipd, inds)
     y = d ** -2
     bl = el ** 2
@@ -97,6 +114,12 @@ def calc_tetra(ipd, inds):
 
 
 def calc_cubic(ipd, inds):
+    """
+    Cubic
+
+    Quadratic form:
+    1 / d^2 = (h^2 + k^2 + l^2) / a^2
+    """
     d, h, k, el = get_dhkl(ipd, inds)
     y = d ** -2
     bm = h ** 2 + k ** 2 + el ** 2
