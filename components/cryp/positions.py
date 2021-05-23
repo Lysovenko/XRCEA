@@ -21,7 +21,6 @@ from core.vi.spreadsheet import Spreadsheet
 from core.application import APPLICATION as APP
 from core.vi.value import Tabular, TabCell, Value
 from core.vi import (Button, print_information, print_error, copy_to_clipboard)
-from .integers import find_integers, correct_angle
 from .vcellparams import show_cell_params
 _treat = _("Treat")
 CELL_TYPE_C, CELL_TYPE_N = zip(*(
@@ -127,10 +126,6 @@ class FoundBells(Spreadsheet):
         super().__init__(str(xrd.name) + _(" (found reflexes)"), val)
         self.load_miller_indices()
         self.int_groups = []
-        self.menu.append_item((_treat,), _("Find integers"),
-                              self._find_ints, None)
-        self.menu.append_item((_treat,), _("Correct angle"),
-                              self._theta_correction, None)
         self.menu.append_item((_treat,), _("Add user indexes..."),
                               self.add_user_indexes, None)
         self.menu.append_item((_treat,), _("Calculate Cell parameters"),
@@ -144,44 +139,6 @@ class FoundBells(Spreadsheet):
                 "\n".join("\t".join(
                     str(val.get(r, c)) for c in range(
                         val.columns)) for r in range(val.rows))))])
-
-    def _find_ints(self):
-        groups = find_integers([i[0] for i in self.cryb])
-        int_groups = self.int_groups
-        ngroups = 0
-        shown_groups = []
-        for group in groups:
-            grp = group[0]
-            if grp in shown_groups:
-                continue
-            shown_groups.append(grp)
-            ngroups += 1
-            self.value.insert_column(self.value.columns,
-                                     f"ints ({ngroups})", int)
-            int_groups.append(group[1])
-            j = self.value.columns - 1
-            for k, v in grp.items():
-                self.value.set(k, j, v)
-
-    def _theta_correction(self):
-        if self.value.columns < 6:
-            return
-        if self.value.columns > 6:
-            sels = self.get_selected_cells()
-            if not sels or not self.value.colname(sels[0][1]).startswith(
-                    "ints ("):
-                self.print_error(_("Select at least one cell "
-                                   "from appropriate ints column"))
-                return
-            c = sels[0][1]
-        else:
-            c = 5
-        grp = c - 5
-        keys = set(r for r in range(self.value.rows) if self.value.get(r, c))
-        ang = correct_angle([i[0] for i in self.cryb],
-                            keys, *self.int_groups[grp])
-        print_information("Corrected angle",
-                          f"Angle is {ang}\n{keys}\n{self.int_groups[grp]}")
 
     def select_units(self, u):
         self.display.units = ["sin", "d", "d2", "theta", "2theta"][u]
