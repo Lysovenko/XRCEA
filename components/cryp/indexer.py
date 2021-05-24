@@ -14,17 +14,20 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Set Miller's indices automatically"""
+
 from itertools import product
 from time import sleep
 
 
-def find_indices(locations, result):
+def find_indices(locations, min_peaks, result):
     """Wrapper for Miller's indices searcher"""
 
     def progress(status):
         status["description"] = _("Trying to find Miller's indices...")
         total = 2 ** len(locations)
         for i, c in enumerate(product(*(((0, 1),) * len(locations)))):
+            if sum(c) < min_peaks:
+                continue
             status["part"] = i / total
             if status.get("stop"):
                 break

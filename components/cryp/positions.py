@@ -69,8 +69,9 @@ class X0Cell(TabCell):
 
 class HklCell(TabCell):
     """Cell with Miller indices"""
-    def __init__(self, indices):
+    def __init__(self, indices, ro=False):
         self._indices = indices
+        self._readonly = ro
         super().__init__(False)
 
     @property
@@ -79,6 +80,8 @@ class HklCell(TabCell):
 
     @value.setter
     def value(self, val):
+        if self._readonly:
+            return
         try:
             ls = list(map(int, val.split()[:3]))
         except (ValueError, AttributeError):
@@ -144,8 +147,17 @@ class FoundBells(Spreadsheet):
                         val.columns)) for r in range(val.rows))))])
 
     def _find_millers(self):
+        dlgr = self.input_dialog(_("Minimum peaks"), [
+            (_("Minimum peaks:"), 2)])
+        if dlgr is None:
+            return
+        mp, = dlgr
+        if mp < 2:
+            mp = 2
+        if mp > len(self.cryb):
+            mp = len(self.cryb)
         groups = []
-        self.bg_process(find_indices([i[0] for i in self.cryb], groups))
+        self.bg_process(find_indices([i[0] for i in self.cryb], mp, groups))
 
     def select_units(self, u):
         self.display.units = ["sin", "d", "d2", "theta", "2theta"][u]
@@ -181,8 +193,9 @@ class FoundBells(Spreadsheet):
             except ValueError:
                 continue
             self._uindex[name]["indices"] = indices
+            ro = self._uindex[name].get("auto")
             self.value.insert_column(self.value.columns, name,
-                                     lambda x=indices: HklCell(x))
+                                     lambda x=indices, y=ro: HklCell(x, y))
 
     def calc_cell_params(self):
         show_cell_params(self._xrd)
