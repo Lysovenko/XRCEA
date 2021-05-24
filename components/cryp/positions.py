@@ -21,6 +21,7 @@ from core.vi.spreadsheet import Spreadsheet
 from core.application import APPLICATION as APP
 from core.vi.value import Tabular, TabCell, Value
 from core.vi import (Button, print_information, print_error, copy_to_clipboard)
+from .indexer import find_indices
 from .vcellparams import show_cell_params
 _treat = _("Treat")
 CELL_TYPE_C, CELL_TYPE_N = zip(*(
@@ -126,6 +127,8 @@ class FoundBells(Spreadsheet):
         super().__init__(str(xrd.name) + _(" (found reflexes)"), val)
         self.load_miller_indices()
         self.int_groups = []
+        self.menu.append_item((_treat,), _("Try find Miller's indices..."),
+                              self._find_millers, None)
         self.menu.append_item((_treat,), _("Add user indexes..."),
                               self.add_user_indexes, None)
         self.menu.append_item((_treat,), _("Calculate Cell parameters"),
@@ -139,6 +142,10 @@ class FoundBells(Spreadsheet):
                 "\n".join("\t".join(
                     str(val.get(r, c)) for c in range(
                         val.columns)) for r in range(val.rows))))])
+
+    def _find_millers(self):
+        groups = []
+        self.bg_process(find_indices([i[0] for i in self.cryb], groups))
 
     def select_units(self, u):
         self.display.units = ["sin", "d", "d2", "theta", "2theta"][u]
