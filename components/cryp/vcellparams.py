@@ -16,7 +16,7 @@
 """Display cell params"""
 
 from core.vi import Page
-from .cellparams import CALCULATORS
+from .cellparams import CALCULATORS, get_dhkl
 from core.application import APPLICATION as APP
 _calculate = _("Calculate")
 
@@ -43,8 +43,8 @@ class DisplayCellParams(Page):
         for name in indset:
             inds = indset[name]["indices"]
             try:
-                res[name] = CALCULATORS[indset[name]["cell"]](ipd, inds), \
-                    indset[name]["cell"]
+                res[name] = CALCULATORS[indset[name]["cell"]](
+                    get_dhkl(ipd, inds)), indset[name]["cell"]
             except KeyError:
                 print(f"TODO: calculator for {indset[name]['cell']}")
                 pass

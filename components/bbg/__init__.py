@@ -19,7 +19,7 @@ Bragg-Brentano geometry
 
 from core.application import APPLICATION as APP
 from core.idata import XrayData
-from numpy import arcsin, sin, polyval, zeros, sqrt
+from numpy import arcsin, sin, polyval, zeros, sqrt, array
 from scipy.optimize import fmin
 from locale import format_string
 
@@ -92,7 +92,9 @@ class ModAngle:
     def __call__(self, corvec):
         crybp = sin(polyval(corvec, arcsin(self.crybp)))
         ipd = sorted(self.hwave / crybp, reverse=True)
-        return self.calc(ipd, self.inds)[6]
+        inds = self.inds
+        dinds = array([[d] + inds[i] for i, d in enumerate(ipd) if i in inds])
+        return self.calc(dinds.transpose())[6]
 
     def to_markup(self, corvec):
         """Convert correction vector to text"""
@@ -126,7 +128,9 @@ class ModAngle:
     def mark_params(self, corvec):
         crybp = sin(polyval(corvec, arcsin(self.crybp)))
         ipd = sorted(self.hwave / crybp, reverse=True)
-        res = self.calc(ipd, self.inds)
+        inds = self.inds
+        dinds = array([[d] + inds[i] for i, d in enumerate(ipd) if i in inds])
+        res = self.calc(dinds.transpose())
         pnr = ["a", "b", "c", "\u03b1", "\u03b2", "\u03b3",
                "\u03c7<sup>2</sup>",
                "\u03c3<sup>2</sup><sub>a</sub>",
