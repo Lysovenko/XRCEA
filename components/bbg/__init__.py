@@ -19,7 +19,7 @@ Bragg-Brentano geometry
 
 from core.application import APPLICATION as APP
 from core.idata import XrayData
-from numpy import arcsin, sin, polyval, zeros, sqrt, array
+from numpy import arcsin, sin, polyval, zeros, sqrt, array, pi
 from scipy.optimize import fmin
 from locale import format_string
 
@@ -110,6 +110,7 @@ class ModAngle:
                 sign = "+"
             else:
                 sign = ""
+            m *= (360 / pi) ** (1 - rng)
             sr = ("%g" % abs(m)).split("e")
             if len(sr) == 2:
                 sr[1] = "\u00b710<sup>%d</sup>" % int(sr[1])
