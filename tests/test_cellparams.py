@@ -84,6 +84,11 @@ class TestCellparams(unittest.TestCase):
         d = get_d(a)
         dhkl = array(list(zip(d, h, k, el))).transpose()
         self.assertEqual(calc_cubic(dhkl)[0], a)
+        dr = d + (random(len(d)) - .5) * .1
+        dhkl[0] = dr
+        a1, _, _, _, _, _, chi2 = calc_cubic(dhkl)[:7]
+        d2 = get_d(a1)
+        self.assertAlmostEqual(average((1 / dr**2 - 1 / d2**2)**2), chi2)
 
     def test_rhombohedral(self):
         hkl = array(list(product(*((tuple(range(5)),) * 3)))[1:]).transpose()

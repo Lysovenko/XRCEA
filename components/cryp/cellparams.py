@@ -132,8 +132,9 @@ def calc_cubic(dhkl):
     m2 = aver(bm ** 2)
     ba = ym / m2
     a = ba ** -.5
+    chi2 = ba ** 2 * m2 - 2 * ba * ym + aver(y ** 2)
     return (a, None, None, None, None, None,
-            None, None, None, None, None, None, None)
+            chi2, None, None, None, None, None, None)
 
 
 CALCULATORS = {"hex": calc_hex, "tetra": calc_tetra,
