@@ -12,12 +12,23 @@ class TestCellparams(unittest.TestCase):
         hkl = array(list(product(*((tuple(range(5)),) * 3)))[1:]).transpose()
         h, k, el = hkl
         a, b, c = 3., 4., 5.
-        d = 1. / a ** 2 * h ** 2 + 1. / b ** 2 * k ** 2 + 1. / c ** 2 * el ** 2
-        d = sqrt(1. / d)
+
+        def get_d(a, b, c):
+            d = 1. / a ** 2 * h ** 2 + 1. / b ** 2 * k ** 2 + \
+                1. / c ** 2 * el ** 2
+            return sqrt(1. / d)
+
+        d = get_d(a, b, c)
         dhkl = zeros((4, len(d)))
         dhkl[0, :] = d
         dhkl[1:, :] = hkl
-        self.assertEqual(calc_orhomb(dhkl)[:3], (a, b, c))
+        a1, b1, c1 = calc_orhomb(dhkl)[:3]
+        self.assertEqual((a1, b1, c1), (a, b, c))
+        dr = d + (random(len(d)) - .5) * .1
+        dhkl[0] = dr
+        a1, b1, c1, _, _, _, chi2 = calc_orhomb(dhkl)[:7]
+        d2 = get_d(a1, b1, c1)
+        self.assertAlmostEqual(average((1 / dr**2 - 1 / d2**2)**2), chi2)
 
     def test_hex(self):
         hkl = array(list(product(*((tuple(range(5)),) * 3)))[1:])

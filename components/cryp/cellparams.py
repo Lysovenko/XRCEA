@@ -51,8 +51,11 @@ def calc_orhomb(dhkl):
     a = ba ** -.5
     b = bb ** -.5
     c = bc ** -.5
+    chi2 = ba ** 2 * h2 + 2 * ba * bb * hk + 2 * ba * bc * hl - \
+        2 * ba * yh + bb ** 2 * k2 + 2 * bb * bc * kl - 2 * bb * yk + \
+        bc ** 2 * l2 - 2 * bc * yl + aver(y ** 2)
     return (a, b, c, None, None, None,
-            None, None, None, None, None, None, None)
+            chi2, None, None, None, None, None, None)
 
 
 def calc_hex(dhkl):
