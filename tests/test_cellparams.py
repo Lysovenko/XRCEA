@@ -5,7 +5,7 @@ from itertools import product
 from numpy import array, sqrt, zeros, sin, tan, cos, average
 from numpy.random import random
 from cellparams import (calc_orhomb, calc_hex, calc_tetra, calc_cubic,
-                        calc_monoclinic)
+                        calc_monoclinic, calc_rhombohedral)
 
 
 class TestCellparams(unittest.TestCase):
@@ -94,21 +94,28 @@ class TestCellparams(unittest.TestCase):
     def test_rhombohedral(self):
         hkl = array(list(product(*((tuple(range(5)),) * 3)))[1:]).transpose()
         h, k, el = hkl
-        a, alp = 3., 1.5
+        a, alp = 3.65556, 1.57
 
         def get_d(a, alp):
-            d = 1. / a ** 2. * (((1. + cos(alp)) * (
+            d = 1. / a ** 2. * (1. + cos(alp)) * (
                 (h ** 2 + k ** 2 + el ** 2) - (
                     1. - tan(alp / 2.) ** 2) * (
-                        h * k + k * el + el * h))) / (
-                            1. + cos(alp) - 2. * cos(alp) ** 2))
+                        h * k + k * el + el * h)) / (
+                            1. + cos(alp) - 2. * cos(alp) ** 2)
             return sqrt(1. / d)
 
         d = get_d(a, alp)
         dhkl = zeros((4, len(d)))
         dhkl[0, :] = d
         dhkl[1:, :] = hkl
-        # self.assertEqual(calc_rhombohedral(dhkl)[:4], (a, None, None, alp))
+        a1, _, _, alp1 = calc_rhombohedral(dhkl)[:4]
+        self.assertAlmostEqual(a1, a)
+        self.assertAlmostEqual(alp1, alp)
+        dr = d + (random(len(d)) - .5) * .1
+        dhkl[0] = dr
+        a1, _, _, alp1, _, _, chi2 = calc_rhombohedral(dhkl)[:7]
+        d2 = get_d(a1, alp1)
+        self.assertAlmostEqual(average((1 / dr**2 - 1 / d2**2)**2), chi2)
 
     def test_monoclinic(self):
         hkl = array(list(product(*((tuple(range(5)),) * 3)))[1:]).transpose()

@@ -185,6 +185,36 @@ def calc_monoclinic(dhkl):
             chi2, None, None, None, None, None, None)
 
 
+def calc_rhombohedral(dhkl):
+    """
+    Rhombohedral
+
+    Quadratic form:
+1/d^2 = {(1+cos alpha)((h^2+k^2+l^2)-
+    (1-tan^2(alpha/2))(hk+kl+lh))}/
+    {a^2(1+cos alpha - 2 cos^2 alpha)}
+    """
+    d, h, k, el = dhkl
+    y = d ** -2
+    bl = h**2 + k**2 + el**2
+    bm = h * k + k * el + el * h
+    yl = aver(y * bl)
+    ym = aver(y * bm)
+    lm = aver(bl * bm)
+    m2 = aver(bm ** 2)
+    l2 = aver(bl ** 2)
+    matrA = array([[l2, lm], [lm, m2]])
+    colB = array([yl, ym])
+    ba, bb = solve(matrA, colB)
+    a = sqrt((2 * ba + bb) / ((ba + bb) * (2 * ba - bb)))
+    alp = arccos(-bb / (2 * ba + bb))
+    chi2 = ba ** 2 * l2 + 2 * ba * bb * lm - 2 * ba * yl + \
+        bb ** 2 * m2 - 2 * bb * ym + aver(y ** 2)
+    return (a, None, None, alp, None, None,
+            chi2, None, None, None, None, None, None)
+
+
 CALCULATORS = {"hex": calc_hex, "tetra": calc_tetra,
                "cubic": calc_cubic, "orhomb": calc_orhomb,
-               "monoclinic": calc_monoclinic}
+               "monoclinic": calc_monoclinic,
+               "rhombohedral": calc_rhombohedral}

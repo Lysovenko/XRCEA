@@ -25,11 +25,12 @@ from .indexer import find_indices
 from .vcellparams import show_cell_params
 _treat = _("Treat")
 CELL_TYPE_C, CELL_TYPE_N = zip(*(
-    ("monoclinic", _("Monoclinic")),
+    ("cubic", _("Cubic")),
+    ("tetra", _("Tetragonal")),
     ("orhomb", _("Orthorhombic")),
     ("hex", _("Hexagonal")),
-    ("tetra", _("Tetragonal")),
-    ("cubic", _("Cubic")),
+    ("rhombohedral", _("Rhombohedral")),
+    ("monoclinic", _("Monoclinic")),
 ))
 
 
