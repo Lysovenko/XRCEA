@@ -64,7 +64,13 @@ class TestCellparams(unittest.TestCase):
 
         d = get_d(a, c)
         dhkl = array(list(zip(d, h, k, el))).transpose()
-        self.assertEqual(calc_tetra(dhkl)[:3], (a, None, c))
+        a1, _, c1 = calc_tetra(dhkl)[:3]
+        self.assertEqual((a1, c1), (a, c))
+        dr = d + (random(len(d)) - .5) * .1
+        dhkl[0] = dr
+        a1, _, c1, _, _, _, chi2 = calc_tetra(dhkl)[:7]
+        d2 = get_d(a1, c1)
+        self.assertAlmostEqual(average((1 / dr**2 - 1 / d2**2)**2), chi2)
 
     def test_cubic(self):
         hkl = array(list(product(*((tuple(range(5)),) * 3)))[1:])

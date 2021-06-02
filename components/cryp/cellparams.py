@@ -112,8 +112,10 @@ def calc_tetra(dhkl):
     ba, bb = solve(matrA, colB)
     a = ba ** -.5
     c = bb ** -.5
+    chi2 = ba ** 2 * m2 + 2 * ba * bb * lm - 2 * ba * ym + bb ** 2 * l2 - \
+        2 * bb * yl + aver(y ** 2)
     return (a, None, c, None, None, None,
-            None, None, None, None, None, None, None)
+            chi2, None, None, None, None, None, None)
 
 
 def calc_cubic(dhkl):
