@@ -15,7 +15,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Calculate cell params"""
 
-from numpy import array, average as aver
+from numpy import array, average as aver, arccos, sqrt
 from numpy.linalg import solve
 
 
@@ -137,5 +137,54 @@ def calc_cubic(dhkl):
             chi2, None, None, None, None, None, None)
 
 
+def calc_monoclinic(dhkl):
+    """
+    Monoclinic
+
+    Quadratic form:
+    1/d^2 = h^2 / (a^2 sin^2 beta) + k^2 / b^2 +
+    + l^2 / (c^2 sin(beta)^2) - 2 h l cos(beta) / (a c sin(beta)^2)
+    """
+    d, h, k, el = dhkl
+    y = d ** -2
+    bh = h ** 2
+    bk = k ** 2
+    bl = el ** 2
+    bm = h * el
+    h2 = aver(bh ** 2)
+    hk = aver(bh * bk)
+    hl = aver(bh * bl)
+    hm = aver(bh * bm)
+    k2 = aver(bk ** 2)
+    kl = aver(bk * bl)
+    km = aver(bk * bm)
+    l2 = aver(bl ** 2)
+    lm = aver(bl * bm)
+    m2 = aver(bm ** 2)
+    yh = aver(y * bh)
+    yk = aver(y * bk)
+    yl = aver(y * bl)
+    ym = aver(y * bm)
+    matrA = array([[h2, hk, hl, -hm],
+                   [hk, k2, kl, -km],
+                   [hl, kl, l2, -lm],
+                   [hm, km, lm, -m2]])
+    colB = array([yh, yk, yl, ym])
+    ba, bb, bc, bd = solve(matrA, colB)
+    b = sqrt(1 / bb)
+    c = 2 * sqrt(ba / (4 * ba * bc - bd ** 2))
+    a = bc * sqrt(1 / ba / bc) * c
+    bet = arccos(bd / sqrt(ba * bc) / 2)
+    chi2 = ba ** 2 * h2 + 2 * ba * bb * hk + 2 * ba * bc * hl - \
+        2 * ba * bd * hm - 2 * ba * yh + \
+        bb ** 2 * k2 + 2 * bb * bc * kl - 2 * bb * bd * km - \
+        2 * bb * yk + \
+        bc ** 2 * l2 - 2 * bc * bd * lm - 2 * bc * yl + \
+        bd ** 2 * m2 + 2 * bd * ym + aver(y ** 2)
+    return (a, b, c, None, bet, None,
+            chi2, None, None, None, None, None, None)
+
+
 CALCULATORS = {"hex": calc_hex, "tetra": calc_tetra,
-               "cubic": calc_cubic, "orhomb": calc_orhomb}
+               "cubic": calc_cubic, "orhomb": calc_orhomb,
+               "monoclinic": calc_monoclinic}

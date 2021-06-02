@@ -4,7 +4,8 @@ path.append("../components/cryp")
 from itertools import product
 from numpy import array, sqrt, zeros, sin, tan, cos, average
 from numpy.random import random
-from cellparams import calc_orhomb, calc_hex, calc_tetra, calc_cubic
+from cellparams import (calc_orhomb, calc_hex, calc_tetra, calc_cubic,
+                        calc_monoclinic)
 
 
 class TestCellparams(unittest.TestCase):
@@ -112,7 +113,7 @@ class TestCellparams(unittest.TestCase):
     def test_monoclinic(self):
         hkl = array(list(product(*((tuple(range(5)),) * 3)))[1:]).transpose()
         h, k, el = hkl
-        a, b, c, bet = 3., 4., 5., 1.5
+        a, b, c, bet = 3.1, 4.1, 5., 1.45
 
         def get_d(a, b, c, bet):
             d = 1. / a ** 2. * (h ** 2 / sin(bet) ** 2) + \
@@ -125,4 +126,13 @@ class TestCellparams(unittest.TestCase):
         dhkl = zeros((4, len(d)))
         dhkl[0, :] = d
         dhkl[1:, :] = hkl
-        # self.assertEqual(calc_monoclinic(dhkl)[:5], (a, b, c, None, bet))
+        a1, b1, c1, _, bet1 = calc_monoclinic(dhkl)[:5]
+        self.assertAlmostEqual(a1, a)
+        self.assertAlmostEqual(b1, b)
+        self.assertAlmostEqual(c1, c)
+        self.assertAlmostEqual(bet1, bet)
+        dr = d + (random(len(d)) - .5) * .1
+        dhkl[0] = dr
+        a1, b1, c1, _, bet1, _, chi2 = calc_monoclinic(dhkl)[:7]
+        d2 = get_d(a1, b1, c1, bet1)
+        self.assertAlmostEqual(average((1 / dr**2 - 1 / d2**2)**2), chi2)
