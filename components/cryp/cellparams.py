@@ -15,7 +15,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Calculate cell params"""
 
-from numpy import array, average as aver, arccos, sqrt
+from numpy import array, average as aver, arccos, sqrt, sin, cos, tan
 from numpy.linalg import solve
 
 
@@ -218,3 +218,54 @@ CALCULATORS = {"hex": calc_hex, "tetra": calc_tetra,
                "cubic": calc_cubic, "orhomb": calc_orhomb,
                "monoclinic": calc_monoclinic,
                "rhombohedral": calc_rhombohedral}
+
+
+def d_hkl_orhomb(a, b, c, hkl):
+    """Calculate d_hkl for Orthorhombic unit cell"""
+    h, k, el = hkl
+    d2 = 1. / a ** 2 * h ** 2 + 1. / b ** 2 * k ** 2 + \
+        1. / c ** 2 * el ** 2
+    return sqrt(1. / d2)
+
+
+def d_hkl_hex(a, c, hkl):
+    """Calculate d_hkl for Hexagonal unit cell"""
+    h, k, el = hkl
+    d2 = 4. / 3. / a ** 2 * (h ** 2 + h * k + k ** 2)\
+        + 1. / c ** 2 * el ** 2
+    return sqrt(1. / d2)
+
+
+def d_hkl_tetra(a, c, hkl):
+    """Calculate d_hkl for Tetrahonal unit cell"""
+    h, k, el = hkl
+    d2 = 1. / a ** 2 * (h ** 2 + k ** 2) + 1. / c ** 2 * el ** 2
+    return sqrt(1. / d2)
+
+
+def d_hkl_cubic(a, hkl):
+    """Calculate d_hkl for Cubic unit cell"""
+    h, k, el = hkl
+    d2 = 1. / a ** 2 * (h ** 2 + k ** 2 + el ** 2)
+    return sqrt(1. / d2)
+
+
+def d_hkl_rhombohedral(a, alp, hkl):
+    """Calculate d_hkl for Rhombohedral unit cell"""
+    h, k, el = hkl
+    d2 = 1. / a ** 2. * (1. + cos(alp)) * \
+        ((h ** 2 + k ** 2 + el ** 2) - (
+            1. - tan(alp / 2.) ** 2) * (
+                h * k + k * el + el * h)) / \
+        (1. + cos(alp) - 2. * cos(alp) ** 2)
+    return sqrt(1. / d2)
+
+
+def d_hkl_monoclinic(a, b, c, bet, hkl):
+    """Calculate d_hkl for Monoclinic unit cell"""
+    h, k, el = hkl
+    d2 = 1. / a ** 2. * (h ** 2 / sin(bet) ** 2) + \
+        1. / b ** 2 * k ** 2 + 1 / c ** 2 * el ** 2 \
+        / (sin(bet) ** 2) - 2 * h * el / \
+        (a * c * sin(bet) * tan(bet))
+    return sqrt(1. / d2)
