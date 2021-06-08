@@ -24,13 +24,13 @@ from core.vi import (Button, print_information, print_error, copy_to_clipboard)
 from .indexer import find_indices
 from .vcellparams import show_cell_params
 _treat = _("Treat")
-CELL_TYPE_C, CELL_TYPE_N = zip(*(
-    ("cubic", _("Cubic")),
-    ("tetra", _("Tetragonal")),
-    ("orhomb", _("Orthorhombic")),
-    ("hex", _("Hexagonal")),
-    ("rhombohedral", _("Rhombohedral")),
-    ("monoclinic", _("Monoclinic")),
+CELL_TYPE_C, CELL_PARAMS, CELL_TYPE_N = zip(*(
+    ("cubic", 1, _("Cubic")),
+    ("tetra", 2, _("Tetragonal")),
+    ("orhomb", 3, _("Orthorhombic")),
+    ("hex", 2, _("Hexagonal")),
+    ("rhombohedral", 2, _("Rhombohedral")),
+    ("monoclinic", 4, _("Monoclinic")),
 ))
 
 
@@ -149,17 +149,35 @@ class FoundBells(Spreadsheet):
                         val.columns)) for r in range(val.rows))))])
 
     def _find_millers(self):
+        cryb = self._xrd.extra_data.get("crypbells")
+        if cryb is None:
+            return
+        hwave = self._xrd.lambda1 / 2.
+        ipd = sorted(hwave / cryb.reshape(len(cryb) // 4, 4)[:, 0],
+                     reverse=True)
         dlgr = self.input_dialog(_("Minimum peaks"), [
-            (_("Minimum peaks:"), 2)])
+            (_("Minimum peaks:"), len(ipd)),
+            ("a:", 0.),
+            ("b:", 0.),
+            ("c:", 0.),
+            ("\u03b1:", 90.),
+            ("\u03b2:", 90.),
+            ("\u03b3:", 90.),
+            (_("Cell:"), CELL_TYPE_N)
+        ])
         if dlgr is None:
             return
-        mp, = dlgr
-        if mp < 2:
-            mp = 2
+        mp, a, b, c, alp, bet, gam, cs = dlgr
         if mp > len(self.cryb):
             mp = len(self.cryb)
+        if mp <= CELL_PARAMS[cs]:
+            self.print_error(
+                _("Number of peaks should be greater than number "
+                  "of free members"))
+            return
         groups = []
-        self.bg_process(find_indices([i[0] for i in self.cryb], mp, groups))
+        self.bg_process(find_indices(
+            ipd, (a, b, c, alp, bet, gam), CELL_TYPE_C[cs], mp, groups))
 
     def select_units(self, u):
         self.display.units = ["sin", "d", "d2", "theta", "2theta"][u]

@@ -16,22 +16,36 @@
 """Set Miller's indices automatically"""
 
 from itertools import product
-from time import sleep
+from numpy import array
+from .cellparams import FitIndices
 
 
-def find_indices(locations, min_peaks, result):
+def find_indices(locations, ini_p, cs, min_peaks, result):
     """Wrapper for Miller's indices searcher"""
+    locations = array(locations)
 
     def progress(status):
         status["description"] = _("Trying to find Miller's indices...")
+        # todo: make it flexible
+        hkl = array(list(product(*((tuple(range(5)),) * 3)))[1:])
+        n_hkl = len(hkl)
         total = 2 ** len(locations)
+        fit_ = FitIndices(cs)
         for i, c in enumerate(product(*(((0, 1),) * len(locations)))):
-            if sum(c) < min_peaks:
+            npeaks = sum(c)
+            if npeaks < min_peaks:
                 continue
             status["part"] = i / total
             if status.get("stop"):
                 break
-            sleep(0.001)
+            mask = array(c, dtype=bool)
+            minc = cs, fit_(locations[mask], ini_p, hkl.transpose())
+            print("#" * 75)
+            print(f"{i} of {total}: {minc}, {c}")
+            result.append(minc + (c,))
+            if len(result) > 150:
+                result.sort(key=lambda x: x[1][6])
+                del result[100:]
         status["complete"] = True
 
     return progress

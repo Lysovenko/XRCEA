@@ -15,8 +15,11 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Calculate cell params"""
 
-from numpy import array, average as aver, arccos, sqrt, sin, cos, tan
+from numpy import (
+    array, average as aver, arccos, sqrt, sin, cos, tan, zeros, var, unique,
+    newaxis)
 from numpy.linalg import solve
+from scipy.optimize import fmin
 
 
 def get_dhkl(ipd, inds):
@@ -269,3 +272,94 @@ def d_hkl_monoclinic(a, b, c, bet, hkl):
         / (sin(bet) ** 2) - 2 * h * el / \
         (a * c * sin(bet) * tan(bet))
     return sqrt(1. / d2)
+
+
+def chi2n(d1a, d2a, poss):
+    dev = array([((d2a**2 - i)**2).min() for i in d1a**2])
+    inds = [((d2a**2 - i)**2).argmin() for i in d1a**2]
+    iset = unique(inds)
+    ave = aver(poss.transpose()[inds])
+    return aver(dev) * var(dev)**2 * (len(d1a) - len(iset))**2 * ave**2
+
+
+class FitIndices:
+    def __init__(self, crystal_system):
+        self._cs = getattr(self, crystal_system)
+
+    def __call__(self, *args, **dargs):
+        return self._cs(*args, **dargs)
+
+    @staticmethod
+    def dhkl(dres, dlist, possible):
+        near_indices = ((dlist[:, newaxis] - dres)**2).argmin(1)
+        _dhkl = zeros((4, len(dlist)))
+        _dhkl[0, :] = dlist
+        _dhkl[1:, :] = possible.transpose()[near_indices].transpose()
+        return _dhkl
+
+    def hex(self, dlist, iniparams, poss_hkl):
+
+        def vec(abc):
+            dfit = d_hkl_hex(*abc, poss_hkl)
+            return chi2n(dlist, dfit, poss_hkl)
+
+        opt = fmin(vec, [iniparams[0], iniparams[2]])
+        dres = d_hkl_hex(*opt, poss_hkl)
+        dhkl = self.dhkl(dres, dlist, poss_hkl)
+        return calc_hex(dhkl), dhkl[1:]
+
+    def tetra(self, dlist, iniparams, poss_hkl):
+
+        def vec(abc):
+            dfit = d_hkl_tetra(*abc, poss_hkl)
+            return chi2n(dlist, dfit, poss_hkl)
+
+        opt = fmin(vec, [iniparams[0], iniparams[2]])
+        dres = d_hkl_tetra(*opt, poss_hkl)
+        dhkl = self.dhkl(dres, dlist, poss_hkl)
+        return calc_tetra(dhkl), dhkl[1:]
+
+    def cubic(self, dlist, iniparams, poss_hkl):
+
+        def vec(abc):
+            dfit = d_hkl_cubic(*abc, poss_hkl)
+            return chi2n(dlist, dfit, poss_hkl)
+
+        opt = fmin(vec, [iniparams[0]])
+        dres = d_hkl_cubic(*opt, poss_hkl)
+        dhkl = self.dhkl(dres, dlist, poss_hkl)
+        return calc_cubic(dhkl), dhkl[1:]
+
+    def orhomb(self, dlist, iniparams, poss_hkl):
+
+        def vec(abc):
+            dfit = d_hkl_orhomb(*abc, poss_hkl)
+            return chi2n(dlist, dfit, poss_hkl)
+
+        opt = fmin(vec, [iniparams[0], iniparams[1], iniparams[2]])
+        dres = d_hkl_orhomb(*opt, poss_hkl)
+        dhkl = self.dhkl(dres, dlist, poss_hkl)
+        return calc_orhomb(dhkl), dhkl[1:]
+
+    def monoclinic(self, dlist, iniparams, poss_hkl):
+
+        def vec(abc):
+            dfit = d_hkl_monoclinic(*abc, poss_hkl)
+            return chi2n(dlist, dfit, poss_hkl)
+
+        opt = fmin(vec, [iniparams[0], iniparams[1], iniparams[2],
+                         deg2rad(iniparams[4])])
+        dres = d_hkl_monoclinic(*opt, poss_hkl)
+        dhkl = self.dhkl(dres, dlist, poss_hkl)
+        return calc_monoclinic(dhkl), dhkl[1:]
+
+    def rhombohedral(self, dlist, iniparams, poss_hkl):
+
+        def vec(abc):
+            dfit = d_hkl_rhombohedral(*abc, poss_hkl)
+            return chi2n(dlist, dfit, poss_hkl)
+
+        opt = fmin(vec, [iniparams[0], deg2rad(iniparams[3])])
+        dres = d_hkl_rhombohedral(*opt, poss_hkl)
+        dhkl = self.dhkl(dres, dlist, poss_hkl)
+        return calc_rhombohedral(dhkl), dhkl[1:]
