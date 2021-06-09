@@ -157,6 +157,8 @@ class FoundBells(Spreadsheet):
                      reverse=True)
         dlgr = self.input_dialog(_("Minimum peaks"), [
             (_("Minimum peaks:"), len(ipd)),
+            (_("Max index:"), 4),
+            (_("Max results:"), 5),
             ("a:", 0.),
             ("b:", 0.),
             ("c:", 0.),
@@ -167,7 +169,7 @@ class FoundBells(Spreadsheet):
         ])
         if dlgr is None:
             return
-        mp, a, b, c, alp, bet, gam, cs = dlgr
+        mp, mi, mr, a, b, c, alp, bet, gam, cs = dlgr
         if mp > len(self.cryb):
             mp = len(self.cryb)
         if mp <= CELL_PARAMS[cs]:
@@ -177,7 +179,8 @@ class FoundBells(Spreadsheet):
             return
         groups = []
         self.bg_process(find_indices(
-            ipd, (a, b, c, alp, bet, gam), CELL_TYPE_C[cs], mp, groups))
+            ipd, (a, b, c, alp, bet, gam), CELL_TYPE_C[cs],
+            mi, mp, mr, groups))
 
     def select_units(self, u):
         self.display.units = ["sin", "d", "d2", "theta", "2theta"][u]

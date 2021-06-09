@@ -20,6 +20,7 @@ from numpy import (
     newaxis)
 from numpy.linalg import solve
 from scipy.optimize import fmin
+from itertools import product
 
 
 def get_dhkl(ipd, inds):
@@ -283,21 +284,23 @@ def chi2n(d1a, d2a, poss):
 
 
 class FitIndices:
-    def __init__(self, crystal_system):
+    def __init__(self, crystal_system, max_ind):
         self._cs = getattr(self, crystal_system)
+        self._hkl = array(
+            list(product(*((tuple(range(max_ind + 1)),) * 3)))[1:]).transpose()
 
     def __call__(self, *args, **dargs):
         return self._cs(*args, **dargs)
 
-    @staticmethod
-    def dhkl(dres, dlist, possible):
+    def dhkl(self, dres, dlist):
         near_indices = ((dlist[:, newaxis] - dres)**2).argmin(1)
         _dhkl = zeros((4, len(dlist)))
         _dhkl[0, :] = dlist
-        _dhkl[1:, :] = possible.transpose()[near_indices].transpose()
+        _dhkl[1:, :] = self._hkl.transpose()[near_indices].transpose()
         return _dhkl
 
-    def hex(self, dlist, iniparams, poss_hkl):
+    def hex(self, dlist, iniparams):
+        poss_hkl = self._hkl
 
         def vec(abc):
             dfit = d_hkl_hex(*abc, poss_hkl)
@@ -305,10 +308,11 @@ class FitIndices:
 
         opt = fmin(vec, [iniparams[0], iniparams[2]])
         dres = d_hkl_hex(*opt, poss_hkl)
-        dhkl = self.dhkl(dres, dlist, poss_hkl)
+        dhkl = self.dhkl(dres, dlist)
         return calc_hex(dhkl), dhkl[1:]
 
-    def tetra(self, dlist, iniparams, poss_hkl):
+    def tetra(self, dlist, iniparams):
+        poss_hkl = self._hkl
 
         def vec(abc):
             dfit = d_hkl_tetra(*abc, poss_hkl)
@@ -316,10 +320,11 @@ class FitIndices:
 
         opt = fmin(vec, [iniparams[0], iniparams[2]])
         dres = d_hkl_tetra(*opt, poss_hkl)
-        dhkl = self.dhkl(dres, dlist, poss_hkl)
+        dhkl = self.dhkl(dres, dlist)
         return calc_tetra(dhkl), dhkl[1:]
 
-    def cubic(self, dlist, iniparams, poss_hkl):
+    def cubic(self, dlist, iniparams):
+        poss_hkl = self._hkl
 
         def vec(abc):
             dfit = d_hkl_cubic(*abc, poss_hkl)
@@ -327,10 +332,11 @@ class FitIndices:
 
         opt = fmin(vec, [iniparams[0]])
         dres = d_hkl_cubic(*opt, poss_hkl)
-        dhkl = self.dhkl(dres, dlist, poss_hkl)
+        dhkl = self.dhkl(dres, dlist)
         return calc_cubic(dhkl), dhkl[1:]
 
-    def orhomb(self, dlist, iniparams, poss_hkl):
+    def orhomb(self, dlist, iniparams):
+        poss_hkl = self._hkl
 
         def vec(abc):
             dfit = d_hkl_orhomb(*abc, poss_hkl)
@@ -338,10 +344,11 @@ class FitIndices:
 
         opt = fmin(vec, [iniparams[0], iniparams[1], iniparams[2]])
         dres = d_hkl_orhomb(*opt, poss_hkl)
-        dhkl = self.dhkl(dres, dlist, poss_hkl)
+        dhkl = self.dhkl(dres, dlist)
         return calc_orhomb(dhkl), dhkl[1:]
 
-    def monoclinic(self, dlist, iniparams, poss_hkl):
+    def monoclinic(self, dlist, iniparams):
+        poss_hkl = self._hkl
 
         def vec(abc):
             dfit = d_hkl_monoclinic(*abc, poss_hkl)
@@ -350,10 +357,11 @@ class FitIndices:
         opt = fmin(vec, [iniparams[0], iniparams[1], iniparams[2],
                          deg2rad(iniparams[4])])
         dres = d_hkl_monoclinic(*opt, poss_hkl)
-        dhkl = self.dhkl(dres, dlist, poss_hkl)
+        dhkl = self.dhkl(dres, dlist)
         return calc_monoclinic(dhkl), dhkl[1:]
 
-    def rhombohedral(self, dlist, iniparams, poss_hkl):
+    def rhombohedral(self, dlist, iniparams):
+        poss_hkl = self._hkl
 
         def vec(abc):
             dfit = d_hkl_rhombohedral(*abc, poss_hkl)
@@ -361,5 +369,5 @@ class FitIndices:
 
         opt = fmin(vec, [iniparams[0], deg2rad(iniparams[3])])
         dres = d_hkl_rhombohedral(*opt, poss_hkl)
-        dhkl = self.dhkl(dres, dlist, poss_hkl)
+        dhkl = self.dhkl(dres, dlist)
         return calc_rhombohedral(dhkl), dhkl[1:]
