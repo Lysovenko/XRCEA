@@ -39,8 +39,6 @@ def find_indices(locations, ini_p, cs, max_index, min_peaks, max_results,
                 break
             mask = array(c, dtype=bool)
             minc = (cs,) + fit_(locations[mask], ini_p)
-            print("#" * 75)
-            print(f"{i} of {total}: {minc}, {c}")
             result.append(minc + (c,))
             if len(result) > max_res15:
                 result.sort(key=lambda x: x[1][6])

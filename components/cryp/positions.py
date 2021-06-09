@@ -181,6 +181,27 @@ class FoundBells(Spreadsheet):
         self.bg_process(find_indices(
             ipd, (a, b, c, alp, bet, gam), CELL_TYPE_C[cs],
             mi, mp, mr, groups))
+        curauto = 0
+        for name in self._uindex:
+            if name.startswith("auto"):
+                try:
+                    curauto = max(curauto, int(name[4:]))
+                except ValueError:
+                    pass
+        for group in groups:
+            curauto += 1
+            name = "auto%d" % curauto
+            hkl = list(map(list, zip(*group[2])))
+            indices = {}
+            p_hkl = 0
+            for i, j in enumerate(group[3]):
+                if j:
+                    indices[i] = hkl[p_hkl]
+                    p_hkl += 1
+            self._uindex[name] = {"cell": CELL_TYPE_C[cs],
+                                  "indices": indices, "auto": True}
+            self.value.insert_column(self.value.columns, name,
+                                     lambda x=indices: HklCell(x, True))
 
     def select_units(self, u):
         self.display.units = ["sin", "d", "d2", "theta", "2theta"][u]
