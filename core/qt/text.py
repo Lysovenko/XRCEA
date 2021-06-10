@@ -37,9 +37,9 @@ class LineEdit(QLineEdit):
         if relevant:
             self.setStyleSheet("QLineEdit ")
         else:
-            self.setStyleSheet("QLineEdit { background: rgb(127, 127, 127); }")
             self.setText(str(self.value))
             self.value.had_error = False
+            self.setStyleSheet("QLineEdit { background: rgb(127, 127, 127); }")
 
     def text_changed(self, txt):
         val = self.value
