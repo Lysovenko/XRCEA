@@ -84,10 +84,13 @@ class InputDialog(QDialog):
         if question:
             layout.addRow(QLabel(question))
         self.edt = []
+        self.vals = []
         for f in fields:
             n, f, o = tuple(f)[:3] + (None,) * (3 - len(f))
+            if isinstance(f, Value):
+                self.vals.append(f)
             type_f = type(f)
-            if type_f in {bool, tuple}:
+            if type_f in {bool, tuple, Value}:
                 if callable(o):
                     def fun(*args, opt=o):
                         self.do_actions(opt(*args))
@@ -122,9 +125,12 @@ class InputDialog(QDialog):
                         wdg.setCurrentIndex(f[3])
 
     def accept(self):
+        for v in self.vals:
+            if getattr(v, "had_error", False):
+                return
         self.result = result = []
         for editable, type_ in self.edt:
-            if type_ in {bool, tuple, dict}:
+            if type_ in {bool, tuple, dict, Value}:
                 res_itm = get_widget_value(editable)
             else:
                 res_itm = type_(editable.text())

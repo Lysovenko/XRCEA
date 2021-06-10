@@ -22,10 +22,24 @@ class LineEdit(QLineEdit):
     def __init__(self, parent, value):
         super().__init__(parent)
         self.setText(str(value))
-        value.set_relevator(lambda x: self.setReadOnly(not x))
-        value.set_updater(lambda x, txt=self: txt.setText(str(x)))
+        value.set_relevator(self.its_relevant)
+        value.set_updater(self.updater)
         self.value = value
+        self.its_relevant(value.is_relevant())
         self.textChanged.connect(self.text_changed)
+
+    def updater(self, val):
+        self.setText(str(val))
+        self.value.had_error = False
+
+    def its_relevant(self, relevant):
+        self.setReadOnly(not relevant)
+        if relevant:
+            self.setStyleSheet("QLineEdit ")
+        else:
+            self.setStyleSheet("QLineEdit { background: rgb(127, 127, 127); }")
+            self.setText(str(self.value))
+            self.value.had_error = False
 
     def text_changed(self, txt):
         val = self.value
