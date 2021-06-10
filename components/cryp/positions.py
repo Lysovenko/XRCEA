@@ -172,7 +172,7 @@ class FoundBells(Spreadsheet):
             return ()
 
         relevance(0)
-        dlgr = self.input_dialog(_("Minimum peaks"), [
+        dlgr = self.input_dialog(_("Params for search indices"), [
             (_("Minimum peaks:"), len(ipd)),
             (_("Max index:"), 4),
             (_("Max results:"), 5),

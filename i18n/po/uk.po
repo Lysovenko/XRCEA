@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-07 19:40+0200\n"
-"PO-Revision-Date: 2021-03-12 22:35+0200\n"
+"POT-Creation-Date: 2021-06-10 23:00+0300\n"
+"PO-Revision-Date: 2021-06-10 23:01+0300\n"
 "Last-Translator: Serhii <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: Ukrainian\n"
@@ -16,189 +16,242 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../../components/cryp/__init__.py:29
+#: ../../components/bbg/__init__.py:29
+msgid "Fix angle"
+msgstr "Виправити кут"
+
+#: ../../components/bbg/__init__.py:30
+msgid "Detect plane shift"
+msgstr "Визначити зсув площини"
+
+#: ../../components/bbg/polynomial.py:30 ../../components/bbg/splane.py:30
+msgid "Initial simplex params"
+msgstr "Параметри вихідного симплекса"
+
+#: ../../components/bbg/polynomial.py:31
+msgid "Range:"
+msgstr "Порядок:"
+
+#: ../../components/bbg/polynomial.py:32
+msgid "Radius:"
+msgstr "Радіус:"
+
+#: ../../components/bbg/polynomial.py:33 ../../components/cryp/__init__.py:154
+msgid "Mode:"
+msgstr "Режим:"
+
+#: ../../components/bbg/splane.py:31
+msgid "Initial shift:"
+msgstr "Початковий зсув:"
+
+#: ../../components/cryp/__init__.py:30
 msgid "Gauss"
 msgstr "Гаус"
 
-#: ../../components/cryp/__init__.py:29
+#: ../../components/cryp/__init__.py:30
 msgid "Lorentz"
 msgstr "Лоренц"
 
-#: ../../components/cryp/__init__.py:29
+#: ../../components/cryp/__init__.py:30
 msgid "Pseudo Voit"
 msgstr "Псевдо Войт"
 
-#: ../../components/cryp/__init__.py:35
+#: ../../components/cryp/__init__.py:36
 msgid "Diffractogram"
 msgstr "Дифрактограма"
 
-#: ../../components/cryp/__init__.py:36
+#: ../../components/cryp/__init__.py:37
 msgid "Find background..."
 msgstr "Знайти фон..."
 
-#: ../../components/cryp/__init__.py:38
+#: ../../components/cryp/__init__.py:39
 msgid "Calc. refl. shapes..."
 msgstr "Знайти профілі рефлексів"
 
-#: ../../components/cryp/__init__.py:40
+#: ../../components/cryp/__init__.py:41
 msgid "Show found refl. shapes"
 msgstr "Показати знайдені профілі рефлексів"
 
-#: ../../components/cryp/__init__.py:42
+#: ../../components/cryp/__init__.py:43
 msgid "Predefined reflexes..."
 msgstr "Передвизначені рефлекси..."
 
-#: ../../components/cryp/__init__.py:75
+#: ../../components/cryp/__init__.py:78
 msgid "Calculate background"
 msgstr "Розрахувати фон"
 
-#: ../../components/cryp/__init__.py:76
+#: ../../components/cryp/__init__.py:79
 msgid "Sigma multiplier:"
 msgstr "Сигма множник:"
 
-#: ../../components/cryp/__init__.py:77
+#: ../../components/cryp/__init__.py:80
 msgid "Polynomial's degree:"
 msgstr "Порядок поліному:"
 
-#: ../../components/cryp/__init__.py:92 ../../components/cryp/reflex.py:279
+#: ../../components/cryp/__init__.py:95 ../../components/cryp/reflex.py:279
 #: ../../core/idata.py:323
 msgid "Unknown"
 msgstr "Невідомо"
 
-#: ../../components/cryp/__init__.py:97 ../../components/cryp/__init__.py:103
+#: ../../components/cryp/__init__.py:100 ../../components/cryp/__init__.py:106
 #: ../../components/cryp/reflex.py:281
 msgid "Relative units"
 msgstr "Відносні одиниці"
 
-#: ../../components/cryp/__init__.py:99
+#: ../../components/cryp/__init__.py:102
 msgid "Background"
 msgstr "Фон"
 
-#: ../../components/cryp/__init__.py:105
+#: ../../components/cryp/__init__.py:108
 msgid "Stripped"
 msgstr "Без фону"
 
-#: ../../components/cryp/__init__.py:116
+#: ../../components/cryp/__init__.py:119
 msgid "Peaks description"
 msgstr "Опис рефлексів"
 
-#: ../../components/cryp/__init__.py:144
+#: ../../components/cryp/__init__.py:147
 #, python-format
 msgid "Min. %s:"
 msgstr "Мін. %s:"
 
-#: ../../components/cryp/__init__.py:145
+#: ../../components/cryp/__init__.py:148
 #, python-format
 msgid "Const. %s"
 msgstr "Стала %s"
 
-#: ../../components/cryp/__init__.py:146
+#: ../../components/cryp/__init__.py:149
 msgid "Max. bells:"
 msgstr "Макс. піків:"
 
-#: ../../components/cryp/__init__.py:147
+#: ../../components/cryp/__init__.py:150
 msgid "Shape function:"
 msgstr "Функція профілю:"
 
-#: ../../components/cryp/__init__.py:148
+#: ../../components/cryp/__init__.py:151
 msgid "Ignore points:"
 msgstr "Ігнорувати точок:"
 
-#: ../../components/cryp/__init__.py:149
+#: ../../components/cryp/__init__.py:152
 msgid "Believe factor:"
 msgstr "Довірчий коефіцієнт:"
 
-#: ../../components/cryp/__init__.py:151
-msgid "Mode:"
-msgstr "Режим:"
-
-#: ../../components/cryp/__init__.py:151
+#: ../../components/cryp/__init__.py:154
 msgid "Without any user assumption"
 msgstr "Без користувацьких припущень"
 
-#: ../../components/cryp/__init__.py:152
+#: ../../components/cryp/__init__.py:155
 msgid "By predefined reflexes"
 msgstr "За передвизначеними рефлексами"
 
-#: ../../components/cryp/__init__.py:153
+#: ../../components/cryp/__init__.py:156
 msgid "Shapes of reflexes"
 msgstr "Профілі рефлексів"
 
-#: ../../components/cryp/__init__.py:173
+#: ../../components/cryp/__init__.py:176
 msgid "Calculating shapes of the reflexes..."
 msgstr "Розраховую профілі рефлексів..."
 
-#: ../../components/cryp/__init__.py:208
+#: ../../components/cryp/__init__.py:211
 msgid "Reflexes description"
 msgstr "Опис рефлексів"
 
-#: ../../components/cryp/__init__.py:210
+#: ../../components/cryp/__init__.py:213
 msgid "Mode"
 msgstr "Режим"
+
+#: ../../components/cryp/indexer.py:29
+msgid "Trying to find Miller's indices..."
+msgstr "Намагаюсь знайти індекси Міллера..."
 
 #: ../../components/cryp/positions.py:26
 msgid "Treat"
 msgstr "Обробка"
 
 #: ../../components/cryp/positions.py:28
-msgid "Orthorhombic"
-msgstr "Орторомбічна"
-
-#: ../../components/cryp/positions.py:29
-msgid "Hexagonal"
-msgstr "Гексагональна"
-
-#: ../../components/cryp/positions.py:30
-msgid "Tetragonal"
-msgstr "Тетрагональна"
-
-#: ../../components/cryp/positions.py:31
 msgid "Cubic"
 msgstr "Кубічна"
 
-#: ../../components/cryp/positions.py:126 ../../components/cryp/preflex.py:118
+#: ../../components/cryp/positions.py:29
+msgid "Tetragonal"
+msgstr "Тетрагональна"
+
+#: ../../components/cryp/positions.py:30
+msgid "Orthorhombic"
+msgstr "Орторомбічна"
+
+#: ../../components/cryp/positions.py:31
+msgid "Hexagonal"
+msgstr "Гексагональна"
+
+#: ../../components/cryp/positions.py:32
+msgid "Rhombohedral"
+msgstr "Ромбоедрична"
+
+#: ../../components/cryp/positions.py:33
+msgid "Monoclinic"
+msgstr "Моноклінна"
+
+#: ../../components/cryp/positions.py:132 ../../components/cryp/preflex.py:118
 msgid " (found reflexes)"
 msgstr " (знайдені рефлекси)"
 
-#: ../../components/cryp/positions.py:129
-msgid "Find integers"
-msgstr "Знайти цілі"
+#: ../../components/cryp/positions.py:135
+msgid "Try find Miller's indices..."
+msgstr "Спробувати знайти індекси Міллера..."
 
-#: ../../components/cryp/positions.py:131
-msgid "Correct angle"
-msgstr "Корегувати кут"
-
-#: ../../components/cryp/positions.py:133
+#: ../../components/cryp/positions.py:137
 msgid "Add user indexes..."
 msgstr "Додати користувацькі індекси..."
 
-#: ../../components/cryp/positions.py:135
+#: ../../components/cryp/positions.py:139
 msgid "Calculate Cell parameters"
 msgstr "Розрахувати параметри комірки"
 
-#: ../../components/cryp/positions.py:138 ../../components/cryp/preflex.py:126
+#: ../../components/cryp/positions.py:142 ../../components/cryp/preflex.py:126
 #, python-format
 msgid "Units to display %s:"
 msgstr "Одиниці для відображення %s:"
 
-#: ../../components/cryp/positions.py:167
-msgid "Select at least one cell from appropriate ints column"
-msgstr "Оберіть хочаб одну комірку з колонки звідповідними цілими"
+#: ../../components/cryp/positions.py:146
+msgid "Copy all"
+msgstr "Скопіювати все"
+
+#: ../../components/cryp/positions.py:175
+msgid "Params for search indices"
+msgstr "Параметри для пошуку індексів"
+
+#: ../../components/cryp/positions.py:176
+msgid "Minimum peaks:"
+msgstr "Мінімум піків:"
+
+#: ../../components/cryp/positions.py:177
+msgid "Max index:"
+msgstr "Макс. індекс:"
+
+#: ../../components/cryp/positions.py:178
+msgid "Max results:"
+msgstr "Макс. результатів:"
 
 #: ../../components/cryp/positions.py:185
-msgid "New index column"
-msgstr "Нова колонка з індексами"
-
-#: ../../components/cryp/positions.py:186 ../../components/pddb/browser.py:213
-#: ../../core/idata.py:439
-msgid "Name:"
-msgstr "Назва:"
-
-#: ../../components/cryp/positions.py:186
+#: ../../components/cryp/positions.py:230
 msgid "Cell:"
 msgstr "Комірка:"
 
 #: ../../components/cryp/positions.py:195
+msgid "Number of peaks should be greater than number of free members"
+msgstr "Кількість піків має бути більшою за кількість вільних членів"
+
+#: ../../components/cryp/positions.py:229
+msgid "New index column"
+msgstr "Нова колонка з індексами"
+
+#: ../../components/cryp/positions.py:230 ../../components/pddb/browser.py:213
+#: ../../core/idata.py:439
+msgid "Name:"
+msgstr "Назва:"
+
+#: ../../components/cryp/positions.py:239
 #, python-format
 msgid "Index with name `%(n)s' of type %(t)s already exists"
 msgstr "Індекси з іменем %(n)s та типом %(t)s вже існують"
@@ -207,9 +260,17 @@ msgstr "Індекси з іменем %(n)s та типом %(t)s вже існ
 msgid "Comment"
 msgstr "Коментар"
 
-#: ../../components/cryp/vcellparams.py:25
+#: ../../components/cryp/vcellparams.py:21
+msgid "Calculate"
+msgstr "Розрахувати"
+
+#: ../../components/cryp/vcellparams.py:27
 msgid " (cell params)"
 msgstr " (параметри комірки)"
+
+#: ../../components/cryp/vcellparams.py:28
+msgid "Cell parameters"
+msgstr "Параметри комірки"
 
 #: ../../components/pddb/__init__.py:25 ../../core/application.py:127
 msgid "&Options"
@@ -349,11 +410,11 @@ msgstr "Список карток"
 msgid "XRD cards"
 msgstr "Картки дифракції"
 
-#: ../../components/pddb/opddb.py:248
+#: ../../components/pddb/opddb.py:254
 msgid "DB opening error"
 msgstr "Помилка відкривання БД"
 
-#: ../../components/pddb/opddb.py:249
+#: ../../components/pddb/opddb.py:255
 #, python-format
 msgid "Failed to open DB file: %s"
 msgstr "Збій відкривання файла БД: %s"
