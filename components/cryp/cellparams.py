@@ -17,7 +17,7 @@
 
 from numpy import (
     array, average as aver, arccos, sqrt, sin, cos, tan, zeros, var, unique,
-    newaxis)
+    newaxis, logical_and)
 from numpy.linalg import solve
 from scipy.optimize import fmin
 from itertools import product
@@ -286,8 +286,14 @@ def chi2n(d1a, d2a, poss):
 class FitIndices:
     def __init__(self, crystal_system, max_ind):
         self._cs = getattr(self, crystal_system)
-        self._hkl = array(
+        hkl = array(
             list(product(*((tuple(range(max_ind + 1)),) * 3)))[1:]).transpose()
+        if crystal_system in ("cubic", "rhombohedral"):
+            self._hkl = hkl[:, logical_and(hkl[0] >= hkl[1], hkl[1] >= hkl[0])]
+        elif crystal_system in ("hex", "tetra"):
+            self._hkl = hkl[:, hkl[0] >= hkl[1]]
+        else:
+            self._hkl = hkl
 
     def __call__(self, *args, **dargs):
         return self._cs(*args, **dargs)
