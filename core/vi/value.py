@@ -68,8 +68,8 @@ def lfloat(noless=None, nomore=None):
 
     class efloat(float):
         def __new__(cls, value=0):
-            if isinstance(value, (str, unicode)):
-                value = atof(str(value))
+            if isinstance(value, str):
+                value = atof(value)
             if value is None and noless is not None:
                 value = noless
             if value is None and nomore is not None:
