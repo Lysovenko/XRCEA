@@ -312,7 +312,7 @@ class FitIndices:
             dfit = d_hkl_hex(*abc, poss_hkl)
             return chi2n(dlist, dfit, poss_hkl)
 
-        opt = fmin(vec, [iniparams[0], iniparams[2]])
+        opt = fmin(vec, [iniparams[0], iniparams[2]], disp=0)
         dres = d_hkl_hex(*opt, poss_hkl)
         dhkl = self.dhkl(dres, dlist)
         return calc_hex(dhkl), dhkl[1:]
@@ -324,7 +324,7 @@ class FitIndices:
             dfit = d_hkl_tetra(*abc, poss_hkl)
             return chi2n(dlist, dfit, poss_hkl)
 
-        opt = fmin(vec, [iniparams[0], iniparams[2]])
+        opt = fmin(vec, [iniparams[0], iniparams[2]], disp=0)
         dres = d_hkl_tetra(*opt, poss_hkl)
         dhkl = self.dhkl(dres, dlist)
         return calc_tetra(dhkl), dhkl[1:]
@@ -336,7 +336,7 @@ class FitIndices:
             dfit = d_hkl_cubic(*abc, poss_hkl)
             return chi2n(dlist, dfit, poss_hkl)
 
-        opt = fmin(vec, [iniparams[0]])
+        opt = fmin(vec, [iniparams[0]], disp=0)
         dres = d_hkl_cubic(*opt, poss_hkl)
         dhkl = self.dhkl(dres, dlist)
         return calc_cubic(dhkl), dhkl[1:]
@@ -348,7 +348,7 @@ class FitIndices:
             dfit = d_hkl_orhomb(*abc, poss_hkl)
             return chi2n(dlist, dfit, poss_hkl)
 
-        opt = fmin(vec, [iniparams[0], iniparams[1], iniparams[2]])
+        opt = fmin(vec, [iniparams[0], iniparams[1], iniparams[2]], disp=0)
         dres = d_hkl_orhomb(*opt, poss_hkl)
         dhkl = self.dhkl(dres, dlist)
         return calc_orhomb(dhkl), dhkl[1:]
@@ -361,7 +361,7 @@ class FitIndices:
             return chi2n(dlist, dfit, poss_hkl)
 
         opt = fmin(vec, [iniparams[0], iniparams[1], iniparams[2],
-                         deg2rad(iniparams[4])])
+                         deg2rad(iniparams[4])], disp=0)
         dres = d_hkl_monoclinic(*opt, poss_hkl)
         dhkl = self.dhkl(dres, dlist)
         return calc_monoclinic(dhkl), dhkl[1:]
@@ -373,7 +373,7 @@ class FitIndices:
             dfit = d_hkl_rhombohedral(*abc, poss_hkl)
             return chi2n(dlist, dfit, poss_hkl)
 
-        opt = fmin(vec, [iniparams[0], deg2rad(iniparams[3])])
+        opt = fmin(vec, [iniparams[0], deg2rad(iniparams[3])], disp=0)
         dres = d_hkl_rhombohedral(*opt, poss_hkl)
         dhkl = self.dhkl(dres, dlist)
         return calc_rhombohedral(dhkl), dhkl[1:]
