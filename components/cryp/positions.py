@@ -19,7 +19,7 @@ from locale import atof, format_string
 from math import asin, pi
 from core.vi.spreadsheet import Spreadsheet
 from core.application import APPLICATION as APP
-from core.vi.value import Tabular, TabCell, Value
+from core.vi.value import Tabular, TabCell, Value, lfloat
 from core.vi import (Button, print_information, print_error, copy_to_clipboard)
 from .indexer import find_indices
 from .vcellparams import show_cell_params
@@ -155,21 +155,39 @@ class FoundBells(Spreadsheet):
         hwave = self._xrd.lambda1 / 2.
         ipd = sorted(hwave / cryb.reshape(len(cryb) // 4, 4)[:, 0],
                      reverse=True)
+        Nless0 = lfloat(0.)
+        Angle = lfloat(0., 180.)
+        a, b, c = [Value(Nless0) for i in range(3)]
+        alp, bet, gam = [Value(Angle) for i in range(3)]
+        for i in (alp, bet, gam):
+            i.update(90.)
+
+        def relevance(cti):
+            rel = {"cubic": (), "tetra": (c,), "orhomb": (b, c), "hex": (c,),
+                   "rhombohedral": (alp,), "monoclinic": (b, c, bet)}
+            for i in (b, c, alp, bet, gam):
+                i.is_relevant(False)
+            for i in rel[CELL_TYPE_C[cti]]:
+                i.is_relevant(True)
+            return ()
+
+        relevance(0)
         dlgr = self.input_dialog(_("Minimum peaks"), [
             (_("Minimum peaks:"), len(ipd)),
             (_("Max index:"), 4),
             (_("Max results:"), 5),
-            ("a:", 0.),
-            ("b:", 0.),
-            ("c:", 0.),
-            ("\u03b1:", 90.),
-            ("\u03b2:", 90.),
-            ("\u03b3:", 90.),
-            (_("Cell:"), CELL_TYPE_N)
+            ("a:", a),
+            ("b:", b),
+            ("c:", c),
+            ("\u03b1:", alp),
+            ("\u03b2:", bet),
+            ("\u03b3:", gam),
+            (_("Cell:"), CELL_TYPE_N, relevance)
         ])
         if dlgr is None:
             return
-        mp, mi, mr, a, b, c, alp, bet, gam, cs = dlgr
+        mp, mi, mr, x, x, x, x, x, x, cs = dlgr
+        ipars = [i.get() for i in (a, b, c, alp, bet, gam)]
         if mp > len(self.cryb):
             mp = len(self.cryb)
         if mp <= CELL_PARAMS[cs]:
@@ -179,7 +197,7 @@ class FoundBells(Spreadsheet):
             return
         groups = []
         self.bg_process(find_indices(
-            ipd, (a, b, c, alp, bet, gam), CELL_TYPE_C[cs],
+            ipd, ipars, CELL_TYPE_C[cs],
             mi, mp, mr, groups))
         curauto = 0
         for name in self._uindex:
