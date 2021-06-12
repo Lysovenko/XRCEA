@@ -22,6 +22,17 @@ from core.application import APPLICATION as APP
 from .pddb import switch_number
 
 PARAMS = {}
+COLORS, COLORNAMES = zip(*(
+    ("blue", _("Blue")),
+    ("orange", _("Orange")),
+    ("green", _("Green")),
+    ("red", _("Red")),
+    ("purple", _("Purple")),
+    ("brown", _("Brown")),
+    ("pink", _("Pink")),
+    ("gray", _("Gray")),
+    ("olive", _("Olive")),
+    ("cyan", _("Cyan"))))
 
 
 class Browser(Page):
@@ -31,11 +42,13 @@ class Browser(Page):
         self._database = db
         self._cur_card = None
         self._query = Value(str)
+        self._colored_cards = {}
         self.search()
-        styles = {"D": (None, "red")}
+        styles = {i: (i, None) for i in COLORS}
+        styles["D"] = (None, "red")
         super().__init__(_("Database browser"),
                          self.cards,
-                         (_("Number"), _("Name"), _("Formula")),
+                         (_("Number"), _("Name"), _("Formula"), _("On plot")),
                          styles)
         self.show()
         self.set_form([(Button(_("Search:"), self.search), self._query)], True)
@@ -45,6 +58,7 @@ class Browser(Page):
             (_("Print GNUPlot labels"), self.print_gp_labels),
             (_("Clear deleted"), self.remove_deleted),
             (_("Save cards list"), self.save_list),
+            (_("Show on plot as..."), self.add_colored),
         ])
 
     def click_card(self, tup):
@@ -52,6 +66,7 @@ class Browser(Page):
         self._database.add_card(card, True)
         self._cur_card = card
         self.set_text(self.mkhtext(card))
+        self._upd_clrs()
         self.plot()
 
     def del_the_card(self, row, c=None):
@@ -59,11 +74,21 @@ class Browser(Page):
         cl.remove(row)
         self.cards.update(cl)
         self.nums = set(i[-1] for i in self.cards.get())
+        if self._colored_cards.pop(row[-1], None) is not None:
+            self._upd_clrs()
+            self.plot(True)
 
     def remove_deleted(self, row, c=None):
         cl = self.cards.get()
-        self.cards.update(i for i in cl if "D" not in i[3][0])
+        self.cards.update(i for i in cl if "D" not in i[4][0])
         self.nums = set(i[-1] for i in self.cards.get())
+        ncolored = len(self._colored_cards)
+        for i in self.nums.symmetric_difference(
+                self._colored_cards).intersection(self._colored_cards):
+            self._colored_cards.pop(i)
+        if ncolored > len(self._colored_cards):
+            self._upd_clrs()
+            self.plot(True)
 
     def search(self, query=None):
         """Run search"""
@@ -72,7 +97,7 @@ class Browser(Page):
         except ValueError:
             return print_error(_("Query error"), _("Wrong Query"))
         self._query.update("")
-        ext = [(switch_number(c), n, f, (set(q), None, None), c)
+        ext = [(switch_number(c), n, f, "", (set(q), None, None, None), c)
                for c, n, f, q in cards if c not in self.nums]
         self.nums.update(r[-1] for r in ext)
         self.cards.update(self.cards.get() + ext)
@@ -148,10 +173,12 @@ class Browser(Page):
         res += "</ul>\n"
         return "".join(["<html><body>", res, "</body></html>"])
 
-    def plot(self):
-        card = self._cur_card
+    def plot(self, shrink=False):
+        cards = dict(self._colored_cards)
+        if self._cur_card is not None:
+            cards[self._cur_card] = "red"
         plot = PARAMS.get("Plot")
-        if not (plot and card):
+        if not (plot and (cards or shrink)):
             return
         name, plt = plot.get_current()
         if plt is None:
@@ -178,13 +205,15 @@ class Browser(Page):
             (xrd.lambda1, 1.), (xrd.lambda2, xrd.I2), (xrd.lambda3, xrd.I3))
             if wavel is not None and intens is not None]
         wavels = tuple(i[0] for i in wavis)
-        dis = self._database.get_di(card, units, wavels, (xmin, xmax))
-        for (x, y), clr, (w, i) in zip(dis, ("red", "orange", "green"), wavis):
-            eplt = {"type": "pulse", "color": clr}
-            eplt["x1"] = x
-            eplt["y2"] = y * i
-            plt["plots"].append(eplt)
-        plot.add_plot(_name, plt)
+        for card, clr in cards.items():
+            dis = self._database.get_di(card, units, wavels, (xmin, xmax))
+            for (x, y), lstl, (w, i) in zip(dis, (
+                    "solid", "dashed", "dashdot"), wavis):
+                eplt = {"type": "pulse", "linestyle": lstl, "color": clr}
+                eplt["x1"] = x
+                eplt["y2"] = y * i
+                plt["plots"].append(eplt)
+            plot.add_plot(_name, plt)
         plot.draw(_name)
 
     def print_gp_labels(self, row, c=None):
@@ -220,6 +249,38 @@ class Browser(Page):
         db.update_content(self.nums)
         if not db.in_container():
             APP.add_object(db)
+
+    def add_colored(self, row, c=None):
+        """Add a card to colored"""
+        exclude = set(self._colored_cards.values())
+        exclude.add("red")
+        try:
+            clrs, nms = zip(*[i for i in zip(COLORS, COLORNAMES)
+                              if i[0] not in exclude])
+        except ValueError:
+            self.print_error(_("No colors left."))
+            return
+        fields = [(_("Color:"), nms), (_("Remove"), False)]
+        if row[-1] not in self._colored_cards:
+            fields.pop(-1)
+        ans = self.input_dialog(_("Select %s color") % row[1], fields)
+        if ans is None:
+            return
+        if len(ans) == 2 and ans[1]:
+            self._colored_cards.pop(row[-1], None)
+        else:
+            self._colored_cards[row[-1]] = clrs[ans[0]]
+        self._upd_clrs()
+        self.plot()
+
+    def _upd_clrs(self):
+        rcards = dict(self._colored_cards)
+        rcards[self._cur_card] = "red"
+        clrnms = {n: COLORNAMES[COLORS.index(v)] for n, v in rcards.items()}
+        self.cards.update((sn, n, f, clrnms.get(c, ""),
+                           (s1, s2, s3, rcards.get(c)), c)
+                          for sn, n, f, d, (s1, s2, s3, s4), c
+                          in self.cards.get())
 
     def set_list(self, objdb):
         self._database = objdb
