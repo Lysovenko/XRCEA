@@ -88,6 +88,10 @@ class Canvas(FigureCanvas):
             ltype = plot.get("type", "-")
             color = plot.get("color")
             cc = APP.settings.get_color(color)
+            extras = {}
+            ls = plot.get("linestyle")
+            if ls in ("solid", "dashed", "dashdot", "dotted"):
+                extras["linestyle"] = ls
             if cc is not None:
                 color = cc
             if "y2" in plot:
@@ -95,11 +99,11 @@ class Canvas(FigureCanvas):
             else:
                 a2p = self.axes1
             if ltype == "pulse":
-                a2p.bar(plot["x1"], plot.get("y1", plot.get("y2")), width=1e-9,
-                        edgecolor=color, align="center")
+                a2p.vlines(plot["x1"], 0, plot.get("y1", plot.get("y2")),
+                           color=color, **extras)
             else:
                 a2p.plot(plot["x1"], plot.get("y1", plot.get("y2")), ltype,
-                         color=color, picker=plot.get("picker"))
+                         color=color, picker=plot.get("picker"), **extras)
         super().draw()
 
 
