@@ -213,7 +213,7 @@ class Browser(Page):
                 eplt["x1"] = x
                 eplt["y2"] = y * i
                 plt["plots"].append(eplt)
-            plot.add_plot(_name, plt)
+        plot.add_plot(_name, plt)
         plot.draw(_name)
 
     def print_gp_labels(self, row, c=None):
