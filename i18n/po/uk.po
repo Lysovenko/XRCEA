@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-10 23:00+0300\n"
-"PO-Revision-Date: 2021-06-10 23:01+0300\n"
+"POT-Creation-Date: 2021-06-13 20:18+0300\n"
+"PO-Revision-Date: 2021-06-13 20:32+0300\n"
 "Last-Translator: Serhii <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: Ukrainian\n"
@@ -246,7 +246,7 @@ msgstr "Кількість піків має бути більшою за кіл
 msgid "New index column"
 msgstr "Нова колонка з індексами"
 
-#: ../../components/cryp/positions.py:230 ../../components/pddb/browser.py:213
+#: ../../components/cryp/positions.py:230 ../../components/pddb/browser.py:242
 #: ../../core/idata.py:439
 msgid "Name:"
 msgstr "Назва:"
@@ -312,56 +312,104 @@ msgstr "Налаштування браузера БД"
 msgid "Database file:"
 msgstr "Файл бази даних:"
 
-#: ../../components/pddb/browser.py:36
+#: ../../components/pddb/browser.py:26
+msgid "Blue"
+msgstr "Синій"
+
+#: ../../components/pddb/browser.py:27
+msgid "Orange"
+msgstr "Помаранчевий"
+
+#: ../../components/pddb/browser.py:28
+msgid "Green"
+msgstr "Зелений"
+
+#: ../../components/pddb/browser.py:29
+msgid "Red"
+msgstr "Червоний"
+
+#: ../../components/pddb/browser.py:30
+msgid "Purple"
+msgstr "Пурпуровий"
+
+#: ../../components/pddb/browser.py:31
+msgid "Brown"
+msgstr "Коричневий"
+
+#: ../../components/pddb/browser.py:32
+msgid "Pink"
+msgstr "Рожевий"
+
+#: ../../components/pddb/browser.py:33
+msgid "Gray"
+msgstr "Сірий"
+
+#: ../../components/pddb/browser.py:34
+msgid "Olive"
+msgstr "Оливковий"
+
+#: ../../components/pddb/browser.py:35
+msgid "Cyan"
+msgstr "Блакитний"
+
+#: ../../components/pddb/browser.py:49
 msgid "Database browser"
 msgstr "Браузер баз даних"
 
-#: ../../components/pddb/browser.py:38
+#: ../../components/pddb/browser.py:51
 msgid "Number"
 msgstr "№"
 
-#: ../../components/pddb/browser.py:38 ../../core/project.py:118
+#: ../../components/pddb/browser.py:51 ../../core/project.py:118
 #: ../../core/project.py:119 ../../core/project.py:171
 msgid "Name"
 msgstr "Назва"
 
-#: ../../components/pddb/browser.py:38
+#: ../../components/pddb/browser.py:51
 msgid "Formula"
 msgstr "Формула"
 
-#: ../../components/pddb/browser.py:41
+#: ../../components/pddb/browser.py:51
+msgid "On plot"
+msgstr "На графіку"
+
+#: ../../components/pddb/browser.py:54
 msgid "Search:"
 msgstr "Пошук:"
 
-#: ../../components/pddb/browser.py:44 ../../core/project.py:123
+#: ../../components/pddb/browser.py:57 ../../core/project.py:123
 msgid "Delete"
 msgstr "Видалити"
 
-#: ../../components/pddb/browser.py:45
+#: ../../components/pddb/browser.py:58
 msgid "Print GNUPlot labels"
 msgstr "Показати як інструкції GNUPlot"
 
-#: ../../components/pddb/browser.py:46
+#: ../../components/pddb/browser.py:59
 msgid "Clear deleted"
 msgstr "Очистити видалені"
 
-#: ../../components/pddb/browser.py:47
+#: ../../components/pddb/browser.py:60
 msgid "Save cards list"
 msgstr "Зберегти список карток"
 
-#: ../../components/pddb/browser.py:73
+#: ../../components/pddb/browser.py:61
+msgid "Show on plot as..."
+msgstr "Показати на графіку як..."
+
+#: ../../components/pddb/browser.py:98
 msgid "Query error"
 msgstr "Помилка запиту"
 
-#: ../../components/pddb/browser.py:73
+#: ../../components/pddb/browser.py:98
 msgid "Wrong Query"
 msgstr "Хибний запит"
 
-#: ../../components/pddb/browser.py:83
+#: ../../components/pddb/browser.py:108
 msgid " (Deleted)"
 msgstr " (Вилучено)"
 
-#: ../../components/pddb/browser.py:84
+#: ../../components/pddb/browser.py:109
 #, python-format
 msgid ""
 "\n"
@@ -378,33 +426,50 @@ msgstr ""
 "<tr><td>Формула:</td><td>%(fml)s</td></tr>\n"
 "<tr><td>Якість:</td><td>%(qlt)s</td></tr>\n"
 
-#: ../../components/pddb/browser.py:96
+#: ../../components/pddb/browser.py:121
 msgid "Cell parameters:"
 msgstr "параметри комірки:"
 
-#: ../../components/pddb/browser.py:104
+#: ../../components/pddb/browser.py:129
 msgid "Space group:"
 msgstr "Просторова група:"
 
-#: ../../components/pddb/browser.py:128
+#: ../../components/pddb/browser.py:153
 msgid "<h5>Comment</h5>"
 msgstr "<h5>Коментар</h5>"
 
-#: ../../components/pddb/browser.py:131
+#: ../../components/pddb/browser.py:156
 msgid "Color: "
 msgstr "Колір:"
 
-#: ../../components/pddb/browser.py:133
+#: ../../components/pddb/browser.py:158
 msgid "<h5>Bibliography</h5>\n"
 msgstr "<h5>Бібліографія</h5>\n"
 
-#: ../../components/pddb/browser.py:162
+#: ../../components/pddb/browser.py:189
 msgid "PDDB Pattern"
 msgstr "Шаблон ПДБД"
 
-#: ../../components/pddb/browser.py:212
+#: ../../components/pddb/browser.py:241
 msgid "Card list"
 msgstr "Список карток"
+
+#: ../../components/pddb/browser.py:261
+msgid "No colors left."
+msgstr "Не залишилось більше кольорів."
+
+#: ../../components/pddb/browser.py:263
+msgid "Color:"
+msgstr "Колір:"
+
+#: ../../components/pddb/browser.py:263
+msgid "Remove"
+msgstr "Прибрати"
+
+#: ../../components/pddb/browser.py:266
+#, python-format
+msgid "Select %s color"
+msgstr "Оберіть колір %s"
 
 #: ../../components/pddb/opddb.py:26
 msgid "XRD cards"
