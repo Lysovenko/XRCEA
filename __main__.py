@@ -14,8 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+from sys import path
+from os.path import dirname, realpath
 
-from core import initialize
-from core.application import start
-initialize()
-start()
+
+if __name__ == "__main__":
+    rp = dirname(realpath(__file__))
+    if rp not in path:
+        path.insert(0, rp)
+    from core import initialize
+    from core.application import start
+    initialize()
+    start()
