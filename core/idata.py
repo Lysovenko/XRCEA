@@ -55,7 +55,6 @@ class XrayData:
             setattr(self, i, None)
         if not XrayData.loaders:
             XrayData.loaders.append(XrayData.open_xrd)
-            XrayData.loaders.append(XrayData.open_dat)
         if isinstance(obj, str):
             self.open(obj)
         elif isinstance(obj, dict):
@@ -103,41 +102,9 @@ class XrayData:
     @staticmethod
     def open_xrd(fname):
         """
-        Open xrd file.
+        Open xrd or dat file.
 
-        :param fname: Path to xrd file.
-        :type fname: string
-        """
-        arr = []
-        odict = {}
-        fobj = open(fname)
-        with fobj:
-            for line in fobj:
-                line = line.strip()
-                if line.startswith('#'):
-                    n, p, v = (i.strip() for i in line[1:].partition(':'))
-                    if p:
-                        odict[n] = v
-                    continue
-                try:
-                    x, y = map(float, line.split()[:2])
-                    arr.append((x, y))
-                except ValueError:
-                    pass
-        if not (arr and odict):
-            return
-        arr.sort()
-        arr = np.array(arr)
-        x = arr.transpose()[0]
-        y = arr.transpose()[1]
-        return x, y, odict
-
-    @staticmethod
-    def open_dat(fname):
-        """
-        Open dat file.
-
-        :param fname: Path to dat file.
+        :param fname: Path to xrd or dat file.
         :type fname: string
         """
         arr = []
@@ -162,7 +129,9 @@ class XrayData:
         arr = np.array(arr)
         x = arr.transpose()[0]
         y = arr.transpose()[1]
-        odict = ask_about_sample(odict)
+        odict.setdefault("name", basename(fname))
+        if not {"sample", "x_units", "lambda1"}.issubset(odict):
+            odict = ask_about_sample(odict)
         return x, y, odict
 
     def open(self, fname):
@@ -183,8 +152,6 @@ class XrayData:
                 self.x_data = x
                 self.y_data = y
                 self._from_dict(dct)
-                if self.name is None:
-                    self.name = basename(fname)
                 return
 
     def __bool__(self):
