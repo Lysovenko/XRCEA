@@ -18,8 +18,9 @@
 from locale import atof, format_string
 from math import asin, pi, sin
 from core.application import APPLICATION as APP
-from core.vi.value import Tabular, TabCell, Value
+from core.vi.value import Tabular, TabCell, Value, lfloat
 from core.vi.spreadsheet import Spreadsheet
+_edit = _("Edit")
 
 
 class PeakLocator:
@@ -80,6 +81,10 @@ class PosCell(TabCell):
         except (ValueError, ZeroDivisionError):
             return ""
 
+    def shift_in_units(self, shift):
+        self.__value = self._locator.to_d(
+            self._locator.to_units(self.__value) + shift)
+
 
 class Table(Tabular):
     def __init__(self, origin, colnames):
@@ -115,8 +120,10 @@ class AssumedRefl(Spreadsheet):
             idat.extra_data.setdefault("AssumedReflexes", []),
             ["x\u2080", _("Comment")])
         self._ploc = to_show = PeakLocator("sin", idat.lambda1)
-        super().__init__(str(idat.name) + _(" (found reflexes)"), tab)
+        super().__init__(str(idat.name) + _(" (assumed reflexes)"), tab)
         self.reread()
+        self.menu.append_item((_edit,), _("Shift by..."),
+                              self.shift_by, None)
         self.show()
 
         def select_units(u):
@@ -129,6 +136,19 @@ class AssumedRefl(Spreadsheet):
 
     def reread(self):
         self._tab.from_origin(self._ploc)
+
+    def shift_by(self):
+        sels = [c[0] for c in self.get_selected_cells() if c[1] == 0]
+        if not sels:
+            self.print_error(_("No cells selected."))
+            return
+        shift = Value(lfloat())
+        dlgr = self.input_dialog(_("Shift selected cells"),
+                                 [(_("Shift by:"), shift)])
+        if dlgr is None:
+            return
+        for i in sels:
+            self._tab.get(i, 0).shift_in_units(shift.get())
 
 
 def show_assumed(idat):
