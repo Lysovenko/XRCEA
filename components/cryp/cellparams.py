@@ -276,7 +276,7 @@ def d_hkl_monoclinic(a, b, c, bet, hkl):
 
 
 def chi2n(d1a, d2a, poss):
-    dev = array([((d2a**2 - i)**2).min() for i in d1a**2])
+    dev = array([((d2a**-2 - i)**2).min() for i in d1a**-2])
     inds = [((d2a**2 - i)**2).argmin() for i in d1a**2]
     iset = unique(inds)
     ave = aver(poss.transpose()[inds])
@@ -289,7 +289,7 @@ class FitIndices:
         hkl = array(
             list(product(*((tuple(range(max_ind + 1)),) * 3)))[1:]).transpose()
         if crystal_system in ("cubic", "rhombohedral"):
-            self._hkl = hkl[:, logical_and(hkl[0] >= hkl[1], hkl[1] >= hkl[0])]
+            self._hkl = hkl[:, logical_and(hkl[0] >= hkl[1], hkl[1] >= hkl[2])]
         elif crystal_system in ("hex", "tetra"):
             self._hkl = hkl[:, hkl[0] >= hkl[1]]
         else:
