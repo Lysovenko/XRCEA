@@ -89,7 +89,7 @@ def calc_hex(dhkl):
     delta = m2 * l2 - lm ** 2
     sig2a = l2 / delta * chi2
     sig2b = m2 / delta * chi2
-    sig2a /= 4 * ba ** 3
+    sig2a /= 3 * ba ** 3
     sig2b /= 4 * bb ** 3
     return (a, None, c, None, None, 120.,
             chi2, sig2a, None, sig2b, None, None, None)
