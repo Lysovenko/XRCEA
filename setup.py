@@ -16,9 +16,16 @@ setuptools.setup(
         "Bug Tracker": "https://github.com/Lysovenko/XRCEA/issues",
     },
     classifiers=[
+        "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GNU License",
+        "License :: OSI Approved :: GNU General Public License v3 "
+        "or later (GPLv3+)",
         "Operating System :: OS Independent",
+        "Environment :: X11 Applications :: Qt",
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering :: Physics",
+        "Natural Language :: Ukrainian",
+        "Natural Language :: English",
     ],
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
