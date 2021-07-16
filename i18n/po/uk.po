@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-13 20:18+0300\n"
-"PO-Revision-Date: 2021-06-13 20:32+0300\n"
+"POT-Creation-Date: 2021-07-16 12:20+0300\n"
+"PO-Revision-Date: 2021-07-16 12:28+0300\n"
 "Last-Translator: Serhii <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: Ukrainian\n"
@@ -89,7 +89,7 @@ msgid "Polynomial's degree:"
 msgstr "Порядок поліному:"
 
 #: ../../components/cryp/__init__.py:95 ../../components/cryp/reflex.py:279
-#: ../../core/idata.py:323
+#: ../../core/idata.py:290
 msgid "Unknown"
 msgstr "Невідомо"
 
@@ -192,7 +192,7 @@ msgstr "Ромбоедрична"
 msgid "Monoclinic"
 msgstr "Моноклінна"
 
-#: ../../components/cryp/positions.py:132 ../../components/cryp/preflex.py:118
+#: ../../components/cryp/positions.py:132
 msgid " (found reflexes)"
 msgstr " (знайдені рефлекси)"
 
@@ -208,7 +208,7 @@ msgstr "Додати користувацькі індекси..."
 msgid "Calculate Cell parameters"
 msgstr "Розрахувати параметри комірки"
 
-#: ../../components/cryp/positions.py:142 ../../components/cryp/preflex.py:126
+#: ../../components/cryp/positions.py:142 ../../components/cryp/preflex.py:133
 #, python-format
 msgid "Units to display %s:"
 msgstr "Одиниці для відображення %s:"
@@ -247,7 +247,7 @@ msgid "New index column"
 msgstr "Нова колонка з індексами"
 
 #: ../../components/cryp/positions.py:230 ../../components/pddb/browser.py:242
-#: ../../core/idata.py:439
+#: ../../core/idata.py:406
 msgid "Name:"
 msgstr "Назва:"
 
@@ -256,9 +256,33 @@ msgstr "Назва:"
 msgid "Index with name `%(n)s' of type %(t)s already exists"
 msgstr "Індекси з іменем %(n)s та типом %(t)s вже існують"
 
-#: ../../components/cryp/preflex.py:116
+#: ../../components/cryp/preflex.py:23
+msgid "Edit"
+msgstr "Редагувати"
+
+#: ../../components/cryp/preflex.py:121
 msgid "Comment"
 msgstr "Коментар"
+
+#: ../../components/cryp/preflex.py:123
+msgid " (assumed reflexes)"
+msgstr " (рефлекси, які припускаються)"
+
+#: ../../components/cryp/preflex.py:125
+msgid "Shift by..."
+msgstr "Зсунути на..."
+
+#: ../../components/cryp/preflex.py:143
+msgid "No cells selected."
+msgstr "Жодної комірки не обрано."
+
+#: ../../components/cryp/preflex.py:146
+msgid "Shift selected cells"
+msgstr "Змістити значення обраних комірок"
+
+#: ../../components/cryp/preflex.py:147
+msgid "Shift by:"
+msgstr "Посунути на:"
 
 #: ../../components/cryp/vcellparams.py:21
 msgid "Calculate"
@@ -560,56 +584,56 @@ msgstr "Звичайті дифрактограми"
 msgid "Difractogram"
 msgstr "Дифрактограма"
 
-#: ../../core/idata.py:326
+#: ../../core/idata.py:293
 msgid "pps"
 msgstr "імп./сек."
 
-#: ../../core/idata.py:387
+#: ../../core/idata.py:354
 msgid "Experimental data"
 msgstr "Експериментальні дані"
 
-#: ../../core/idata.py:433
+#: ../../core/idata.py:400
 msgid "Monochromed"
 msgstr "Монохромоване"
 
-#: ../../core/idata.py:433
+#: ../../core/idata.py:400
 #, python-format
 msgid "With %s-filter"
 msgstr "З %s-фільтром"
 
-#: ../../core/idata.py:434
+#: ../../core/idata.py:401
 msgid "No filtering"
 msgstr "Нефільтроване"
 
-#: ../../core/idata.py:438
+#: ../../core/idata.py:405
 msgid "Powder"
 msgstr "Порошок"
 
-#: ../../core/idata.py:438
+#: ../../core/idata.py:405
 msgid "Liquid"
 msgstr "Рідина"
 
-#: ../../core/idata.py:440
+#: ../../core/idata.py:407
 msgid "Sample:"
 msgstr "Зразок:"
 
-#: ../../core/idata.py:441
+#: ../../core/idata.py:408
 msgid "Anticatode:"
 msgstr "Антикатод:"
 
-#: ../../core/idata.py:442
+#: ../../core/idata.py:409
 msgid "Radiation:"
 msgstr "Випромінення:"
 
-#: ../../core/idata.py:443
+#: ../../core/idata.py:410
 msgid "X axis:"
 msgstr "Вісь X:"
 
-#: ../../core/idata.py:444
+#: ../../core/idata.py:411
 msgid "Comment:"
 msgstr "Коментар:"
 
-#: ../../core/idata.py:445
+#: ../../core/idata.py:412
 msgid "Sample description"
 msgstr "Опис зразка"
 
