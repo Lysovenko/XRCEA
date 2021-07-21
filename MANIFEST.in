@@ -1,0 +1,2 @@
+include __main__.py
+global-include xrcea.mo *.js *.html *.css *.png *.gif

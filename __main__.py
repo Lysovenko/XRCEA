@@ -22,7 +22,5 @@ if __name__ == "__main__":
     rp = dirname(realpath(__file__))
     if rp not in path:
         path.insert(0, rp)
-    from core import initialize
-    from core.application import start
-    initialize()
-    start()
+    from core.application import main
+    main()

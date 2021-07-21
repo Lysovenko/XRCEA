@@ -146,3 +146,9 @@ def _introduce_menu():
     APPLICATION.menu.insert_item((), 99, _hlp, {}, None)
     mappend((_hlp,), _("Contents"), _help, None)
     introduce_input()
+
+
+def main():
+    from . import initialize
+    initialize()
+    start()

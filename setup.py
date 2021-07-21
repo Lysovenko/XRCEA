@@ -30,6 +30,8 @@ setuptools.setup(
         "Natural Language :: English",
     ],
     package_dir={"": "."},
-    packages=setuptools.find_packages(where="."),
+    packages=['core', 'core.vi', 'core.qt', 'components.bbg',
+              'components.cryp', 'components.pddb'],
     python_requires=">=3.6",
+    entry_points={'console_scripts': ['xrcea=core.application:main']}
 )
