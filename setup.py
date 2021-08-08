@@ -26,12 +26,11 @@ setuptools.setup(
         "Environment :: X11 Applications :: Qt",
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering :: Physics",
-        "Natural Language :: Ukrainian",
-        "Natural Language :: English",
     ],
     package_dir={"": "."},
     packages=['core', 'core.vi', 'core.qt', 'components.bbg',
               'components.cryp', 'components.pddb'],
     python_requires=">=3.6",
-    entry_points={'console_scripts': ['xrcea=core.application:main']}
+    entry_points={'console_scripts': ['xrcea=core.application:main']},
+    install_requires=["numpy", "scipy", "PyQt5", "matplotlib"]
 )
