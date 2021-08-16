@@ -17,7 +17,7 @@
 Polynomial fitting
 """
 
-from core.application import APPLICATION as APP
+from xrcea.core.application import APPLICATION as APP
 from numpy import arcsin, sin, polyval, zeros, sqrt, array, pi
 from scipy.optimize import fmin
 from locale import format_string

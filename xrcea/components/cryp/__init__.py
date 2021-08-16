@@ -17,8 +17,8 @@
 """
 
 import numpy as np
-from core.application import APPLICATION as APP
-from core.idata import XrayData
+from xrcea.core.application import APPLICATION as APP
+from xrcea.core.idata import XrayData
 from .reflex import calc_bg, refl_sects, ReflexDedect, Cryplots
 from .preflex import show_assumed
 from .positions import show_sheet

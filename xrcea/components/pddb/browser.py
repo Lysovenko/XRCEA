@@ -16,9 +16,9 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import locale
-from core.vi import Page, Button, print_error, input_dialog
-from core.vi.value import Value
-from core.application import APPLICATION as APP
+from xrcea.core.vi import Page, Button, print_error, input_dialog
+from xrcea.core.vi.value import Value
+from xrcea.core.application import APPLICATION as APP
 from .pddb import switch_number
 
 PARAMS = {}

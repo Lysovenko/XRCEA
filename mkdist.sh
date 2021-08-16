@@ -1,9 +1,9 @@
 #!/bin/bash
 for lang in eng ukr
 do
-    make html -C doc/$lang
+    make html -C xrcea/doc/$lang
 done
-cd i18n/po
+cd xrcea/i18n/po
 for i in *.po
 do
     fnam="../locale/${i%.po}/LC_MESSAGES/xrcea.mo"
@@ -20,4 +20,3 @@ do
 done
 cd -
 python3 setup.py sdist --formats="zip,gztar"
-rm -rf XRCEA.egg-info

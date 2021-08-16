@@ -15,9 +15,9 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Display cell params"""
 
-from core.vi import Page
+from xrcea.core.vi import Page
 from .cellparams import CALCULATORS, get_dhkl
-from core.application import APPLICATION as APP
+from xrcea.core.application import APPLICATION as APP
 _calculate = _("Calculate")
 
 

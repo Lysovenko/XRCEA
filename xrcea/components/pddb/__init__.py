@@ -16,9 +16,9 @@
 """
 """
 
-from core.application import APPLICATION as APP
-from core.vi import input_dialog
-from core.idata import XrayData
+from xrcea.core.application import APPLICATION as APP
+from xrcea.core.vi import input_dialog
+from xrcea.core.idata import XrayData
 from .browser import set_plot, set_positions
 from .opddb import show_browser, ObjDB
 show_me = show_browser

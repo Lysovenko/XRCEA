@@ -1,4 +1,5 @@
-# XRCEA (C) 2021 Serhii Lysovenko
+#!/usr/bin/env python3
+# XRCEA (C) 2019 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,23 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-"""
-Bragg-Brentano geometry
-"""
-
-from core.application import APPLICATION as APP
-from .splane import detect_plane_shift
-from .polynomial import detect_polynome
+from sys import path
+from os.path import dirname, realpath
 
 
-def introduce():
-    """Entry point. Declares menu items."""
-    cryp = APP.runtime_data.setdefault("cryp", {})
-    extra = cryp.setdefault("extra_calcs", [])
-    extra.append((_("Fix angle"), detect_polynome))
-    extra.append((_("Detect plane shift"), detect_plane_shift))
-    APP.settings.declare_section("BBG")
-
-
-def terminate():
-    """"""
+if __name__ == "__main__":
+    rp = dirname(realpath(__file__))
+    if rp not in path:
+        path.insert(0, rp)
+    from xrcea.core.application import main
+    main()

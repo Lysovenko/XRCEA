@@ -54,7 +54,7 @@ def start():
     APPLICATION.settings.add_default_colors({"exp_dat": "black"})
     for module in APPLICATION.modules:
         try:
-            _ACTUAL_INTERFACE = import_module(module, "core")
+            _ACTUAL_INTERFACE = import_module(module, "xrcea.core")
             break
         except ImportError:
             pass

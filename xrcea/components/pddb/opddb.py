@@ -16,7 +16,7 @@
 """Representation of PDDB cards as Python's objects"""
 
 import numpy as np
-from core.application import APPLICATION as APP
+from xrcea.core.application import APPLICATION as APP
 from .pddb import Database, formula_markup, switch_number
 from .browser import PARAMS, Browser, print_error
 

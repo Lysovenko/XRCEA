@@ -57,7 +57,7 @@ class DMenu:
             except KeyError:
                 if default is None:
                     rcont = {}
-                    self.append_item(path[:i-1], path[i], rcont)
+                    self.append_item(path[:i - 1], path[i], rcont)
                 else:
                     return default
         return rcont

@@ -17,7 +17,7 @@
 Sample's plane correction
 """
 
-from core.application import APPLICATION as APP
+from xrcea.core.application import APPLICATION as APP
 from numpy import sqrt, array
 from scipy.optimize import fmin
 from locale import format_string

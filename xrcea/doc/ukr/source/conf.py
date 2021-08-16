@@ -17,15 +17,15 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(*(os.pardir,) * 3,
                                                 "components")))
 sys.path.insert(0, os.path.abspath(os.path.join(*(os.pardir,) * 3)))
-from core import VERSION as version, RELEASE as release
+from xrcea.core import VERSION as version, RELEASE as release
 __builtins__["_"] = str
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'XRCEA'
-copyright = '2019-2020, Serhii Lysovenko'
-author = 'Serhii Lysovenko'
+copyright = '2019-2020, Сергій Лисовенко'
+author = 'Сергій Лисовенко'
 
 
 # -- General configuration ---------------------------------------------------
@@ -62,7 +62,7 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'uk_UA'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -142,7 +142,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'xrcea', 'XRCEA Documentation',
+    (master_doc, 'xrcea', 'Документація XRCEA',
      [author], 1)
 ]
 
@@ -153,8 +153,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'XRCEA', 'XRCEA Documentation',
-     author, 'XRCEA', 'One line description of project.',
+    (master_doc, 'XRCEA', 'Документація XRCEA',
+     author, 'XRCEA', 'Візуальний аналіз дифрактограм.',
      'Miscellaneous'),
 ]
 

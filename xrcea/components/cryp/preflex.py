@@ -17,9 +17,9 @@
 """
 from locale import atof, format_string
 from math import asin, pi, sin
-from core.application import APPLICATION as APP
-from core.vi.value import Tabular, TabCell, Value, lfloat
-from core.vi.spreadsheet import Spreadsheet
+from xrcea.core.application import APPLICATION as APP
+from xrcea.core.vi.value import Tabular, TabCell, Value, lfloat
+from xrcea.core.vi.spreadsheet import Spreadsheet
 _edit = _("Edit")
 
 
