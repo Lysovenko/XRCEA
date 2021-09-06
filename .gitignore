@@ -1,0 +1,17 @@
+__pycache__
+tmp
+local
+*~
+*.toc
+*.pdf
+*.log
+*.aux
+*.out
+locale
+_build
+doctrees
+html
+TAGS
+dist
+xrcea.pot
+
