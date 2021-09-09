@@ -16,6 +16,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import locale
+from xrcea.core.idata import XrayData
 from xrcea.core.vi import Page, Button, print_error, input_dialog
 from xrcea.core.vi.value import Value
 from xrcea.core.application import APPLICATION as APP
@@ -239,7 +240,9 @@ class Browser(Page):
         cid = row[-1]
         xrd = PARAMS.get("XRD")
         if not xrd:
-            return
+            xrd = XrayData.dummy_by_dialog({"name": _("An assumed sample")})
+            if xrd is None:
+                return
         units = xrd.x_units
         wavelength = xrd.wavelength
         self.set_text(self._database.xrd_units_table(cid, units, wavelength))

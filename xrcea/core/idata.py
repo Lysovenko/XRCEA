@@ -99,6 +99,17 @@ class XrayData:
     def set_container(self, container):
         self._container = container
 
+    @classmethod
+    def dummy_by_dialog(cls, assumption=None):
+        if assumption is None:
+            assumption = {}
+        description = ask_about_sample(assumption)
+        if description is None:
+            return
+        self = cls()
+        self._from_dict(description)
+        return self
+
     @staticmethod
     def open_xrd(fname):
         """
