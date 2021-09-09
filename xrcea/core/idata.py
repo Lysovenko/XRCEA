@@ -291,7 +291,8 @@ class XrayData:
         return {"plots": [{"x1": self.x_data, "y1": self.y_data,
                            "color": "exp_dat"}],
                 "x1label": x_label, "y1label": _("pps"),
-                "x1units": self.x_units}
+                "x1units": self.x_units,
+                "Comment": self.__dict.get("comment")}
 
     def get_obj(self):
         """Convets X-ray data into object."""
