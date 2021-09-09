@@ -56,6 +56,7 @@ class Browser(Page):
         self.set_list_context_menu([
             (_("Delete"), self.del_the_card),
             (_("Print GNUPlot labels"), self.print_gp_labels),
+            (_("Show reflexes in data units"), self.print_in_xrd_units),
             (_("Clear deleted"), self.remove_deleted),
             (_("Save cards list"), self.save_list),
             (_("Show on plot as..."), self.add_colored),
@@ -233,6 +234,15 @@ class Browser(Page):
             if wavelength is not None and intensity is not None]
         wavels = tuple(i[0] for i in wavis)
         self.set_text(self._database.gnuplot_lables(cid, units, wavels[0]))
+
+    def print_in_xrd_units(self, row, c=None):
+        cid = row[-1]
+        xrd = PARAMS.get("XRD")
+        if not xrd:
+            return
+        units = xrd.x_units
+        wavelength = xrd.wavelength
+        self.set_text(self._database.xrd_units_table(cid, units, wavelength))
 
     def save_list(self, r=None, c=None):
         """Save cards list in project"""

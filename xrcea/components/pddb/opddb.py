@@ -199,6 +199,44 @@ class ObjDB:
                     (switch_number(cid), pos, intens))
         return "\n".join(out)
 
+    def xrd_units_table(self, cid, xtype="q", wavel=()):
+        refl = [i[2:] for i in self.reflexes(cid, True)]
+        dis = self.get_di(cid, xtype, wavel)
+        if isinstance(dis, list):
+            return ""
+        out = []
+        for pos, intens, reflex in zip(dis[0], dis[1], refl):
+            if reflex[0] is not None:
+                hkl = "%d %d %d" % reflex
+            else:
+                hkl = ""
+            out.append("<tr><td>%g</td><td>%g</td><td>%s</td></tr>" %
+                       (pos, intens, hkl))
+        xt = {'2theta': u"2\u03b8, \u00B0", "theta": u"\u03b8, \u00B0",
+              "q": u"q, \u212b^{-1}", None: u"d, \u212b"}[xtype]
+        return """<html>
+        <head><style>
+table {
+  border-collapse: collapse;
+  border-bottom: 1px solid;
+  border-top: 1px solid;
+  border-right: 1px solid;
+  border-left: 1px solid;
+}
+th {border-bottom: 1px solid;
+border-right: 1px solid;}
+td {
+  text-align: left;
+  padding-right: 3ex;
+  padding-left: 1ex;
+  border-right: 1px solid;
+}
+        </style></head>
+        <body><table>
+        <tr><th>%s</th><th>I, %%</th><th>h k l</th></tr>
+        %s</table></body></html>
+        """ % (xt, "\n".join(out))
+
     def display(self):
         """Display pddb cards set"""
         show_browser(self)
