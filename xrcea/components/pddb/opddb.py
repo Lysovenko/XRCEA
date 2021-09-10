@@ -214,7 +214,7 @@ class ObjDB:
                        (pos, intens, hkl))
         xt = {'2theta': u"2\u03b8, \u00B0", "theta": u"\u03b8, \u00B0",
               "q": u"q, \u212b^{-1}", None: u"d, \u212b"}[xtype]
-        return """<html>
+        return """<!DOCTYPE html><html>
         <head><style>
 table {
   border-collapse: collapse;

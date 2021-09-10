@@ -421,10 +421,16 @@ def ask_about_sample(sdict):
               (_("Radiation:"), filterings, sett("last_filtering", 0)),
               (_("X axis:"), daxes, sett("last_axis", 0)),
               (_("Comment:"), sdict.get("comment", ""))]
-    res = input_dialog(_("Sample description"), "", fields)
+    question = ""
+    if "question" in sdict:
+        question = sdict["question"]
+        fields.pop(0)
+        fields.pop(-1)
+    res = input_dialog(_("Sample description"), question, fields)
     if res is None:
         return
-    name, sample, anode, filtering, xaxis, rem = res
+    name, sample, anode, filtering, xaxis, rem = \
+        res if "question" not in sdict else [None] + res + [None]
     sett = APP.settings.set
     sett("last_sample", sample)
     sett("last_anode", anode)

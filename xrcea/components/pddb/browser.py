@@ -240,7 +240,8 @@ class Browser(Page):
         cid = row[-1]
         xrd = PARAMS.get("XRD")
         if not xrd:
-            xrd = XrayData.dummy_by_dialog({"name": _("An assumed sample")})
+            xrd = XrayData.dummy_by_dialog({"question": _(
+                "No plot assumed to compare.\nSet your sample params.")})
             if xrd is None:
                 return
         units = xrd.x_units
