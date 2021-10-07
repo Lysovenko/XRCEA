@@ -160,7 +160,14 @@ class Database:
                 continue
             res = self.select_bruqa(req)
             if type(res) is int:
-                raise ValueError("Bad request")
+                err = []
+                if res | 1:
+                    err.append("vany mentions of one element")
+                if res | 2:
+                    err.append("uncnown element found")
+                if res | 4:
+                    err.append("no elements found")
+                raise ValueError("Bad request: %s" % ", ".join(err))
             selects.append(res)
         if not selects:
             return ()
@@ -189,6 +196,8 @@ class Database:
             res |= 1
         if set(dct).difference(set(ELNUMS)):
             res |= 2
+        if not lst:
+            res |= 4
         if res:
             return res
         dreq = ""

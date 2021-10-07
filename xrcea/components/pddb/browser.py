@@ -96,8 +96,8 @@ class Browser(Page):
         """Run search"""
         try:
             cards = self._database.select_cards(query)
-        except ValueError:
-            return print_error(_("Query error"), _("Wrong Query"))
+        except ValueError as err:
+            return print_error(_("Query error"), str(err))
         self._query.update("")
         ext = [(switch_number(c), n, f, "", (set(q), None, None, None), c)
                for c, n, f, q in cards if c not in self.nums]
