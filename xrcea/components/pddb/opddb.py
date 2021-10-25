@@ -232,10 +232,17 @@ td {
   border-right: 1px solid;
 }
         </style></head>
-        <body><table>
-        <tr><th>%s</th><th>I, %%</th><th>h k l</th></tr>
-        %s</table></body></html>
-        """ % (xt, "\n".join(out))
+        <body>
+        <h1>%(name)s</h1>
+        <p>%(number)s</p>
+        <p>%(formula)s</p>
+        <table>
+        <tr><th>%(thead)s</th><th>I, %%</th><th>h k l</th></tr>
+        %(tbody)s</table></body></html>
+        """ % {"thead": xt, "tbody": "\n".join(out),
+               "name": self.card_name(cid),
+               "formula": self.formula_markup(cid),
+               "number": switch_number(cid)}
 
     def display(self):
         """Display pddb cards set"""

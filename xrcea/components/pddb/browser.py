@@ -55,12 +55,12 @@ class Browser(Page):
         self.set_form([(Button(_("Search:"), self.search), self._query)], True)
         self.set_choicer(self.click_card)
         self.set_list_context_menu([
-            (_("Delete"), self.del_the_card),
-            (_("Print GNUPlot labels"), self.print_gp_labels),
-            (_("Show reflexes in data units"), self.print_in_xrd_units),
             (_("Clear deleted"), self.remove_deleted),
-            (_("Save cards list"), self.save_list),
             (_("Show on plot as..."), self.add_colored),
+            (_("Delete"), self.del_the_card),
+            (_("Save cards list"), self.save_list),
+            (_("Show reflexes in data units"), self.print_in_xrd_units),
+            (_("Print GNUPlot labels"), self.print_gp_labels),
         ])
 
     def click_card(self, tup):
