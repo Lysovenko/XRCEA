@@ -154,6 +154,7 @@ class ObjDB:
         else:
             single = False
         abscisas = []
+        restore = np.seterr(invalid="ignore")
         for wave in wavel:
             if xtype == "sin(theta)":
                 abscisas.append(wave / 2. / dis[0])
@@ -173,6 +174,7 @@ class ObjDB:
                 res.append((x[b], intens[b]))
         else:
             res = [(x, intens) for x in abscisas]
+        np.seterr(**restore)
         if single:
             return res[0]
         return res
