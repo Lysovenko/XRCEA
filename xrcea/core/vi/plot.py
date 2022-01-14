@@ -60,7 +60,7 @@ class Plot(DialogsMixin):
         try:
             self.gui_functions["draw"](self.plots[pl_name])
             self._currently_showing = pl_name
-        except KeyError:
+        except (KeyError, ValueError):
             pass
 
     def add_plot(self, pl_name, plt):

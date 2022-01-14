@@ -258,7 +258,9 @@ class XrayData:
     def restore_plots(self):
         plt = self.UIs.get("main")
         for n, p in sorted(self._saved_plots.items()):
-            plt.add_plot(n, self.abstraction2plot(p))
+            plot = self.abstraction2plot(p)
+            if plt is not None:
+                plt.add_plot(n, plot)
 
     def abstraction2plot(self, abstr: Union[str, Dict[str, Dict]]):
         """
@@ -269,7 +271,7 @@ class XrayData:
             try:
                 return self.plotters[abstr](self)
             except KeyError:
-                pass
+                return
         plt = dict(abstr)
         plt["plots"] = pplots = []
         plot: Dict[str, str]
