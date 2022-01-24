@@ -139,6 +139,8 @@ class FoundBells(Spreadsheet):
                               self.add_user_indexes, None)
         self.menu.append_item((_treat,), _("Calculate Cell parameters"),
                               self.calc_cell_params, None)
+        self.menu.append_item((_treat,), _("Clear automatic indexation"),
+                              self._clear_auto, None)
         self.show()
         self.set_form([(_("Units to display %s:") % "x\u2080", (
             "sin(\u03b8)", "d (\u212b)", "d\u207b\u00b2 (\u212b\u207b\u00b2)",
@@ -244,6 +246,17 @@ class FoundBells(Spreadsheet):
         self._uindex[name] = {"cell": CELL_TYPE_C[cell], "indices": indices}
         self.value.insert_column(self.value.columns, name,
                                  lambda x=indices: HklCell(x))
+
+    def _clear_auto(self):
+        if not self.ask_question(_("Do remove automatically "
+                                   "calculated Miller indices?")):
+            return
+        val = self.value
+        for i in reversed(range(val.columns)):
+            name = val.colname(i)
+            if name.startswith("auto") and self._uindex[name].get("auto"):
+                self._uindex.pop(name)
+                val.remove_column(i)
 
     def load_miller_indices(self):
         for name in self._uindex:
