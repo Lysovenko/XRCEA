@@ -1,6 +1,6 @@
 import unittest
 from sys import path
-path.append("../components/cryp")
+path.append("../xrcea/components/cryp")
 from itertools import product
 from numpy import array, sqrt, zeros, sin, tan, cos, average
 from numpy.random import random
@@ -46,7 +46,6 @@ class TestCellparams(unittest.TestCase):
         self.assertAlmostEqual(average((1 / dr**2 - 1 / d2**2)**2), chi2)
         self.assertLessEqual((a - a1)**2, siga)
         self.assertLessEqual((c - c1)**2, sigc)
-        print((a - a1) ** 2, siga, '\n', (c - c1) ** 2, sigc)
 
     def test_tetra(self):
         hkl = array(list(product(*((tuple(range(5)),) * 3)))[1:]).transpose()
