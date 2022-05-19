@@ -275,7 +275,16 @@ td {
             self.add_card(cid)
 
     def add_card(self, cid, cache=False):
-        """add card to "cache\""""
+        """
+        Add card to "cache\"
+
+        Parameters
+        ----------
+        cid : int
+            card id
+        cache : bool
+            Chech if card in cache and do nothing if true
+        """
         if cache and cid in self._db_obj["cards"]:
             return
         card = {}
