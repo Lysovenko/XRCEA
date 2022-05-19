@@ -30,16 +30,22 @@ def introduce_input():
     APP.register_opener(".dat", open_xrd, _("Generic diffractograms"))
 
 
+def _diff_props(xrd):
+    ans = ask_about_sample(xrd.get_description())
+    if isinstance(ans, dict):
+        xrd.set_description(ans)
+
+
 class XrayData:
     """
     :param fname: Path to file with X-ray diffraction data.
     :type fname: string
     """
     loaders = []
-    actions = {}
+    actions = {(_("Diffractogram"), _("Properties...")): _diff_props}
     plotters = {}
     objtype = "xrd"
-    type = _("Difractogram")
+    type = _("Diffractogram")
 
     def __init__(self, obj=None):
         self.__sample = None
@@ -67,7 +73,7 @@ class XrayData:
             (self.x_data == other.x_data) == (self.y_data == other.y_data)
         ).all()
 
-    def _from_dict(self, dct):
+    def set_description(self, dct):
         self.__dict.update(dct)
         for i in ("lambda1", "lambda2", "lambda3", "alpha1", "alpha2",
                   "I2", "I3", "density"):
@@ -107,7 +113,7 @@ class XrayData:
         if description is None:
             return
         self = cls()
-        self._from_dict(description)
+        self.set_description(description)
         return self
 
     @staticmethod
@@ -162,7 +168,7 @@ class XrayData:
             if all(i is not None for i in (x, y, dct)):
                 self.x_data = x
                 self.y_data = y
-                self._from_dict(dct)
+                self.set_description(dct)
                 return
 
     def __bool__(self):
@@ -307,14 +313,16 @@ class XrayData:
                 "x1units": self.x_units,
                 "Comment": self.__dict.get("comment")}
 
+    def get_description(self):
+        items = ((i, getattr(self, i, None)) for i in (
+            "density", "alpha1", "alpha2", "lambda1", "lambda2", "lambda3",
+            "I2", "I3", "contains", "name", "x_units"))
+        return {k: v for k, v in items if v is not None}
+
     def get_obj(self):
         """Convets X-ray data into object."""
         xrd = {"objtype": self.objtype}
-        for i in ("density", "alpha1", "alpha2", "lambda1", "lambda2",
-                  "lambda3", "I2", "I3", "contains", "name", "x_units"):
-            v = getattr(self, i, None)
-            if v is not None:
-                xrd[i] = v
+        xrd.update(self.get_description())
         for i in ("x_data", "y_data"):
             v = getattr(self, i, None)
             if v is not None:
