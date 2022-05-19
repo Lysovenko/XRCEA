@@ -425,11 +425,29 @@ def ask_about_sample(sdict):
     daxes = ("2\u03b8", "\u03b8", "q: 4\u03c0 sin(\u03b8)/\u03bb")
     samples = ("powder", "liquid")
     dsamples = (_("Powder"), _("Liquid"))
+    try:
+        sample_guess = samples.index(sdict["sample"])
+    except (IndexError, KeyError):
+        sample_guess = sett("last_sample", 0)
+    try:
+        l1 = float(sdict["lambda1"])
+        wls = np.array([ANODES[i][0] for i in danodes])
+        anode_guess = int(np.square(wls - l1).argmin())
+    except (KeyError, ValueError):
+        anode_guess = sett("last_anode", 0)
+    if "lambda1" in sdict:
+        filter_guess = len([i for i in sdict.keys() if i.startswith("I")])
+    else:
+        filter_guess = sett("last_filtering", 0)
+    try:
+        axis_guess = axes.index(sdict["x_units"])
+    except (IndexError, KeyError):
+        axis_guess = sett("last_axis", 0)
     fields = [(_("Name:"), sdict.get("name", "")),
-              (_("Sample:"), dsamples, sett("last_sample", 0)),
-              (_("Anticatode:"), danodes, sett("last_anode", 0)),
-              (_("Radiation:"), filterings, sett("last_filtering", 0)),
-              (_("X axis:"), daxes, sett("last_axis", 0)),
+              (_("Sample:"), dsamples, sample_guess),
+              (_("Anticatode:"), danodes, anode_guess),
+              (_("Radiation:"), filterings, filter_guess),
+              (_("X axis:"), daxes, axis_guess),
               (_("Comment:"), sdict.get("comment", ""))]
     question = ""
     if "question" in sdict:
@@ -460,7 +478,7 @@ def ask_about_sample(sdict):
     elif filtering == 2:
         sdict["lambda1"] = anode[0]
         sdict["lambda2"] = anode[1]
-        sdict["lambda2"] = anode[2]
+        sdict["lambda3"] = anode[2]
         sdict["I2"] = anode[3]
-        sdict["I3"] = anode[3]
+        sdict["I3"] = anode[4]
     return sdict
