@@ -124,7 +124,12 @@ class Browser(Page):
         except ValueError as err:
             return print_error(_("Query error"), str(err))
         self._query.update("")
-        ext = [(switch_number(c), n, f, "", (set(q), None, None, None), c)
+        if query is None:
+            nst = "blue"
+            self._marked_cards.update(i[0] for i in cards)
+        else:
+            nst = None
+        ext = [(switch_number(c), n, f, "", (set(q), nst, None, None), c)
                for c, n, f, q in cards if c not in self.nums]
         self.nums.update(r[-1] for r in ext)
         self.cards.update(self.cards.get() + ext)
@@ -158,7 +163,7 @@ class Browser(Page):
         rtbl = "<br>\n<br>\n<table border=1>\n"
         rtblr = "<tr>"
         rcels = 0
-        for reflex in db.reflexes(cid, True):
+        for reflex in map(tuple, db.reflexes(cid, True)):
             if reflex[2] is None:
                 rtblr += locale.format_string(
                     "<td><pre> %.5f %3d </pre></td>", reflex[:2])

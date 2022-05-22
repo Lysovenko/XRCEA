@@ -76,8 +76,8 @@ class ObjDB:
 
     def select_cards(self, query):
         if query is None:
-            return ((k, v["name"], v["formula"], v["quality"])
-                    for k, v in self._db_obj["cards"].items())
+            return [(k, v["name"], v["formula"], v["quality"])
+                    for k, v in self._db_obj["cards"].items()]
         if isinstance(self._database, Database):
             return self._database.select_cards(query)
         return []
