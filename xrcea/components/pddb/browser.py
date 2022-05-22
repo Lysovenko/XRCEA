@@ -44,6 +44,7 @@ class Browser(Page):
         self._cur_card = None
         self._query = Value(str)
         self._colored_cards = {}
+        self._marked_cards = set()
         self.search()
         styles = {i: (i, None) for i in COLORS}
         styles["D"] = (None, "red")
@@ -56,7 +57,9 @@ class Browser(Page):
         self.set_choicer(self.click_card)
         self.set_list_context_menu([
             (_("Clear deleted"), self.remove_deleted),
+            (_("Clear non marked"), self.remove_nonmarked),
             (_("Show on plot as..."), self.add_colored),
+            (_("Mark the card"), self.mark_card),
             (_("Delete"), self.del_the_card),
             (_("Save cards list"), self.save_list),
             (_("Show reflexes in data units"), self.print_in_xrd_units),
@@ -71,11 +74,20 @@ class Browser(Page):
         self._upd_clrs()
         self.plot()
 
+    def mark_card(self, row, c=None):
+        self._marked_cards.add(row[-1])
+        nu, na, fo, pt, (snu, sna, sfo, spt), cn = row
+        sna = "blue"
+        cl = self.cards.get()
+        cl[cl.index(row)] = nu, na, fo, pt, (snu, sna, sfo, spt), cn
+        self.cards.update(cl)
+
     def del_the_card(self, row, c=None):
         cl = self.cards.get()
+        self._marked_cards.discard(row[-1])
+        self.nums.discard(row[-1])
         cl.remove(row)
         self.cards.update(cl)
-        self.nums = set(i[-1] for i in self.cards.get())
         if self._colored_cards.pop(row[-1], None) is not None:
             self._upd_clrs()
             self.plot(True)
@@ -84,6 +96,19 @@ class Browser(Page):
         cl = self.cards.get()
         self.cards.update(i for i in cl if "D" not in i[4][0])
         self.nums = set(i[-1] for i in self.cards.get())
+        self._marked_cards.intersection_update(self.nums)
+        ncolored = len(self._colored_cards)
+        for i in self.nums.symmetric_difference(
+                self._colored_cards).intersection(self._colored_cards):
+            self._colored_cards.pop(i)
+        if ncolored > len(self._colored_cards):
+            self._upd_clrs()
+            self.plot(True)
+
+    def remove_nonmarked(self, row, c=None):
+        cl = self.cards.get()
+        self.cards.update(i for i in cl if i[-1] in self._marked_cards)
+        self.nums.intersection_update(self._marked_cards)
         ncolored = len(self._colored_cards)
         for i in self.nums.symmetric_difference(
                 self._colored_cards).intersection(self._colored_cards):
