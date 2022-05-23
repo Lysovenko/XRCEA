@@ -92,6 +92,10 @@ class Canvas(FigureCanvas):
             ls = plot.get("linestyle")
             if ls in ("solid", "dashed", "dashdot", "dotted"):
                 extras["linestyle"] = ls
+            try:
+                extras["label"] = plot["legend"]
+            except KeyError:
+                pass
             if cc is not None:
                 color = cc
             if "y2" in plot:
@@ -103,7 +107,9 @@ class Canvas(FigureCanvas):
                            color=color, **extras)
             else:
                 a2p.plot(plot["x1"], plot.get("y1", plot.get("y2")), ltype,
-                         color=color, picker=plot.get("picker"), **extras)
+                         color=color, **extras)
+            if "legend" in plot:
+                a2p.legend()
         super().draw()
 
 

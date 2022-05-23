@@ -242,6 +242,10 @@ class Browser(Page):
             for (x, y), lstl, (w, i) in zip(dis, (
                     "solid", "dashed", "dashdot"), wavis):
                 eplt = {"type": "pulse", "linestyle": lstl, "color": clr}
+                if lstl == "solid":
+                    eplt["legend"] = "{} ({})".format(
+                        self._database.formula_markup(card, None),
+                        switch_number(card))
                 eplt["x1"] = x
                 eplt["y2"] = y * i
                 plt["plots"].append(eplt)

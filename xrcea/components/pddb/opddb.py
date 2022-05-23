@@ -122,14 +122,16 @@ class ObjDB:
         if self._database is not None:
             return self._database.name(cid)
 
-    def formula_markup(self, cid):
+    def formula_markup(self, cid, mtype="HTML"):
         formula = None
         if cid in self._db_obj["cards"]:
             formula = self._db_obj["cards"][cid].get("formula")
         elif self._database is not None:
             formula = self._database.formula(cid)
         if formula:
-            return formula_markup(formula)
+            if mtype == "HTML":
+                return formula_markup(formula)
+            return formula
         return ''
 
     def citations(self, cid):

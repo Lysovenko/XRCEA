@@ -70,12 +70,13 @@ class Plot(DialogsMixin):
         "color": None,
         "x1": Array(),
         "y1": Array(),
-        "y2": Array() (optionally replaces y1)
+        "y2": Array(), (optionally replaces y1)
+        "legend": "plot's label"
         }],
         "x1label": "X axis title",
         "y1label": "Y axis title",
         "x1units": "2theta", # used for adding extra plots
-        "picker": None}"""
+        }"""
         if pl_name not in self.plots:
             self.menu.append_item((_("Plot"),), pl_name,
                                   lambda x=pl_name, f=self.draw: f(x))
