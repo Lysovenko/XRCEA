@@ -211,7 +211,7 @@ class ObjDB:
         out = []
         for pos, intens, reflex in zip(dis[0], dis[1], refl):
             if reflex[0] is not None:
-                hkl = "%d %d %d" % reflex
+                hkl = "%d %d %d" % tuple(reflex)
             else:
                 hkl = ""
             out.append("<tr><td>%g</td><td>%g</td><td>%s</td></tr>" %

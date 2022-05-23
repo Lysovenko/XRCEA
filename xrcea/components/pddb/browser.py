@@ -347,7 +347,7 @@ class Browser(Page):
             if r[2] is None:
                 comment = "%d%% %s" % (r[1], tail)
             else:
-                comment = "%d%% (%d%3d%3d) %s" % (r[1:] + (tail,))
+                comment = "%d%% (%d%3d%3d) %s" % (tuple(r[1:]) + (tail,))
             assumed.append([r[0], comment])
         ui = xrd.UIs.get("AssumedReflexes")
         if ui:
