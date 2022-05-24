@@ -17,7 +17,7 @@
 
 from typing import Dict, Union
 import numpy as np
-from os.path import basename
+from os.path import basename, splitext
 from json import loads, dumps
 from .application import APPLICATION as APP, icon_file
 from .vi import Plot, input_dialog
@@ -146,7 +146,7 @@ class XrayData:
         arr = np.array(arr)
         x = arr.transpose()[0]
         y = arr.transpose()[1]
-        odict.setdefault("name", basename(fname))
+        odict.setdefault("name", splitext(basename(fname))[0])
         if not {"sample", "x_units", "lambda1"}.issubset(odict):
             odict = ask_about_sample(odict)
         return x, y, odict
