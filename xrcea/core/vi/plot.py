@@ -66,12 +66,14 @@ class Plot(DialogsMixin):
     def add_plot(self, pl_name, plt):
         """ adds plot with name, where plt is:
         {"plots": [{
-        "type": "-" ("pulse" or MathPlotLib types),
+        "type": "-", # ("pulse" or MathPlotLib types)
         "color": None,
         "x1": Array(),
         "y1": Array(),
-        "y2": Array(), (optionally replaces y1)
-        "legend": "plot's label"
+        "y2": Array(), # (optionally replaces y1)
+        "legend": "plot's label",
+        "xlim": (left, right),
+        "ylim": (bottom, top)
         }],
         "x1label": "X axis title",
         "y1label": "Y axis title",
@@ -87,6 +89,18 @@ class Plot(DialogsMixin):
 
     def get_current(self):
         return self._currently_showing, self.get_plot(self._currently_showing)
+
+    def get_limits(self):
+        """Returns:
+           --------
+
+        Plot's limits setted by user.
+        {int: {"xlim": (float, float), "ylim": (float, float)}}
+        """
+        try:
+            return self.gui_functions["get_limits"]()
+        except KeyError:
+            return {}
 
     def set_close_lock(self, close_lock):
         self.close_lock = close_lock

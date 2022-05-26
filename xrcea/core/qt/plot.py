@@ -1,4 +1,4 @@
-# XRCEA (C) 2019 Serhii Lysovenko
+# XRCEA (C) 2019-2022 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -52,9 +52,6 @@ class Canvas(FigureCanvas):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         self.figure = fig = Figure(figsize=(width, height), dpi=dpi)
         self.mk_axes()
-
-        # self.compute_initial_figure()
-
         super().__init__(fig)
         self.setParent(parent)
 
@@ -67,6 +64,16 @@ class Canvas(FigureCanvas):
         self.axes2 = None
         self.axes1.set_xlabel(r'$s,\, \AA^{-1}$')
         self.axes1.set_ylabel('Intensity')
+
+    def get_limits(self):
+        res = {}
+        for axno, ax in enumerate(("axes1", "axes2")):
+            try:
+                ax = getattr(self, ax)
+                res[axno] = {"xlim": ax.get_xlim(), "ylim": ax.get_ylim()}
+            except AttributeError:
+                pass
+        return res
 
     def draw(self, dset=None):
         if dset is None:
@@ -110,6 +117,11 @@ class Canvas(FigureCanvas):
                          color=color, **extras)
             if "legend" in plot:
                 a2p.legend()
+            for lim in ("xlim", "ylim"):
+                try:
+                    getattr(a2p, "set_" + lim)(plot[lim])
+                except KeyError:
+                    pass
         super().draw()
 
 
@@ -144,6 +156,7 @@ def show_plot_window(vi_obj):
         plt.set_icon(vi_obj.icon)
     vi_obj.gui_functions["set_icon"] = plt.set_icon
     vi_obj.gui_functions["draw"] = plt.draw
+    vi_obj.gui_functions["get_limits"] = plt.canvas.get_limits
     plt.register_dialogs()
     for k, f in vi_obj.shortcuts.items():
         plt.add_shortcut(k, f)

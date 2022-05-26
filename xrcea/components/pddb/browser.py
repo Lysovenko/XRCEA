@@ -213,6 +213,7 @@ class Browser(Page):
         if not (plot and (cards or shrink)):
             return
         name, plt = plot.get_current()
+        limits = plot.get_limits()
         if plt is None:
             return
         xrd = PARAMS.get("XRD")
@@ -227,6 +228,7 @@ class Browser(Page):
                     break
         if not plt["plots"]:
             return
+        plt["plots"][0]["ylim"] = limits[0]["ylim"]
         xmin = min(plt["plots"][0]["x1"])
         xmax = max(plt["plots"][0]["x1"])
         for p in plt["plots"][1:]:
