@@ -57,7 +57,7 @@ class Project:
             for i in filter(lambda x: x.startswith("item"), zipf.namelist()):
                 obj = loads(zipf.read(i))
                 try:
-                    self._components.append(
+                    self.add_component(
                         self.__TREATERS[obj["objtype"]](obj))
                 except (KeyError, TypeError):
                     pass

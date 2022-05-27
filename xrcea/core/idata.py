@@ -105,6 +105,9 @@ class XrayData:
     def set_container(self, container):
         self._container = container
 
+    def get_container(self):
+        return self._container
+
     @classmethod
     def dummy_by_dialog(cls, assumption=None):
         if assumption is None:

@@ -26,6 +26,7 @@ class ObjDB:
     type = _("XRD cards")
 
     def __init__(self, obj=None):
+        self.marked = set()
         if obj is None:
             err = self._database
             if isinstance(err, Exception):
@@ -55,14 +56,7 @@ class ObjDB:
 
     @property
     def name(self):
-        return self._db_obj.get("name")
-
-    @name.setter
-    def name(self, _name):
-        assert isinstance(_name, str)
-        if self._db_obj.get("name") != _name:
-            self._emit_changed()
-        self._db_obj["name"] = _name
+        return _("DB Cards")
 
     def __eq__(self, x):
         if isinstance(x, str):
@@ -72,6 +66,20 @@ class ObjDB:
         return False
 
     def get_obj(self):
+        used = set()
+        for comp in self._container.components():
+            try:
+                used.update(map(int, comp.extra_data["pddb_pattern"].keys()))
+            except (AttributeError, KeyError, ValueError):
+                pass
+        used.update(self.marked)
+        cards = self._db_obj["cards"]
+        cset = set(cards.keys())
+        to_drop = cset - used
+        for cid in to_drop:
+            cards.pop(cid)
+        for cid in used - cset:
+            self.add_card(cid)
         return self._db_obj
 
     def select_cards(self, query):
@@ -260,21 +268,6 @@ td {
 
     def set_container(self, container):
         self._container = container
-
-    def in_container(self):
-        return hasattr(self, "_container")
-
-    def update_content(self, cids):
-        cards = self._db_obj["cards"]
-        cset = set(cards.keys())
-        cids = set(cids)
-        to_drop = cset - cids
-        for cid in to_drop:
-            cards.pop(cid)
-        if to_drop:
-            self._emit_changed()
-        for cid in cids - cset:
-            self.add_card(cid)
 
     def add_card(self, cid, cache=False):
         """

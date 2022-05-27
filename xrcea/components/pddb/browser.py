@@ -21,6 +21,7 @@ from xrcea.core.vi import Page, Button, print_error, input_dialog
 from xrcea.core.vi.value import Value
 from xrcea.core.application import APPLICATION as APP
 from .pddb import switch_number
+from .plot import plot_over
 
 PARAMS = {}
 COLORS, COLORNAMES = zip(*(
@@ -44,7 +45,7 @@ class Browser(Page):
         self._cur_card = None
         self._query = Value(str)
         self._colored_cards = {}
-        self._marked_cards = set()
+        self._marked_cards = db.marked
         self.search()
         styles = {i: (i, None) for i in COLORS}
         styles["D"] = (None, "red")
@@ -61,7 +62,6 @@ class Browser(Page):
             (_("Show on plot as..."), self.add_colored),
             (_("Mark the card"), self.mark_card),
             (_("Delete"), self.del_the_card),
-            (_("Save cards list"), self.save_list),
             (_("Show reflexes in data units"), self.print_in_xrd_units),
             (_("Print GNUPlot labels"), self.print_gp_labels),
         ])
@@ -206,53 +206,12 @@ class Browser(Page):
         return "".join(["<html><body>", res, "</body></html>"])
 
     def plot(self, shrink=False):
-        cards = dict(self._colored_cards)
-        if self._cur_card is not None:
-            cards[self._cur_card] = "red"
-        plot = PARAMS.get("Plot")
-        if not (plot and (cards or shrink)):
+        try:
+            xrd = PARAMS["XRD"]
+        except KeyError:
             return
-        name, plt = plot.get_current()
-        limits = plot.get_limits()
-        if plt is None:
-            return
-        xrd = PARAMS.get("XRD")
-        if not xrd:
-            return
-        _name = _("PDDB Pattern")
-        if name == _name:
-            for p in reversed(plt["plots"]):
-                if p.get("type") == "pulse":
-                    plt["plots"].pop()
-                else:
-                    break
-        if not plt["plots"]:
-            return
-        plt["plots"][0]["ylim"] = limits[0]["ylim"]
-        xmin = min(plt["plots"][0]["x1"])
-        xmax = max(plt["plots"][0]["x1"])
-        for p in plt["plots"][1:]:
-            xmin = min(xmin, min(p["x1"]))
-            xmax = max(xmax, max(p["x1"]))
-        units = plt["x1units"]
-        wavis = [(wavel, intens) for wavel, intens in (
-            (xrd.lambda1, 1.), (xrd.lambda2, xrd.I2), (xrd.lambda3, xrd.I3))
-            if wavel is not None and intens is not None]
-        wavels = tuple(i[0] for i in wavis)
-        for card, clr in cards.items():
-            dis = self._database.get_di(card, units, wavels, (xmin, xmax))
-            for (x, y), lstl, (w, i) in zip(dis, (
-                    "solid", "dashed", "dashdot"), wavis):
-                eplt = {"type": "pulse", "linestyle": lstl, "color": clr}
-                if lstl == "solid":
-                    eplt["legend"] = "{} ({})".format(
-                        self._database.formula_markup(card, None),
-                        switch_number(card))
-                eplt["x1"] = x
-                eplt["y2"] = y * i
-                plt["plots"].append(eplt)
-        plot.add_plot(_name, plt)
-        plot.draw(_name)
+        xrd.extra_data["pddb_colos"] = dict(self._colored_cards)
+        return plot_over(self._database, xrd, self._cur_card)
 
     def print_gp_labels(self, row, c=None):
         cid = row[-1]
@@ -283,22 +242,6 @@ class Browser(Page):
         units = xrd.x_units
         wavelength = xrd.wavelength
         self.set_text(self._database.xrd_units_table(cid, units, wavelength))
-
-    def save_list(self, r=None, c=None):
-        """Save cards list in project"""
-        db = self._database
-        if not db.name:
-            pars = input_dialog(_("Card list"), _("Card list"),
-                                [(_("Name:"), "")])
-            if not pars:
-                return
-            name, = pars
-            if not name:
-                return
-            db.name = name
-        db.update_content(self.nums)
-        if not db.in_container():
-            APP.add_object(db)
 
     def add_colored(self, row, c=None):
         """Add a card to colored"""
@@ -339,6 +282,8 @@ class Browser(Page):
 
     def export_to_xrd(self, xrd):
         cid = self._cur_card
+        if cid is None:
+            return
         name = self._database.card_name(cid)
         tail = "%s %s" % (name, switch_number(cid))
         assumed = xrd.extra_data.setdefault("AssumedReflexes", [])
@@ -355,6 +300,10 @@ class Browser(Page):
         if ui:
             ui.reread()
 
+    def get_colors(self, colors):
+        self._colored_cards = colors
+        self._upd_clrs()
+
 
 def set_plot(plotting):
     PARAMS["Plot"] = plotting.UIs.get("main")
@@ -366,3 +315,30 @@ def set_plot(plotting):
 def set_positions(xrd):
     if PARAMS.get("Browser"):
         PARAMS["Browser"].export_to_xrd(xrd)
+
+
+def activate(xrd):
+    PARAMS["XRD"] = xrd
+    PARAMS["Plot"] = xrd.UIs.get("main")
+    pddb = None
+    for comp in xrd.get_container().components():
+        if comp.objtype == "opddb":
+            pddb = comp
+            break
+    if pddb is None:
+        from .opddb import ObjDB
+        try:
+            pddb = ObjDB()
+            APP.add_object(pddb)
+        except RuntimeError as err:
+            return print_error(_("DB opening error"),
+                               _("Failed to open DB file: %s") % str(err))
+    if not PARAMS.get("Browser"):
+        PARAMS["Browser"] = Browser(pddb)
+    else:
+        PARAMS["Browser"].show()
+    try:
+        PARAMS["Browser"].get_colors(dict(
+            (int(i), j) for i, j in xrd.extra_data["pddb_colos"].items()))
+    except (KeyError, ValueError):
+        pass
