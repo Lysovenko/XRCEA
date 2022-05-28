@@ -39,9 +39,8 @@ def plot_over(pddb, xrd, cur=None):
     if not plt["plots"]:
         return
     plt["plots"][0]["ylim"] = limits[0]["ylim"]
-    xmin, xmax = limits[0]["xlim"]
     xrd.remember_plot(_name, "pddb_pattern")
-    plot.add_plot(_name, extend_plt(plt, xrd, pddb, xmin, xmax, cur))
+    plot.add_plot(_name, extend_plt(plt, xrd, pddb, cur))
     plot.draw(_name)
 
 
@@ -54,17 +53,17 @@ def restore_plot(xrd):
     if pddb is None:
         return
     plt = xrd.make_plot()
-    xmin = xrd.x_data.min()
-    xmax = xrd.x_data.max()
-    return extend_plt(plt, xrd, pddb, xmin, xmax)
+    return extend_plt(plt, xrd, pddb)
 
 
-def extend_plt(plt, xrd, pddb, xmin, xmax, cur=None):
+def extend_plt(plt, xrd, pddb, cur=None):
     colors = dict(xrd.extra_data.get("pddb_colos", ()))
     if cur is not None:
         colors[cur] = "red"
     if not colors:
         return
+    xmin = xrd.x_data.min()
+    xmax = xrd.x_data.max()
     units = xrd.x_units
     wavis = [(wavel, intens) for wavel, intens in (
         (xrd.lambda1, 1.), (xrd.lambda2, xrd.I2), (xrd.lambda3, xrd.I3))
