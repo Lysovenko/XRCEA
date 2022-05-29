@@ -210,7 +210,7 @@ class Browser(Page):
             xrd = PARAMS["XRD"]
         except KeyError:
             return
-        xrd.extra_data["pddb_colos"] = dict(self._colored_cards)
+        xrd.extra_data["pddb_colors"] = dict(self._colored_cards)
         return plot_over(self._database, xrd, self._cur_card)
 
     def print_gp_labels(self, row, c=None):
@@ -339,6 +339,6 @@ def activate(xrd):
         PARAMS["Browser"].show()
     try:
         PARAMS["Browser"].get_colors(dict(
-            (int(i), j) for i, j in xrd.extra_data["pddb_colos"].items()))
+            (int(i), j) for i, j in xrd.extra_data["pddb_colors"].items()))
     except (KeyError, ValueError):
         pass

@@ -69,7 +69,7 @@ class ObjDB:
         used = set()
         for comp in self._container.components():
             try:
-                used.update(map(int, comp.extra_data["pddb_pattern"].keys()))
+                used.update(map(int, comp.extra_data["pddb_colors"].keys()))
             except (AttributeError, KeyError, ValueError):
                 pass
         used.update(self.marked)
@@ -79,7 +79,7 @@ class ObjDB:
         for cid in to_drop:
             cards.pop(cid)
         for cid in used - cset:
-            self.add_card(cid)
+            self.add_card(cid, emit=False)
         return self._db_obj
 
     def select_cards(self, query):
@@ -269,7 +269,7 @@ td {
     def set_container(self, container):
         self._container = container
 
-    def add_card(self, cid, cache=False):
+    def add_card(self, cid, cache=False, emit=True):
         """
         Add card to "cache\"
 
@@ -293,7 +293,8 @@ td {
             card["formula"] = self._database.formula(cid)
         card["citations"] = self.citations(cid)
         self._db_obj["cards"][cid] = card
-        self._emit_changed()
+        if emit:
+            self._emit_changed()
 
 
 def show_browser(objdb=None):

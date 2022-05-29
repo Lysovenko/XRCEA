@@ -57,7 +57,7 @@ def restore_plot(xrd):
 
 
 def extend_plt(plt, xrd, pddb, cur=None):
-    colors = dict(xrd.extra_data.get("pddb_colos", ()))
+    colors = dict(xrd.extra_data.get("pddb_colors", ()))
     if cur is not None:
         colors[cur] = "red"
     if not colors:
