@@ -203,7 +203,7 @@ class ObjDB:
                 out.append(
                     "set label \"%s (%d %d %d)\" "
                     "at %g, second %g left rotate" %
-                    ((switch_number(cid),) + reflex + (pos, intens)))
+                    ((switch_number(cid),) + tuple(reflex) + (pos, intens)))
             else:
                 out.append(
                     "set label \"%s\" "
