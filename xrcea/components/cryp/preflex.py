@@ -56,34 +56,36 @@ class PeakLocator:
 class PosCell(TabCell):
     """Cell with peak position"""
     def __init__(self, cont, locator):
-        self.__value = cont[0]
         self._locator = locator
         self.__cont = cont
         super().__init__()
 
     @property
     def value(self):
-        return self.__value
+        return self.__cont[0]
 
     @value.setter
     def value(self, val):
         if val is None:
             return
         try:
-            self.__value = self._locator.to_d(atof(str(val)))
-            self.__cont[0] = self.__value
+            self.__cont[0] = self._locator.to_d(atof(str(val)))
         except (ValueError, ZeroDivisionError):
             pass
 
     def __str__(self):
         try:
-            return format_string("%.5g", self._locator.to_units(self.__value))
+            return format_string(
+                "%.5g", self._locator.to_units(self.__cont[0]))
         except (ValueError, ZeroDivisionError):
             return ""
 
     def shift_in_units(self, shift):
-        self.__value = self._locator.to_d(
-            self._locator.to_units(self.__value) + shift)
+        try:
+            self.__cont[0] = self._locator.to_d(
+                self._locator.to_units(self.__cont[0]) + shift)
+        except (ValueError, ZeroDivisionError):
+            pass
 
 
 class Table(Tabular):
