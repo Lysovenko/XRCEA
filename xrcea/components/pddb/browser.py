@@ -280,7 +280,7 @@ class Browser(Page):
         self.cards.update([])
         self.search()
 
-    def export_to_xrd(self, xrd):
+    def export_to_xrd0(self, xrd):
         cid = self._cur_card
         if cid is None:
             return
@@ -297,6 +297,28 @@ class Browser(Page):
                 comment = "%d%% (%d%3d%3d) %s" % (tuple(r[1:]) + (tail,))
             assumed.append([r[0], comment])
         ui = xrd.UIs.get("AssumedReflexes")
+        if ui:
+            ui.reread()
+
+    def export_to_xrd(self, xrd):
+        cid = self._cur_card
+        if cid is None:
+            return
+        card = {}
+        card["name"] = self._database.card_name(cid)
+        card["spacegroup"] = self._database.spacegroup(cid)
+        params = self._database.cell_params(cid)
+        if params:
+            pnr = ["a", "b", "c", "alpha", "beta", "gamma"]
+            params = dict((pnr[p[0]], p[1]) for p in params)
+            card["params"] = params
+        card["reflexes"] = [r[:2] if r[2] is None else [r[0], r[1], r[2:]]
+                            for r in self._database.reflexes(cid, True)]
+        card["formula"] = self._database.formula_markup(cid, None)
+        card["number"] = switch_number(cid)
+        ccards = xrd.extra_data.setdefault("CompCards", {})
+        ccards[str(cid)] = card
+        ui = xrd.UIs.get("AssumedCards")
         if ui:
             ui.reread()
 
