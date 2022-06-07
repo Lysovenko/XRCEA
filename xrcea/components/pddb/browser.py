@@ -280,26 +280,6 @@ class Browser(Page):
         self.cards.update([])
         self.search()
 
-    def export_to_xrd0(self, xrd):
-        cid = self._cur_card
-        if cid is None:
-            return
-        name = self._database.card_name(cid)
-        tail = "%s %s" % (name, switch_number(cid))
-        assumed = xrd.extra_data.setdefault("AssumedReflexes", [])
-        old = set(i[0] for i in assumed)
-        for r in self._database.reflexes(cid, True):
-            if r[0] in old:
-                continue
-            if r[2] is None:
-                comment = "%d%% %s" % (r[1], tail)
-            else:
-                comment = "%d%% (%d%3d%3d) %s" % (tuple(r[1:]) + (tail,))
-            assumed.append([r[0], comment])
-        ui = xrd.UIs.get("AssumedReflexes")
-        if ui:
-            ui.reread()
-
     def export_to_xrd(self, xrd):
         cid = self._cur_card
         if cid is None:

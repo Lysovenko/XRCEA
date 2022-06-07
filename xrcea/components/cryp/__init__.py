@@ -150,7 +150,7 @@ def calculate_reflexes(idata):
     bell_t = _("Shape function:"), _BELL_NAMES, _data["refl_bt"]
     pts_mi = _("Ignore points:"), _data["refl_ptm"], 4
     bf = _("Believe factor:"), _data["refl_bf"]
-    alg = 1 if idata.extra_data.get("AssumedReflexes") else 0
+    alg = 1 if idata.extra_data.get("CompCards") else 0
     algorithm = _("Mode:"), (_("Without any user assumption"),
                              _("By predefined reflexes")), alg
     rv = plot.input_dialog(_("Shapes of reflexes"), [
@@ -169,8 +169,13 @@ def calculate_reflexes(idata):
     totreflexes = []
     totsigmas = []
     if algorithm == 1:
-        apposs = idata.lambda1 / 2. / np.array([
-            i[0] for i in idata.extra_data.get("AssumedReflexes", [])])
+        apposs = []
+        for v in idata.extra_data.get("CompCards", {}).values():
+            extinguished = set(v.get("extinguished", ()))
+            for i, r in enumerate(v.get("reflexes", ())):
+                if i not in extinguished:
+                    apposs.append(r[0])
+        apposs = idata.lambda1 / 2. / np.array(apposs)
 
     def progress(status):
         status["description"] = _("Calculating shapes of the reflexes...")

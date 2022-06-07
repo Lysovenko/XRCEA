@@ -88,33 +88,6 @@ class PosCell(TabCell):
             pass
 
 
-class Table(Tabular):
-    def __init__(self, origin, colnames):
-        self._origin = origin
-        super().__init__(colnames=colnames)
-
-    def set(self, r, c, v):
-        if c == 1:
-            self._origin[r][1] = str(v)
-        super().set(r, c, v)
-
-    def on_del_pressed(self, cells):
-        origin = self._origin
-        rows = sorted(set(i[0] for i in cells), reverse=True)
-        try:
-            for i in rows:
-                origin.pop(i)
-        except IndexError:
-            pass
-        else:
-            self.remove_rows(rows)
-
-    def from_origin(self, locator):
-        self.remove_rows()
-        for i, row in enumerate(self._origin):
-            self.insert_row(i, [PosCell(row, locator), row[1]])
-
-
 class CompCard:
     """Card to compare with"""
     def __init__(self, crd, locator):
@@ -138,6 +111,8 @@ class CompCard:
                 return
         if col == 1:
             try:
+                if row in self._crd.get("extinguished", ()):
+                    return str(self._crd["reflexes"][row][1]) + " *"
                 return str(self._crd["reflexes"][row][1])
             except (KeyError, IndexError):
                 return
@@ -166,6 +141,12 @@ class CompCard:
 
     def set(self, row, col, data):
         return
+
+    def switch(self, rows):
+        if not rows:
+            return
+        self._crd["extinguished"] = list(
+            set(self._crd.get("extinguished", ())).symmetric_difference(rows))
 
 
 class CompCards(Tabular):
@@ -201,6 +182,16 @@ class CompCards(Tabular):
                 return card.set(row - nr, col, data)
             nr += card.rows
 
+    def on_del_pressed(self, cells):
+        start = 0
+        cells = list(cells)
+        for card in self._comp_cards:
+            end = start + card.rows
+            card.switch(set(c[0] - start for c in cells
+                            if c[0] >= start and c[0] < end))
+            start = end
+        self.refresh()
+
 
 class AssumedCards(Spreadsheet):
     def __init__(self, idat):
@@ -223,44 +214,6 @@ class AssumedCards(Spreadsheet):
 
     def reread(self):
         self._tab.from_origin()
-
-    def shift_by(self):
-        sels = [c[0] for c in self.get_selected_cells() if c[1] == 0]
-        if not sels:
-            self.print_error(_("No cells selected."))
-            return
-        shift = Value(lfloat())
-        dlgr = self.input_dialog(_("Shift selected cells"),
-                                 [(_("Shift by:"), shift)])
-        if dlgr is None:
-            return
-        for i in sels:
-            self._tab.get(i, 0).shift_in_units(shift.get())
-
-
-class AssumedRefl(Spreadsheet):
-    def __init__(self, idat):
-        self._xrd = idat
-        self._tab = tab = Table(
-            idat.extra_data.setdefault("AssumedReflexes", []),
-            ["x\u2080", _("Comment")])
-        self._ploc = to_show = PeakLocator("sin", idat.lambda1)
-        super().__init__(str(idat.name) + _(" (assumed reflexes)"), tab)
-        self.reread()
-        self.menu.append_item((_edit,), _("Shift by..."),
-                              self.shift_by, None)
-        self.show()
-
-        def select_units(u):
-            to_show.units = ["sin", "d", "d2", "theta", "2theta"][u]
-            tab.refresh()
-
-        self.set_form([(_("Units to display %s:") % "x\u2080", (
-            "sin(\u03b8)", "d (\u212b)", "d\u207b\u00b2 (\u212b\u207b\u00b2)",
-            "\u03b8 (\u00b0)", "2\u03b8 (\u00b0)"), select_units)])
-
-    def reread(self):
-        self._tab.from_origin(self._ploc)
 
     def shift_by(self):
         sels = [c[0] for c in self.get_selected_cells() if c[1] == 0]
