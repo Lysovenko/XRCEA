@@ -63,7 +63,10 @@ class X0Cell(TabCell):
 
     @property
     def value(self):
-        return format_string("%.5g", self._display(self.__value))
+        try:
+            return format_string("%.5g", self._display(self.__value))
+        except (ZeroDivisionError, ValueError):
+            return _("#VALUE!")
 
     @value.setter
     def value(self, val):
