@@ -280,7 +280,7 @@ def chi2n(d1a, d2a, poss):
     inds = [((d2a**2 - i)**2).argmin() for i in d1a**2]
     iset = unique(inds)
     ave = aver(poss.transpose()[inds])
-    return aver(dev) * var(dev)**2 * (len(d1a) - len(iset))**2 * ave**2
+    return aver(dev) * var(dev)**2 * ((len(d1a) - len(iset))**2 + 1) * ave**2
 
 
 class FitIndices:
