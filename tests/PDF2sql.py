@@ -174,7 +174,7 @@ class NIST_Card:
                         cellparams.append(sst and float(sst) or None)
                     self.cellparams = tuple(cellparams)
             elif row_type == '3':
-                sgr = buf[0:10].strip()
+                sgr = buf[0:8].strip()
                 self.spc_grp = "'%s'" % sgr if sgr else "NULL"
             elif row_type == '8':
                 self.set_content_buf(buf)
