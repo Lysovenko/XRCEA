@@ -38,7 +38,10 @@ def plot_over(pddb, xrd, cur=None):
                 break
     if not plt["plots"]:
         return
-    plt["plots"][0]["ylim"] = limits[0]["ylim"]
+    try:
+        plt["plots"][0]["ylim"] = limits[0]["ylim"]
+    except KeyError:
+        pass
     xrd.remember_plot(_name, "pddb_pattern")
     plot.add_plot(_name, extend_plt(plt, xrd, pddb, cur))
     plot.draw(_name)
