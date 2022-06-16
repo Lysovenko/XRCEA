@@ -61,13 +61,13 @@ class Value:
         return self.value.__float__()
 
 
-def lfloat(noless=None, nomore=None):
+def lfloat(noless=None, nomore=None, default=0):
     """limited float"""
     if nomore is not None and noless is not None and nomore <= noless:
         raise ValueError("minimal value is more or equal than maximum")
 
     class efloat(float):
-        def __new__(cls, value=0):
+        def __new__(cls, value=default):
             if isinstance(value, str):
                 value = atof(value)
             if value is None and noless is not None:

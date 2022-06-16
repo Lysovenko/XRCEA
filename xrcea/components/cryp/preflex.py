@@ -153,6 +153,10 @@ class CompCard:
         self._crd["extinguished"] = list(
             set(self._crd.get("extinguished", ())).symmetric_difference(rows))
 
+    def resize_by(self, factor):
+        for r in self._crd["reflexes"]:
+            r[0] *= factor
+
 
 class CompCards(Tabular):
     """Cards to compare with"""
@@ -197,6 +201,16 @@ class CompCards(Tabular):
             start = end
         self.refresh()
 
+    def resize_by(self, factor, cells):
+        start = 0
+        for card in self._comp_cards:
+            end = start + card.rows
+            if [1 for c in cells
+                    if c[0] >= start and c[0] < end]:
+                card.resize_by(factor)
+            start = end
+        self.refresh()
+
 
 class AssumedCards(Spreadsheet):
     def __init__(self, idat):
@@ -207,6 +221,8 @@ class AssumedCards(Spreadsheet):
         self.reread()
         self.menu.append_item((_edit,), _("Shift by..."),
                               self.shift_by, None)
+        self.menu.append_item((_edit,), _("Resize by..."),
+                              self.resize_by, None)
         self.show()
 
         def select_units(u):
@@ -232,6 +248,18 @@ class AssumedCards(Spreadsheet):
             return
         for i in sels:
             self._tab.get(i, 0).shift_in_units(shift.get())
+
+    def resize_by(self):
+        sels = list(self.get_selected_cells())
+        if not sels:
+            self.print_error(_("No cards selected."))
+            return
+        factor = Value(lfloat(0.001, 5., 1.))
+        dlgr = self.input_dialog(_("Resize selected cards"),
+                                 [(_("Resize by:"), factor)])
+        if dlgr is None:
+            return
+        self._tab.resize_by(factor.get(), sels)
 
 
 def show_assumed(idat):
