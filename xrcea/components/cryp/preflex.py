@@ -94,9 +94,13 @@ class CompCard:
         self._crd = crd
         self._locator = locator
         self._parnames = [_("Number"), _("Name"), _("Formula")]
+        self._par_ids = ["number", "name", "formula"]
         params = crd.get("params", ())
         self._cellpars = [i for i in "a b c alpha beta gamma".split()
                           if i in params]
+        if crd.get("spacegroup"):
+            self._parnames.append(_("Spacegroup"))
+            self._par_ids.append("spacegroup")
         self._parnames.extend(self._cellpars)
         self.rows = max((len(crd["reflexes"]), len(self._parnames)))
 
@@ -127,15 +131,16 @@ class CompCard:
             except IndexError:
                 return
         if col == 4:
-            if row == 0:
-                return self._crd["number"]
-            if row == 1:
-                return self._crd["name"]
-            if row == 2:
-                return self._crd["formula"]
+            try:
+                return self._crd[self._par_ids[row]]
+            except KeyError:
+                return
+            except IndexError:
+                pass
             try:
                 return format_string(
-                    "%.5g", self._crd["params"][self._cellpars[row - 3]])
+                    "%.5g", self._crd["params"][self._cellpars[
+                        row - len(self._par_ids)]])
             except (KeyError, IndexError):
                 return
 
