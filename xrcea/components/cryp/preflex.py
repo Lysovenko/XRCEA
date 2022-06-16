@@ -145,7 +145,8 @@ class CompCard:
                 return
 
     def set(self, row, col, data):
-        return
+        if col == 0:
+            return self._fit_resize(row, data)
 
     def switch(self, rows):
         if not rows:
@@ -156,6 +157,20 @@ class CompCard:
     def resize_by(self, factor):
         for r in self._crd["reflexes"]:
             r[0] *= factor
+        for p in ("a", "b", "c"):
+            try:
+                self._crd["params"][p] *= factor
+            except KeyError:
+                pass
+
+    def _fit_resize(self, row, data):
+        try:
+            before = self._crd["reflexes"][row][0]
+            after = self._locator.to_d(atof(str(data)))
+            factor = abs(after / before)
+        except (KeyError, IndexError, ValueError, ZeroDivisionError):
+            return
+        self.resize_by(factor)
 
 
 class CompCards(Tabular):
