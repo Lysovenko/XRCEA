@@ -268,7 +268,7 @@ class XrayData:
         plt = self.UIs.get("main")
         for n, p in sorted(self._saved_plots.items()):
             plot = self.abstraction2plot(p)
-            if plt is not None:
+            if plot is not None:
                 plt.add_plot(n, plot)
 
     def abstraction2plot(self, abstr: Union[str, Dict[str, Dict]]):
