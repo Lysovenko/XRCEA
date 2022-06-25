@@ -162,7 +162,7 @@ class Database:
             if type(res) is int:
                 err = []
                 if res | 1:
-                    err.append("vany mentions of one element")
+                    err.append("many mentions of one element")
                 if res | 2:
                     err.append("uncnown element found")
                 if res | 4:
@@ -253,8 +253,9 @@ class Database:
         :returns: list of cards
         """
         try:
-            d1, d2, h1, h2 = map(lambda x: float(x.replace(',', '.')),
-                                 req[1:].split())
+            floats = [float(x.replace(',', '.')) for x in req[1:].split()]
+            floats.extend((0., 100.)[len(floats) - 2:])
+            d1, d2, h1, h2 = floats[:4]
         except Exception:
             raise ValueError("Bad values")
         return """SELECT DISTINCT cid as icid FROM reflexes
