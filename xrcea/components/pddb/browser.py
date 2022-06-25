@@ -268,7 +268,8 @@ class Browser(Page):
 
     def _upd_clrs(self):
         rcards = dict(self._colored_cards)
-        rcards[self._cur_card] = "red"
+        if self._cur_card not in rcards:
+            rcards[self._cur_card] = "red"
         clrnms = {n: COLORNAMES[COLORS.index(v)] for n, v in rcards.items()}
         self.cards.update((sn, n, f, clrnms.get(c, ""),
                            (s1, s2, s3, rcards.get(c)), c)
