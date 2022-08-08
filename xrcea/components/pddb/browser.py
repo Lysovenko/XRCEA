@@ -46,6 +46,7 @@ class Browser(Page):
         self._query = Value(str)
         self._colored_cards = {}
         self._marked_cards = db.marked
+        self._filtering = False
         self.search()
         styles = {i: (i, None) for i in COLORS}
         styles["D"] = (None, "red")
@@ -119,11 +120,43 @@ class Browser(Page):
 
     def search(self, query=None):
         """Run search"""
+        if query is not None:
+            query = query.strip()
+            cancel_filter = query == ""
+            apply_filter = query.startswith("*")
+        else:
+            cancel_filter = apply_filter = False
+        if cancel_filter:
+            if not self._filtering:
+                return
+            query = None
         try:
-            cards = self._database.select_cards(query)
+            if apply_filter:
+                xrd = PARAMS.get("XRD")
+                if not xrd:
+                    xrd = XrayData.dummy_by_dialog({"question": _(
+                        "No plot assumed to compare.\n"
+                        "Set your sample params.")})
+                    if xrd is None:
+                        return
+                units = xrd.x_units
+                wavelength = xrd.wavelength
+                cards = self._database.filter_cards(
+                    query[1:], units, wavelength, self.nums)
+            else:
+                cards = self._database.select_cards(query)
         except ValueError as err:
             return print_error(_("Query error"), str(err))
         self._query.update("")
+        if cancel_filter or apply_filter:
+            mrk = self._marked_cards
+            self.cards.update([
+                (switch_number(c), n, f, "", (
+                    set(q), "blue" if c in mrk else None, None, None), c)
+                for c, n, f, q in cards if c in self.nums])
+            self._upd_clrs()
+            self._filtering = apply_filter
+            return
         if query is None:
             nst = "blue"
             self._marked_cards.update(i[0] for i in cards)

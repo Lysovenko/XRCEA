@@ -15,6 +15,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Representation of PDDB cards as Python's objects"""
 
+from locale import atof
 import numpy as np
 from xrcea.core.application import APPLICATION as APP
 from .pddb import Database, formula_markup, switch_number
@@ -89,6 +90,33 @@ class ObjDB:
         if isinstance(self._database, Database):
             return self._database.select_cards(query)
         return []
+
+    def filter_cards(self, query, xtype, wavel, cids):
+        conds = []
+        for chunk in query.split(";"):
+            vals = list(map(atof, chunk.split()))
+            if len(vals) >= 3:
+                a, b, c = vals[:3]
+            elif len(vals) == 2:
+                a, b = vals
+                c = 0.
+            else:
+                raise ValueError("Too short chunk %s" % chunk)
+            if a > b:
+                a, b = b, a
+            conds.append((a, b, c))
+        result = []
+        for cid in cids:
+            refls = self.reflexes(cid)
+            if not refls:
+                continue
+            dis = self.get_di(cid, xtype, wavel)
+            for f, t, mi in conds:
+                gd = (dis[0] >= f).__and__(dis[0] <= t)
+                if (dis[1][gd] >= mi).any():
+                    result.append(cid)
+        return [(c, self.card_name(c), self.formula_markup(c, None),
+                 self.quality(c)) for c in result]
 
     def quality(self, cid):
         if cid in self._db_obj["cards"]:
