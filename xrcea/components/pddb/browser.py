@@ -129,7 +129,6 @@ class Browser(Page):
         if cancel_filter:
             if not self._filtering:
                 return
-            query = None
         try:
             if apply_filter:
                 xrd = PARAMS.get("XRD")
@@ -143,6 +142,8 @@ class Browser(Page):
                 wavelength = xrd.wavelength
                 cards = self._database.filter_cards(
                     query[1:], units, wavelength, self.nums)
+            elif cancel_filter:
+                cards = self._database.list_cards(self.nums)
             else:
                 cards = self._database.select_cards(query)
         except ValueError as err:

@@ -121,6 +121,10 @@ class ObjDB:
         return [(c, self.card_name(c), self.formula_markup(c, None),
                  self.quality(c)) for c in result]
 
+    def list_cards(self, cids):
+        return [(c, self.card_name(c), self.formula_markup(c, None),
+                 self.quality(c)) for c in cids]
+
     def quality(self, cid):
         if cid in self._db_obj["cards"]:
             return self._db_obj["cards"][cid].get("quality")
