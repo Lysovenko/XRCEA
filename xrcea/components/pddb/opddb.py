@@ -111,10 +111,13 @@ class ObjDB:
             if not refls:
                 continue
             dis = self.get_di(cid, xtype, wavel)
+            passed = 0
             for f, t, mi in conds:
-                gd = (dis[0] >= f).__and__(dis[0] <= t)
-                if (dis[1][gd] >= mi).any():
-                    result.append(cid)
+                gd = (dis[0] >= f).__and__(dis[0] <= t).__and__(dis[1] >= mi)
+                if gd.any():
+                    passed += 1
+            if passed == len(conds):
+                result.append(cid)
         return [(c, self.card_name(c), self.formula_markup(c, None),
                  self.quality(c)) for c in result]
 
