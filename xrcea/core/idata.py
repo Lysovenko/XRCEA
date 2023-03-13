@@ -74,13 +74,14 @@ class XrayData:
         ).all()
 
     def set_description(self, dct):
+        self.__dict.clear()
         self.__dict.update(dct)
         for i in ("lambda1", "lambda2", "lambda3", "alpha1", "alpha2",
                   "I2", "I3", "density"):
             try:
                 setattr(self, i, float(dct[i]))
             except(ValueError, KeyError):
-                pass
+                setattr(self, i, None)
         if 'x_units' in dct:
             if dct['x_units'] in ['2theta', "theta", "q"]:
                 self.x_units = dct['x_units']
@@ -467,6 +468,7 @@ def ask_about_sample(sdict):
     sett("last_anode", anode)
     sett("last_filtering", filtering)
     sett("last_axis", xaxis)
+    sdict = {}
     sdict["name"] = name
     sdict["comment"] = rem
     sdict["sample"] = samples[sample]
