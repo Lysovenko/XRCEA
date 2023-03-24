@@ -173,7 +173,9 @@ class VisualList(QTreeView):
         actlist = []
         # TODO: add ability to make context menu with subitems
         for name, function in self.context_menu:
-            actlist.append((cmenu.addAction(name), function))
+            actlist.append((
+                cmenu.addSeparator() if name is None else
+                cmenu.addAction(name), function))
         do_action = cmenu.exec_(self.mapToGlobal(event.pos()))
         for action, function in actlist:
             if do_action == action:

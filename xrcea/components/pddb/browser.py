@@ -58,6 +58,10 @@ class Browser(Page):
         self.set_form([(Button(_("Search:"), self.search), self._query)], True)
         self.set_choicer(self.click_card)
         self.set_list_context_menu([
+            (_("Order by number"), self.order_number),
+            (_("Order by name"), self.order_name),
+            (_("Order by relevance"), self.order_relevance),
+            (None, None),
             (_("Clear deleted"), self.remove_deleted),
             (_("Clear non marked"), self.remove_nonmarked),
             (_("Show on plot as..."), self.add_colored),
@@ -340,6 +344,32 @@ class Browser(Page):
     def get_colors(self, colors):
         self._colored_cards = colors
         self._upd_clrs()
+
+    def order_number(self, row, c=None):
+        self.cards.update(sorted(self.cards.get(), key=lambda x: x[-1]))
+
+    def order_name(self, row, c=None):
+        self.cards.update(sorted(self.cards.get(), key=lambda x: x[1]))
+
+    def order_relevance(self, row, c=None):
+        joined = []
+
+        def progress(status):
+            status["description"] = _("Calculating relevance...")
+            n_items = len(self.cards.get())
+            for i, row in enumerate(self.cards.get()):
+                status["part"] = i / n_items
+                if status.get("stop"):
+                    joined.clear()
+                    break
+                nu, na, fo, pt, (snu, sna, sfo, spt), cn = row
+                joined.append((fo, row))
+            status["complete"] = True
+
+        self.bg_process(progress)
+        if joined:
+            joined.sort(reverse=True)
+            self.cards.update(i[1] for i in joined)
 
 
 def set_plot(plotting):
