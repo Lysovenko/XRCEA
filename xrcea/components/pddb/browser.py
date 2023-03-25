@@ -22,6 +22,7 @@ from xrcea.core.vi.value import Value
 from xrcea.core.application import APPLICATION as APP
 from .pddb import switch_number
 from .plot import plot_over
+from .analyse import mul_plot
 
 PARAMS = {}
 COLORS, COLORNAMES = zip(*(
@@ -352,6 +353,11 @@ class Browser(Page):
         self.cards.update(sorted(self.cards.get(), key=lambda x: x[1]))
 
     def order_relevance(self, row, c=None):
+        try:
+            xrd = PARAMS["XRD"]
+            xrd.extra_data["stripped"]
+        except KeyError:
+            return
         joined = []
 
         def progress(status):
@@ -363,7 +369,7 @@ class Browser(Page):
                     joined.clear()
                     break
                 nu, na, fo, pt, (snu, sna, sfo, spt), cn = row
-                joined.append((fo, row))
+                joined.append((mul_plot(xrd, self._database, cn), row))
             status["complete"] = True
 
         self.bg_process(progress)
