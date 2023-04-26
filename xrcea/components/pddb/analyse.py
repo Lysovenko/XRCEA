@@ -37,5 +37,5 @@ def mul_plot(xrd, pddb, card):
     for (x, y), (w, i) in zip(dis, wavis):
         ys = interp(x, xrd.x_data, scattering, 0., 0.)
         ssum += (ys * y * i).sum()
-        psum += (y * i).sum()
+        psum += ((y * i) ** 2).sum()
     return ssum / psum
