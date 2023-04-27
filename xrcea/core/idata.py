@@ -57,7 +57,7 @@ class XrayData:
                   # diffraction angle of monochromer
                   "alpha1", "alpha2", "name",
                   "x_units", "lambda1", "lambda2", "lambda3",
-                  "I2", "I3"):
+                  "I2", "I3", "comment"):
             setattr(self, i, None)
         if not XrayData.loaders:
             XrayData.loaders.append(XrayData.open_xrd)
@@ -96,6 +96,12 @@ class XrayData:
             self.__sample = dct['sample'].lower()
         if 'name' in dct:
             self.name = dct['name']
+        if 'comment' in dct:
+            comment = dct['comment']
+            if isinstance(comment, list):
+                self.comment = "\n".join(comment)
+            else:
+                self.comment = comment
 
     def _emit_changed(self):
         try:
@@ -137,7 +143,12 @@ class XrayData:
                 if line.startswith('#'):
                     n, p, v = (i.strip() for i in line[1:].partition(':'))
                     if p:
-                        odict[n] = v
+                        if n in odict:
+                            if not isinstance(odict[n], list):
+                                odict[n] = [odict[n]]
+                            odict[n].append(v)
+                        else:
+                            odict[n] = v
                     continue
                 try:
                     x, y = map(float, line.split()[:2])
@@ -315,12 +326,12 @@ class XrayData:
                            "color": "exp_dat"}],
                 "x1label": x_label, "y1label": _("pps"),
                 "x1units": self.x_units,
-                "Comment": self.__dict.get("comment")}
+                "Comment": self.comment}
 
     def get_description(self):
         items = ((i, getattr(self, i, None)) for i in (
             "density", "alpha1", "alpha2", "lambda1", "lambda2", "lambda3",
-            "I2", "I3", "contains", "name", "x_units"))
+            "I2", "I3", "contains", "name", "x_units", "comment"))
         return {k: v for k, v in items if v is not None}
 
     def get_obj(self):
@@ -353,7 +364,8 @@ class XrayData:
         """Get X-ray data from dict"""
         assert xrd["objtype"] == self.objtype
         for i in ("density", "alpha1", "alpha2", "lambda1", "lambda2",
-                  "lambda3", "I2", "I3", "contains", "name", "x_units"):
+                  "lambda3", "I2", "I3", "contains", "name", "x_units",
+                  "comment"):
             try:
                 setattr(self, i, xrd[i])
             except KeyError:
