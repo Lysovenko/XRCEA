@@ -357,6 +357,8 @@ class Browser(Page):
             xrd = PARAMS["XRD"]
             xrd.extra_data["stripped"]
         except KeyError:
+            self.print_error(_("Can't define relevance if the background "
+                               "is not calculated"))
             return
         joined = []
 
