@@ -100,18 +100,21 @@ class Database:
     """
     def __init__(self, path):
         self.connection = None
+        self.connectable = False
+        self.__path = path
         if not isfile(path):
             raise RuntimeError("File not exists")
         try:
-            self.connection = sql.connect(path)
             self.execute("SELECT DISTINCT(quality) FROM about")
         except sql.Error as e:
             raise RuntimeError("Wrong file (%s)" % e)
+        else:
+            self.connectable = True
 
     def __bool__(self):
-        return self.connection is not None
+        return self.connectable
 
-    def execute(self, command, commit=True):
+    def execute(self, command, commit=False):
         """
         :param command: SQL command
         :type command: string
@@ -119,17 +122,27 @@ class Database:
         :type commit: boolean
         :rtype: list
         """
-        cursor = self.connection.cursor()
+        if self.connection is None:
+            connection = sql.connect(self.__path)
+            close = True
+        else:
+            connection = self.connection
+            close = False
+        cursor = connection.cursor()
         cursor.execute(command)
-        if commit:
-            self.connection.commit()
-        return cursor.fetchall()
+        assert(not commit)
+        result = cursor.fetchall()
+        if close:
+            connection.close()
+        return result
 
     def close(self):
         if self.connection:
             self.connection.close()
+            self.connection = None
 
     def __enter__(self):
+        self.connection = sql.connect(self.__path)
         return self
 
     def __exit__(self, tp, val, tb):
