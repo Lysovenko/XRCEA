@@ -17,5 +17,21 @@
 """
 
 from xrcea.core.application import APPLICATION as APP
-from xrcea.core.vi import input_dialog
-from xrcea.core.idata import XrayData
+from xrcea.core.vi import input_dialog, ask_save_filename
+from os.path import splitext, isfile
+
+
+def introduce():
+    APP.menu.append_item(APP.prj_path, _("Save description..."),
+                         save_description, None)
+
+
+def save_description():
+    fname = ask_save_filename(
+        _("Save description"), "",
+        [("*.tex", _("TeX files"))])
+    if fname:
+        if splitext(fname)[1] != ".tex":
+            fname += ".tex"
+        with open(fname, "w") as f:
+            f.write("Hello world\n")
