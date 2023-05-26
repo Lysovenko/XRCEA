@@ -16,25 +16,15 @@
 """
 """
 
-from xrcea.core.application import APPLICATION as APP
-from xrcea.core.vi import input_dialog, ask_save_filename
-from os.path import splitext, isfile
+from xml.etree.ElementTree import tostring, Element, SubElement
 
 
-def introduce():
-    APP.menu.append_item(APP.prj_path, _("Save description..."),
-                         save_description, None)
-
-
-def save_description():
-    fname = ask_save_filename(
-        _("Save description"), "",
-        [("*.html", _("HTML files")), ("*.txt", _("Plain text")),
-         ("*.tex", _("TeX files"))])
-    if fname:
-        if splitext(fname)[1] not in (".html", ".tex", ".txt"):
-            fname += ".html"
-        ext = splitext(fname)[1]
-        if ext == ".html":
-            from .html import write_html
-            write_html((), fname)
+def write_html(descr, filename):
+    html = Element('html')
+    doc = SubElement(html, 'body')
+    h1 = SubElement(doc, 'h1')
+    h1.text = "Hello world's beauty & structure"
+    for elem in descr:
+        pass
+    with open(filename, "wb") as f:
+        f.write(tostring(html))
