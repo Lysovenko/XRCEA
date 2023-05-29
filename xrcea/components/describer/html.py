@@ -17,6 +17,7 @@
 """
 
 from xml.etree.ElementTree import tostring, Element, SubElement
+from xrcea.core.description import *
 
 
 def write_html(descr, filename):
@@ -25,6 +26,9 @@ def write_html(descr, filename):
     h1 = SubElement(doc, 'h1')
     h1.text = "Hello world's beauty & structure"
     for elem in descr:
+        if isinstance(elem, Paragraph):
+            p = SubElement(doc, 'p')
+            p.text = "".join(elem.content)
         pass
     with open(filename, "wb") as f:
         f.write(tostring(html))

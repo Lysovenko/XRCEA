@@ -243,6 +243,10 @@ def add_object(component):
     _CURRENT_PROJECT.add_component(component)
 
 
+def get_objects():
+    return _CURRENT_PROJECT.components()
+
+
 class PreventExit:
     def __bool__(self):
         try:

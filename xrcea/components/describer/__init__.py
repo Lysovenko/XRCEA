@@ -18,12 +18,22 @@
 
 from xrcea.core.application import APPLICATION as APP
 from xrcea.core.vi import input_dialog, ask_save_filename
+from xrcea.core.description import Description
 from os.path import splitext, isfile
 
 
 def introduce():
     APP.menu.append_item(APP.prj_path, _("Save description..."),
                          save_description, None)
+
+
+def get_description():
+    res = Description()
+    for obj in APP.get_objects():
+        for Desc in APP.runtime_data.get("Describers", {}).values():
+            descr = Desc(obj)
+            descr.write(res)
+    return res
 
 
 def save_description():
@@ -37,4 +47,4 @@ def save_description():
         ext = splitext(fname)[1]
         if ext == ".html":
             from .html import write_html
-            write_html((), fname)
+            write_html(get_description(), fname)

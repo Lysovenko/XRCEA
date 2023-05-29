@@ -21,14 +21,8 @@ Description of results and provided actions.
 class Description:
     objtype = "description"
 
-    def __init__(self, obj=None):
+    def __init__(self):
         self.document = []
-
-    def get_obj(self):
-        descr = {objtype: self.objtype}
-        descr["document"] = [i if isinstance(i, dict) else i.get_obj()
-                             for i in self.document]
-        return rescr
 
     def __iter__(self):
         return self.document.__iter__()
@@ -39,12 +33,17 @@ class Description:
     def __len__(self):
         return self.document.__len__()
 
+    def append(self, val):
+        self.document.append(val)
+
 
 class Paragraph:
     __name__ = "Paragraph"
 
-    def __init__(self):
+    def __init__(self, text=None):
         self.content = []
+        if text is not None:
+            self.content.append(text)
 
     def get_obj(self):
         par = {type: self.__name__}

@@ -23,6 +23,7 @@ from .reflex import calc_bg, refl_sects, ReflexDedect, Cryplots
 from .preflex import show_assumed
 from .positions import show_sheet
 from .cellparams import CALCULATORS
+from .describer import Describer
 _DEFAULTS = {"bg_sigmul": 2.0, "bg_polrang": 2, "refl_sigmin": 1e-3,
              "refl_consig": False, "refl_mbells": 10, "refl_bt": 0,
              "refl_ptm": 4, "refloc_sz": "(640,480)", "refl_bf": 2.}
@@ -55,6 +56,8 @@ def introduce():
          "crp_srefl": "magenta"})
     _data["data"]["cell_calc"] = CALCULATORS
     _data["data"]["extra_calcs"] = []
+    describers = APP.runtime_data.setdefault("Describers", {})
+    describers["cryp.Describer"] = Describer
 
 
 def terminate():
