@@ -243,6 +243,10 @@ def add_object(component):
     _CURRENT_PROJECT.add_component(component)
 
 
+def get_name():
+    return _CURRENT_PROJECT.name()
+
+
 def get_objects():
     return _CURRENT_PROJECT.components()
 

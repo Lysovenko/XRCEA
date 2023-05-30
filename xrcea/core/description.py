@@ -19,10 +19,10 @@ Description of results and provided actions.
 
 
 class Description:
-    objtype = "description"
 
     def __init__(self):
         self.document = []
+        self.title = "Hello, world!"
 
     def __iter__(self):
         return self.document.__iter__()
@@ -37,9 +37,17 @@ class Description:
         self.document.append(val)
 
 
-class Paragraph:
-    __name__ = "Paragraph"
+class DescItem:
+    pass
 
+
+class Title(DescItem):
+    def __init__(self, text, level):
+        self.text = text
+        self.level = level
+
+
+class Paragraph(DescItem):
     def __init__(self, text=None):
         self.content = []
         if text is not None:
@@ -60,9 +68,7 @@ class Paragraph:
         return self.content.__len__()
 
 
-class Table:
-    __name__ = "Table"
-
+class Table(DescItem):
     def __init__(self):
         self.content = []
 
@@ -81,9 +87,7 @@ class Table:
         return self.content.__len__()
 
 
-class Row:
-    __name__ = "Row"
-
+class Row(DescItem):
     def __init__(self):
         self.content = []
 
@@ -102,9 +106,7 @@ class Row:
         return self.content.__len__()
 
 
-class Cell:
-    __name__ = "Cell"
-
+class Cell(DescItem):
     def __init__(self):
         self.content = []
 
@@ -121,3 +123,13 @@ class Cell:
 
     def __len__(self):
         return self.content.__len__()
+
+
+class SubScript(DescItem):
+    def __init__(self, text):
+        self.text = text
+
+
+class SuperScript(DescItem):
+    def __init__(self, text):
+        self.text = text

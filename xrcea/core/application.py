@@ -23,7 +23,7 @@ from .vi.menu import DMenu
 from .vi import input_dialog, print_error
 from .project import (
     Project, show_project, save_project_as, save_project, add_object,
-    get_objects, PreventExit, rename_project, open_project)
+    get_objects, get_name, PreventExit, rename_project, open_project)
 
 _ACTUAL_INTERFACE = None
 
@@ -42,6 +42,7 @@ class Application:
         self.register_opener = Opener.register_opener
         self.add_object = add_object
         self.get_objects = get_objects
+        self.get_name = get_name
         self.prevent_exit = PreventExit()
         self.modules = [".qt", ".stdio"]
 
