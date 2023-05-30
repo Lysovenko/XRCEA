@@ -29,5 +29,23 @@ class Describer:
         return hasattr(self, "data")
 
     def write(self, doc):
-        if self:
-            doc.append(Paragraph(f"Hello {self.data.name}"))
+        if not self:
+            return
+        if "crypbells" in self.data.extra_data:
+            self._write_peaks(doc)
+
+    def _write_peaks(self, doc):
+        doc.write(Title(_("Crystall peaks"), 3))
+        cryb = self.data.extra_data["crypbells"]
+        cryb = sorted(map(tuple, cryb.reshape(len(cryb) // 4, 4)))
+        tab = Table()
+        heads = Row()
+        tab.write(heads)
+        for i in ("x\u2080", "h", "w", "s"):
+            heads.write(Cell(i))
+        for t in cryb:
+            r = Row()
+            for i in t:
+                r.write(Cell(str(i)))
+            tab.write(r)
+        doc.write(tab)

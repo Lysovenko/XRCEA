@@ -78,7 +78,10 @@ class Row(DescItem):
 
 
 class Cell(DescItem):
-    pass
+    def __init__(self, text=None):
+        super().__init__()
+        if text is not None:
+            self.write(text)
 
 
 class SubScript(DescItem):
