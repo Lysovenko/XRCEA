@@ -16,6 +16,7 @@
 """
 Description of results and provided actions.
 """
+from locale import format_string
 
 
 class Description:
@@ -78,10 +79,19 @@ class Row(DescItem):
 
 
 class Cell(DescItem):
-    def __init__(self, text=None):
+    def __init__(self, value=None, digits=None):
         super().__init__()
-        if text is not None:
-            self.write(text)
+        if isinstance(value, str):
+            self.write(value)
+        elif isinstance(value, int):
+            self.number = value
+            self.write(str(value))
+        elif isinstance(value, float):
+            self.number = value
+            if digits is None:
+                self.write(format_string("%G", value))
+            else:
+                self.write(format_string("%%.%dG" % digits, value))
 
 
 class SubScript(DescItem):
