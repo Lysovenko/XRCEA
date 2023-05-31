@@ -17,6 +17,7 @@
 """
 from xrcea.core.idata import XrayData
 from xrcea.core.description import *
+from math import asin, pi
 
 
 class Describer:
@@ -41,11 +42,13 @@ class Describer:
         tab = Table()
         heads = Row()
         tab.write(heads)
-        for i in ("x\u2080", "h", "w", "s"):
+        for i in (_("#"), "x\u2080 (2\u03b8\u00b0)", "h", "w", "s"):
             heads.write(Cell(i))
-        for t in cryb:
+        for i, t in enumerate(cryb, 1):
             r = Row()
-            for i in t:
-                r.write(Cell(str(i)))
+            r.write(Cell(i))
+            r.write(Cell(2. * asin(t[0]) * 180. / pi))
+            for i in t[1:]:
+                r.write(Cell(i, 5))
             tab.write(r)
         doc.write(tab)
