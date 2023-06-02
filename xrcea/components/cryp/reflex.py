@@ -24,7 +24,13 @@ _SH_FUNCTIONS = {"Gauss": lambda the_x, x0, h, w:
                  "Lorentz": lambda the_x, x0, h, w:
                  h / (1. + (the_x - x0) ** 2 / w),
                  "Voit": lambda the_x, x0, h, w:
-                 h / (1. + (the_x - x0) ** 2 / w) ** 2}
+                 h / (1. + (the_x - x0) ** 2 / w) ** 2,
+                 "GaussRad": lambda the_x, x0, h, w:
+                 h * np.exp(-((np.arcsin(the_x) - np.arcsin(x0))) ** 2 / w),
+                 "LorentzRad": lambda the_x, x0, h, w:
+                 h / (1. + ((np.arcsin(the_x) - np.arcsin(x0))) ** 2 / w),
+                 "VoitRad": lambda the_x, x0, h, w:
+                 h / (1. + (np.arcsin(the_x) - np.arcsin(x0)) ** 2 / w) ** 2}
 
 
 def calc_bg(sig_x, sig_y, deg, bf=3.):
@@ -312,3 +318,15 @@ class Cryplots:
     @classmethod
     def pVoit(cls, xrd):
         return cls._plot(xrd, "Voit")
+
+    @classmethod
+    def pGaussRad(cls, xrd):
+        return cls._plot(xrd, "GaussRad")
+
+    @classmethod
+    def pLorentzRad(cls, xrd):
+        return cls._plot(xrd, "LorentzRad")
+
+    @classmethod
+    def pVoitRad(cls, xrd):
+        return cls._plot(xrd, "VoitRad")
