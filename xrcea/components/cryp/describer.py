@@ -17,7 +17,10 @@
 """
 from xrcea.core.idata import XrayData
 from xrcea.core.description import *
-from math import asin, pi
+from math import asin, pi, sqrt, log
+
+_GAUSS_RAD_C = 360. / pi * 2. * sqrt(2. * log(2))
+CALCS_FWHM = {"GaussRad": lambda w: sqrt(w / 2.) * _GAUSS_RAD_C}
 
 
 class Describer:
@@ -37,18 +40,25 @@ class Describer:
 
     def _write_peaks(self, doc):
         doc.write(Title(_("Crystall peaks"), 3))
+        try:
+            shape = self.data.extra_data["crypShape"]
+            doc.write(Paragraph(_("Peak shape: %s") % shape))
+        except KeyError:
+            shape = None
         cryb = self.data.extra_data["crypbells"]
         cryb = sorted(map(tuple, cryb.reshape(len(cryb) // 4, 4)))
         tab = Table()
         heads = Row()
         tab.write(heads)
+        transforms = [(lambda x: x) for i in range(4)]
+        transforms[0] = lambda x: 2. * asin(x) * 180. / pi
+        transforms[2] = CALCS_FWHM.get(shape, lambda x: x)
         for i in (_("#"), "x\u2080 (2\u03b8\u00b0)", "h", "w", "s"):
             heads.write(Cell(i))
         for i, t in enumerate(cryb, 1):
             r = Row()
             r.write(Cell(i))
-            r.write(Cell(2. * asin(t[0]) * 180. / pi))
-            for i in t[1:]:
-                r.write(Cell(i, 5))
+            for i, v in enumerate(t):
+                r.write(Cell(transforms[i](v), 5))
             tab.write(r)
         doc.write(tab)

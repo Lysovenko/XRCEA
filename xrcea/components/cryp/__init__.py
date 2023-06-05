@@ -120,6 +120,7 @@ class Mcall:
         if rv is None:
             return
         itms = rv["items"]
+        dat.extra_data["crypShape"] = rv["shape"]
         dat.extra_data["crypbells"] = np.array(itms).flatten()
         _name = _("Peaks description")
         dat.remember_plot(_name, "cryp" + rv["shape"])
@@ -140,6 +141,7 @@ def calculate_reflexes(idata):
     try:
         stripped_y = idata.extra_data["stripped"]
     except KeyError:
+        plot.print_error(_("It is no background calculated."))
         return
     sig2 = _data["bg_sigmul"]
     if idata.lambda2:
