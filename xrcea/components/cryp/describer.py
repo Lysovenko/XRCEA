@@ -19,8 +19,12 @@ from xrcea.core.idata import XrayData
 from xrcea.core.description import *
 from math import asin, pi, sqrt, log
 
-_GAUSS_RAD_C = 360. / pi * 2. * sqrt(2. * log(2))
-CALCS_FWHM = {"GaussRad": lambda w: sqrt(w / 2.) * _GAUSS_RAD_C}
+_GAUSS_RAD_C = 360. / pi * 2. * sqrt(log(2))
+_LORENTZ_RAD_C = 360. / pi * 2.
+_VOIT_RAD_C = 360. / pi * 2. * sqrt(sqrt(2.) - 1.)
+CALCS_FWHM = {"GaussRad": lambda w: sqrt(w) * _GAUSS_RAD_C,
+              "LorentzRad": lambda w: sqrt(w) * _LORENTZ_RAD_C,
+              "VoitRad": lambda w: sqrt(w) * _VOIT_RAD_C}
 
 
 class Describer:
@@ -53,7 +57,8 @@ class Describer:
         transforms = [(lambda x: x) for i in range(4)]
         transforms[0] = lambda x: 2. * asin(x) * 180. / pi
         transforms[2] = CALCS_FWHM.get(shape, lambda x: x)
-        for i in (_("#"), "x\u2080 (2\u03b8\u00b0)", "h", "w", "s"):
+        w = _("FWHM") if shape in CALCS_FWHM else "w"
+        for i in (_("#"), "x\u2080 (2\u03b8\u00b0)", "h", w, "s"):
             heads.write(Cell(i))
         for i, t in enumerate(cryb, 1):
             r = Row()
