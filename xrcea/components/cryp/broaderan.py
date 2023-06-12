@@ -72,7 +72,7 @@ class BroadAn:
         x, y, cos_t = self._x_y_cos_t(cryb)
 
         def min_it(instr):
-            return 1. - self.corr(instr[0], x, y, cos_t)
+            return -abs(self.corr(instr[0], x, y, cos_t))
         opt = fmin(min_it, [inst], initial_simplex=[[inst], [inst / 16.]])
         return opt[0]
 
@@ -82,8 +82,18 @@ class BroadAn:
         size, strain = self.size_strain(name, b_instr)
         cor = self.corr(b_instr,
                         *self._x_y_cos_t(self.cryb[self.selected[name]]))
-        return (f"size = {size}\nstrain = {strain}\ncorr = {cor}\n"
-                "instr = {b_instr}\n")
+        x, y, c = self._x_y_cos_t(self.cryb[self.selected[name]])
+        if len(y):
+            brm = y.max()
+            s = "\n".join("%g\t%g\t%g\t%g" % (
+                (br, self.corr(br, x, y, c)) + self.size_strain(name, br))
+                for br in map(lambda i: i * brm / 100., range(-50, 75)))
+            s += "\n" + "\n".join("%g\t%g" % i for i in zip(x, y * c))
+        else:
+            s = None
+        return (f"name: \"{name}\"\nshape: {self.shape}\n"
+                f"size = {size}\nstrain = {strain}\ncorr = {cor}\n"
+                f"instr = {b_instr}\n{s}\n")
 
     def text_all(self, b_instr=None):
         return "\n".join(self.as_text(name, b_instr) for name in self.selected)
