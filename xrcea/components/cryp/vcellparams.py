@@ -50,6 +50,7 @@ class DisplayCellParams(Page):
                     get_dhkl(ipd, inds)), indset[name]["cell"]
             except KeyError:
                 print(f"TODO: calculator for {indset[name]['cell']}")
+            except ValueError:
                 pass
         self.print_res(res)
 
@@ -70,6 +71,7 @@ class DisplayCellParams(Page):
             bro = BroadAn(self._xrd)
         except KeyError:
             self.print_error(_("Unable to analyze broadering"))
+            return
         self.set_text(bro.text_all())
 
     def wrap_extras(self, extra):
