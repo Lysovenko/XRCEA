@@ -14,7 +14,8 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Analise peaks broadering"""
-from numpy import sqrt, array, corrcoef
+from numpy import pi, log, sqrt, array, corrcoef, vstack, ones
+from numpy.linalg import lstsq
 from scipy.optimize import fmin
 
 _GAUSS_RAD_C = 360. / pi * 2. * sqrt(log(2))
@@ -28,11 +29,13 @@ CALCS_FWHM = {"GaussRad": lambda w: sqrt(w) * _GAUSS_RAD_C,
 class BroadAn:
     def __init__(self, xrd):
         extra_data = xrd.extra_data
-        cryb = extra_data["crypbells"].reshape(len(cryb) // 4, 4)
+        self._lambda = xrd.lambda1
+        cryb = extra_data["crypbells"]
+        cryb = cryb.reshape(len(cryb) // 4, 4)
         self.shape = shape = extra_data["crypShape"]
         cryb[:, 1] = CALCS_FWHM[shape](cryb[:, 2])
         self.cryb = array(sorted(map(tuple, cryb[:, :2])))
-        indexed = {name: set(int(i) for i in v.keys())
+        indexed = {name: set(int(i) for i in v["indices"].keys())
                    for name, v in extra_data["UserIndexes"].items()}
         self.selected = {name: [i in v for i in range(len(cryb))]
                          for name, v in indexed.items()}
@@ -47,13 +50,40 @@ class BroadAn:
     def corr(self, b_instr, x, y, cos_t):
         return corrcoef(x, self.b_samp(b_instr, y) * cos_t)[0, 1]
 
-    def fminstr(self, name):
-        cryb = self.cryb[self.selected[name]]
-        inst = cryb[:, 1].mean() / 2.
+    @staticmethod
+    def _x_y_cos_t(cryb):
         x = cryb[:, 0]
         y = cryb[:, 1]
         cos_t = sqrt(1. - x**2)
+        return x, y, cos_t
+
+    def size_strain(self, name, b_instr):
+        cryb = self.cryb[self.selected[name]]
+        x, y, cos_t = self._x_y_cos_t(cryb)
+        a, b = lstsq(vstack([x, ones(len(x))]).T,
+                     self.b_samp(b_instr, y) * cos_t, rcond=None)[0]
+        L = 0.9 * self._lambda / b
+        E = a / 4
+        return L, E
+
+    def fminstr(self, name):
+        cryb = self.cryb[self.selected[name]]
+        inst = cryb[:, 1].mean()
+        x, y, cos_t = self._x_y_cos_t(cryb)
 
         def min_it(instr):
-            return 1. - self.corr(instr[0], x, y, cos_t)**2
-        opt = fmin(min_it, [inst])
+            return 1. - self.corr(instr[0], x, y, cos_t)
+        opt = fmin(min_it, [inst], initial_simplex=[[inst], [inst / 16.]])
+        return opt[0]
+
+    def as_text(self, name, b_instr=None):
+        if b_instr is None:
+            b_instr = self.fminstr(name)
+        size, strain = self.size_strain(name, b_instr)
+        cor = self.corr(b_instr,
+                        *self._x_y_cos_t(self.cryb[self.selected[name]]))
+        return (f"size = {size}\nstrain = {strain}\ncorr = {cor}\n"
+                "instr = {b_instr}\n")
+
+    def text_all(self, b_instr=None):
+        return "\n".join(self.as_text(name, b_instr) for name in self.selected)

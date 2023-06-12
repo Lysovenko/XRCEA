@@ -17,6 +17,7 @@
 
 from xrcea.core.vi import Page
 from .cellparams import CALCULATORS, get_dhkl
+from .broaderan import BroadAn
 from xrcea.core.application import APPLICATION as APP
 _calculate = _("Calculate")
 
@@ -27,6 +28,8 @@ class DisplayCellParams(Page):
         super().__init__(str(xrd.name) + _(" (cell params)"), None)
         self.menu.append_item((_calculate,), _("Cell parameters"),
                               self.calc_pars, None)
+        self.menu.append_item((_calculate,), _("Peak broadering"),
+                              self.calc_broad, None)
         for name, func in APP.runtime_data["cryp"].get("extra_calcs", []):
             self.menu.append_item((_calculate,), name,
                                   self.wrap_extras(func), None)
@@ -61,6 +64,13 @@ class DisplayCellParams(Page):
                 "%s (%s):\t" % (k, v[1]) + "\t".join(
                     "%s= %g" % t for t in zip(pnr, v[0]) if t[1] is not None)
                 for k, v in res.items()))
+
+    def calc_broad(self):
+        try:
+            bro = BroadAn(self._xrd)
+        except KeyError:
+            self.print_error(_("Unable to analyze broadering"))
+        self.set_text(bro.text_all())
 
     def wrap_extras(self, extra):
         def wrapped():
