@@ -88,7 +88,14 @@ class BroadAn:
             s = "\n".join("%g\t%g\t%g\t%g" % (
                 (br, self.corr(br, x, y, c)) + self.size_strain(name, br))
                 for br in map(lambda i: i * brm / 100., range(-50, 75)))
-            s += "\n" + "\n".join("%g\t%g" % i for i in zip(x, y * c))
+
+            def ex():
+                for j in range(len(x)):
+                    ar = [True] * j + [False] + [True] * (len(x) - j - 1)
+                    yield self.corr(0, x[ar], y[ar], c[ar])
+
+            s += "\n\n" + "\n".join("%g\t%g\t%g" % i
+                                    for i in zip(x, y * c, ex()))
         else:
             s = None
         return (f"name: \"{name}\"\nshape: {self.shape}\n"
