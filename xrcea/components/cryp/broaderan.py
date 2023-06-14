@@ -85,17 +85,20 @@ class BroadAn:
         x, y, c = self._x_y_cos_t(self.cryb[self.selected[name]])
         if len(y):
             brm = y.max()
-            s = "\n".join("%g\t%g\t%g\t%g" % (
+            s = "\n".join("%g\t%.9g\t%g\t%g" % (
                 (br, self.corr(br, x, y, c)) + self.size_strain(name, br))
-                for br in map(lambda i: i * brm / 100., range(-50, 75)))
+                for br in map(lambda i: i * brm / 10000., range(-50, 75)))
 
-            def ex():
+            def ex(br=0):
                 for j in range(len(x)):
                     ar = [True] * j + [False] + [True] * (len(x) - j - 1)
-                    yield self.corr(0, x[ar], y[ar], c[ar])
+                    yield self.corr(br, x[ar], y[ar], c[ar])
 
-            s += "\n\n" + "\n".join("%g\t%g\t%g" % i
-                                    for i in zip(x, y * c, ex()))
+            s += "\n\n" + "\n".join("%g\t%g\t%g\t%g" % i
+                                    for i in zip(
+                                        x, y * c,
+                                        self.b_samp(brm / 3, y) * c,
+                                        self.b_samp(brm / 2, y) * c))
         else:
             s = None
         return (f"name: \"{name}\"\nshape: {self.shape}\n"
