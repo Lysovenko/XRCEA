@@ -17,6 +17,8 @@
 from numpy import pi, log, sqrt, array, corrcoef, vstack, ones
 from numpy.linalg import lstsq
 from scipy.optimize import fmin
+from xrcea.core.description import Paragraph
+
 
 _GAUSS_RAD_C = 360. / pi * 2. * sqrt(log(2))
 _LORENTZ_RAD_C = 360. / pi * 2.
@@ -107,3 +109,13 @@ class BroadAn:
 
     def text_all(self, b_instr=None):
         return "\n".join(self.as_text(name, b_instr) for name in self.selected)
+
+    def to_doc(self, name, b_instr, doc):
+        if b_instr is None:
+            b_instr = self.fminstr(name)
+        size, strain = self.size_strain(name, b_instr)
+        cor = self.corr(b_instr,
+                        *self._x_y_cos_t(self.cryb[self.selected[name]]))
+        doc.write(Paragraph(f"{name}.\n Instrumental: {b_instr}."
+                            f" Size: {size}, Strain: {strain}."
+                            f" Correlation: {cor}"))
