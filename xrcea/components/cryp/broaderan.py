@@ -107,7 +107,7 @@ class BroadAn:
                 f"size = {size}\nstrain = {strain}\ncorr = {cor}\n"
                 f"instr = {b_instr}\n{s}\n")
 
-    def text_all(self, b_instr=None):
+    def to_text(self, b_instr=None):
         return "\n".join(self.as_text(name, b_instr) for name in self.selected)
 
     def to_doc(self, name, b_instr, doc):

@@ -16,7 +16,7 @@
 """Display cell params"""
 
 from xrcea.core.vi import Page
-from .cellparams import CALCULATORS, get_dhkl
+from .cellparams import CellParams
 from .broaderan import BroadAn
 from xrcea.core.application import APPLICATION as APP
 _calculate = _("Calculate")
@@ -37,33 +37,11 @@ class DisplayCellParams(Page):
         self.calc_pars()
 
     def calc_pars(self):
-        cryb = self._xrd.extra_data.get("crypbells")
-        hwave = self._xrd.lambda1 / 2.
-        ipd = sorted(hwave / cryb.reshape(len(cryb) // 4, 4)[:, 0],
-                     reverse=True)
-        indset = self._xrd.extra_data.get("UserIndexes")
-        res = {}
-        for name in indset:
-            inds = indset[name]["indices"]
-            try:
-                res[name] = CALCULATORS[indset[name]["cell"]](
-                    get_dhkl(ipd, inds)), indset[name]["cell"]
-            except KeyError:
-                print(f"TODO: calculator for {indset[name]['cell']}")
-            except ValueError:
-                pass
-        self.print_res(res)
-
-    def print_res(self, res):
-        pnr = ["a", "b", "c", "\u03b1", "\u03b2", "\u03b3", "\\chi^2",
-               "\\sigma^2_a", "\\sigma^2_b", "\\sigma^2_c",
-               "\\sigma^2_\\alpha", "\\sigma^2_\\beta",
-               "\\sigma^2_\\gamma"]
-        self.set_text(
-            "\n".join(
-                "%s (%s):\t" % (k, v[1]) + "\t".join(
-                    "%s= %g" % t for t in zip(pnr, v[0]) if t[1] is not None)
-                for k, v in res.items()))
+        cp = CellParams(self._xrd)
+        if cp:
+            self.set_text(cp.to_text())
+        else:
+            self.print_error(_("Unable to find cell params"))
 
     def calc_broad(self):
         try:
@@ -71,7 +49,7 @@ class DisplayCellParams(Page):
         except KeyError:
             self.print_error(_("Unable to analyze broadering"))
             return
-        self.set_text(bro.text_all())
+        self.set_text(bro.to_text())
 
     def wrap_extras(self, extra):
         def wrapped():

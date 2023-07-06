@@ -19,6 +19,7 @@ from xrcea.core.idata import XrayData
 from xrcea.core.description import *
 from math import asin, pi, sqrt, log
 from .broaderan import BroadAn
+from .cellparams import CellParams
 _GAUSS_RAD_C = 360. / pi * 2. * sqrt(log(2))
 _LORENTZ_RAD_C = 360. / pi * 2.
 _VOIT_RAD_C = 360. / pi * 2. * sqrt(sqrt(2.) - 1.)
@@ -72,5 +73,10 @@ class Describer:
         except KeyError:
             pass
         else:
+            doc.write(Title(_("Broadering analysis"), 4))
             for name in self.data.extra_data["UserIndexes"].keys():
                 bro.to_doc(name, None, doc)
+        cp = CellParams(self.data)
+        if cp:
+            doc.write(Title(_("Cell params"), 4))
+            cp.to_doc(doc)
