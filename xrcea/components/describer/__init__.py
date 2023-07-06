@@ -18,7 +18,7 @@
 
 from xrcea.core.application import APPLICATION as APP
 from xrcea.core.vi import input_dialog, ask_save_filename
-from xrcea.core.description import Description, Title
+from xrcea.core.description import Description, Title, Paragraph
 from os.path import splitext, isfile
 
 
@@ -33,6 +33,10 @@ def get_description():
     res.append(Title(APP.get_name(), 1))
     for obj in APP.get_objects():
         res.append(Title(obj.name, 2))
+        if isinstance(getattr(obj, "comment", None), str):
+            res.append(Title(_("Comment"), 3))
+            for c in obj.comment.splitlines():
+                res.append(Paragraph(c))
         for Desc in APP.runtime_data.get("Describers", {}).values():
             descr = Desc(obj)
             descr.write(res)
