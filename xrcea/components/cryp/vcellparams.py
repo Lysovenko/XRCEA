@@ -59,7 +59,6 @@ class DisplayCellParams(Page):
                "\\sigma^2_a", "\\sigma^2_b", "\\sigma^2_c",
                "\\sigma^2_\\alpha", "\\sigma^2_\\beta",
                "\\sigma^2_\\gamma"]
-        cells = []
         self.set_text(
             "\n".join(
                 "%s (%s):\t" % (k, v[1]) + "\t".join(
