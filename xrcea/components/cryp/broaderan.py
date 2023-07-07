@@ -18,7 +18,7 @@ from locale import format_string
 from numpy import pi, log, sqrt, array, corrcoef, vstack, ones
 from numpy.linalg import lstsq
 from scipy.optimize import fmin
-from xrcea.core.description import Paragraph
+from xrcea.core.description import Table, Row, Cell
 
 
 _GAUSS_RAD_C = 360. / pi * 2. * sqrt(log(2))
@@ -111,13 +111,24 @@ class BroadAn:
     def to_text(self, b_instr=None):
         return "\n".join(self.as_text(name, b_instr) for name in self.selected)
 
-    def to_doc(self, name, b_instr, doc):
-        if b_instr is None:
-            b_instr = self.fminstr(name)
-        size, strain = self.size_strain(name, b_instr)
-        cor = self.corr(b_instr,
-                        *self._x_y_cos_t(self.cryb[self.selected[name]]))
-        p = Paragraph(format_string("Instrumental: %g.", b_instr))
-        p.write(format_string(" Size: %g, Strain: %g.", (size, strain)))
-        p.write(format_string(_(" Correlation: %g"), cor))
-        doc.write(p)
+    def to_doc(self, b_instr, doc):
+        tab = Table()
+        r = Row()
+        for cn in (_("Name"), _("Instrumental"), _("Size"), _("Strain"),
+                   _("Correlation")):
+            r.write(Cell(cn))
+        tab.write(r)
+        for name in sorted(self.selected.keys()):
+            if b_instr is None:
+                b_instr = self.fminstr(name)
+            size, strain = self.size_strain(name, b_instr)
+            cor = self.corr(b_instr,
+                            *self._x_y_cos_t(self.cryb[self.selected[name]]))
+            r = Row()
+            r.write(Cell(name))
+            r.write(Cell(b_instr))
+            r.write(Cell(size))
+            r.write(Cell(strain))
+            r.write(Cell(cor))
+            tab.write(r)
+        doc.write(tab)

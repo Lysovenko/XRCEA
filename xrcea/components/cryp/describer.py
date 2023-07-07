@@ -78,6 +78,4 @@ class Describer:
             pass
         else:
             doc.write(Title(_("Broadering analysis"), 4))
-            for name in self.data.extra_data["UserIndexes"].keys():
-                doc.write(Title(name, 5))
-                bro.to_doc(name, None, doc)
+            bro.to_doc(None, doc)

@@ -22,7 +22,7 @@ from numpy import (
 from numpy.linalg import solve
 from scipy.optimize import fmin
 from itertools import product
-from xrcea.core.description import Paragraph, SubScript, SuperScript, Title
+from xrcea.core.description import SubScript, SuperScript, Table, Row, Cell
 
 
 def get_dhkl(ipd, inds):
@@ -426,19 +426,21 @@ class CellParams:
             for k, v in self.params.items())
 
     def to_doc(self, doc):
+        tab = Table()
+        r = Row()
+        r.write(Cell(_("Name")))
+        for ct in self.pnd:
+            if isinstance(ct, str):
+                c = Cell(ct)
+            else:
+                c = Cell()
+                list(filter(c.write, ct))
+            r.write(c)
+        tab.write(r)
         for k, v in self.params.items():
-            doc.write(Title("%s (%s)" % (k, v[1]), 5))
-            pl = []
-            for n, v in zip(self.pnd, v[0]):
-                if v is not None:
-                    if isinstance(n, str):
-                        pl.append(n)
-                    else:
-                        pl.extend(n)
-                    pl.append("=")
-                    pl.append(format_string("%g", v))
-                    pl.append("; ")
-            pl.pop()
-            p = Paragraph()
-            list(filter(p.write, pl))
-            doc.write(p)
+            r = Row()
+            r.write(Cell("%s (%s)" % (k, v[1])))
+            for v in v[0]:
+                r.write(Cell(v))
+            tab.write(r)
+        doc.write(tab)
