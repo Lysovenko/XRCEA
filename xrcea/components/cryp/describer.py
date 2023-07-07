@@ -68,6 +68,10 @@ class Describer:
                 r.write(Cell(transforms[i](v), 5))
             tab.write(r)
         doc.write(tab)
+        cp = CellParams(self.data)
+        if cp:
+            doc.write(Title(_("Cell params"), 4))
+            cp.to_doc(doc)
         try:
             bro = BroadAn(self.data)
         except KeyError:
@@ -75,8 +79,5 @@ class Describer:
         else:
             doc.write(Title(_("Broadering analysis"), 4))
             for name in self.data.extra_data["UserIndexes"].keys():
+                doc.write(Title(name, 5))
                 bro.to_doc(name, None, doc)
-        cp = CellParams(self.data)
-        if cp:
-            doc.write(Title(_("Cell params"), 4))
-            cp.to_doc(doc)

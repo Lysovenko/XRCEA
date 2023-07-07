@@ -1,4 +1,4 @@
-# XRCEA (C) 2021 Serhii Lysovenko
+# XRCEA (C) 2021-2023 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,13 +15,14 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Calculate cell params"""
 
+from locale import format_string
 from numpy import (
     array, average as aver, arccos, sqrt, sin, cos, tan, zeros, var, unique,
     newaxis, logical_and)
 from numpy.linalg import solve
 from scipy.optimize import fmin
 from itertools import product
-from xrcea.core.description import Paragraph
+from xrcea.core.description import Paragraph, SubScript, SuperScript, Title
 
 
 def get_dhkl(ipd, inds):
@@ -381,10 +382,18 @@ class FitIndices:
 
 
 class CellParams:
-    pnr = ["a", "b", "c", "\u03b1", "\u03b2", "\u03b3", "\\chi^2",
-           "\\sigma^2_a", "\\sigma^2_b", "\\sigma^2_c",
-           "\\sigma^2_\\alpha", "\\sigma^2_\\beta",
-           "\\sigma^2_\\gamma"]
+    pnr = ["a", "b", "c", "\u03b1", "\u03b2", "\u03b3", "\u03c7^2",
+           "\u03c3^2_a", "\u03c3^2_b", "\u03c3^2_c",
+           "\u03c3^2_\u03b1", "\u03c3^2_\u03b2",
+           "\u03c3^2_\u03b3"]
+    pnd = ["a", "b", "c", "\u03b1", "\u03b2", "\u03b3",
+           ("\u03c7", SuperScript("2")),
+           ("\u03c3", SuperScript("2"), SubScript("a")),
+           ("\u03c3", SuperScript("2"), SubScript("b")),
+           ("\u03c3", SuperScript("2"), SubScript("c")),
+           ("\u03c3", SuperScript("2"), SubScript("\u03b1")),
+           ("\u03c3", SuperScript("2"), SubScript("\u03b2")),
+           ("\u03c3", SuperScript("2"), SubScript("\u03b3"))]
 
     def __init__(self, xrd):
         self.params = res = {}
@@ -412,12 +421,24 @@ class CellParams:
     def to_text(self):
         return "\n".join(
             "%s (%s):\t" % (k, v[1]) + "\t".join(
-                "%s= %g" % t for t in zip(self.pnr, v[0]) if t[1] is not None)
+                format_string("%s= %g", t)
+                for t in zip(self.pnr, v[0]) if t[1] is not None)
             for k, v in self.params.items())
 
     def to_doc(self, doc):
         for k, v in self.params.items():
-            doc.write(Paragraph(
-                "%s (%s):\t" % (k, v[1]) + "; ".join(
-                    "%s=%g" % t for t in zip(self.pnr, v[0])
-                    if t[1] is not None)))
+            doc.write(Title("%s (%s)" % (k, v[1]), 5))
+            pl = []
+            for n, v in zip(self.pnd, v[0]):
+                if v is not None:
+                    if isinstance(n, str):
+                        pl.append(n)
+                    else:
+                        pl.extend(n)
+                    pl.append("=")
+                    pl.append(format_string("%g", v))
+                    pl.append("; ")
+            pl.pop()
+            p = Paragraph()
+            list(filter(p.write, pl))
+            doc.write(p)

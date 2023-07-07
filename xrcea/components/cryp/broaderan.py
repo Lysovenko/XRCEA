@@ -14,6 +14,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Analise peaks broadering"""
+from locale import format_string
 from numpy import pi, log, sqrt, array, corrcoef, vstack, ones
 from numpy.linalg import lstsq
 from scipy.optimize import fmin
@@ -87,8 +88,8 @@ class BroadAn:
         x, y, c = self._x_y_cos_t(self.cryb[self.selected[name]])
         if len(y):
             brm = y.max()
-            s = "\n".join("%g\t%.9g\t%g\t%g" % (
-                (br, self.corr(br, x, y, c)) + self.size_strain(name, br))
+            s = "\n".join(format_string("%g\t%.9g\t%g\t%g", (
+                (br, self.corr(br, x, y, c)) + self.size_strain(name, br)))
                 for br in map(lambda i: i * brm / 10000., range(-50, 75)))
 
             def ex(br=0):
@@ -96,7 +97,7 @@ class BroadAn:
                     ar = [True] * j + [False] + [True] * (len(x) - j - 1)
                     yield self.corr(br, x[ar], y[ar], c[ar])
 
-            s += "\n\n" + "\n".join("%g\t%g\t%g\t%g" % i
+            s += "\n\n" + "\n".join(format_string("%g\t%g\t%g\t%g", i)
                                     for i in zip(
                                         x, y * c,
                                         self.b_samp(brm / 3, y) * c,
@@ -116,6 +117,7 @@ class BroadAn:
         size, strain = self.size_strain(name, b_instr)
         cor = self.corr(b_instr,
                         *self._x_y_cos_t(self.cryb[self.selected[name]]))
-        doc.write(Paragraph(f"{name}.\n Instrumental: {b_instr}."
-                            f" Size: {size}, Strain: {strain}."
-                            f" Correlation: {cor}"))
+        p = Paragraph(format_string("Instrumental: %g.", b_instr))
+        p.write(format_string(" Size: %g, Strain: %g.", (size, strain)))
+        p.write(format_string(_(" Correlation: %g"), cor))
+        doc.write(p)
