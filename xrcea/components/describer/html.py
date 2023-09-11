@@ -106,6 +106,9 @@ def _html_from_description(desc: Description):
     html = Element('html')
     head = SubElement(html, "head")
     SubElement(head, "title").text = desc.title
+    SubElement(head, "style").text = "td {border: 1px solid;\n"\
+        "padding: .4ex .7ex;}\n"\
+        "table {border-collapse: collapse;}"
     doc = SubElement(html, 'body')
     for elem in desc:
         if isinstance(elem, DescItem):
