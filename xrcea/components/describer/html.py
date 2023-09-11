@@ -110,10 +110,10 @@ def _html_from_description(desc: Description):
     for elem in desc:
         if isinstance(elem, DescItem):
             doc.append(DESCITEMS[type(elem)](elem))
-    return tostring(html)
+    return tostring(html, encoding="unicode", method="html")
 
 
 def write_html(descr, filename):
     """Write description as HTML"""
-    with open(filename, "wb") as file:
+    with open(filename, "w") as file:
         file.write(_html_from_description(descr))
