@@ -115,7 +115,7 @@ class vi_Project(Lister):
         styles = {}
         self.__currently_alive = None
         super().__init__(project.name(),
-                         [(_("About"), (_("Name"), "Value")),
+                         [(_("Project description"), (_("Name"), _("Value"))),
                           (_("Components"), (_("Type"), _("Name")))],
                          [abouts, components], styles)
         self.show()
