@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-"""Analise peaks broadering"""
+"""Analise peaks broadening"""
 from locale import format_string
 from numpy import pi, log, sqrt, array, corrcoef, vstack, ones
 from numpy.linalg import lstsq
@@ -29,6 +29,9 @@ CALCS_FWHM = {"GaussRad": lambda w: sqrt(w) * _GAUSS_RAD_C,
               "VoitRad": lambda w: sqrt(w) * _VOIT_RAD_C}
 
 
+# TODO: take into account variability of Young's modulus
+# https://doi.org/10.1016/j.scriptamat.2004.05.007
+# http://pd.chem.ucl.ac.uk/pdnn/peaks/broad.htm
 class BroadAn:
     def __init__(self, xrd):
         extra_data = xrd.extra_data
@@ -69,7 +72,7 @@ class BroadAn:
         E = a / 4
         return L, E
 
-    def fminstr(self, name):
+    def fmin_instrumental(self, name):
         cryb = self.cryb[self.selected[name]]
         inst = cryb[:, 1].mean()
         x, y, cos_t = self._x_y_cos_t(cryb)
@@ -81,7 +84,7 @@ class BroadAn:
 
     def as_text(self, name, b_instr=None):
         if b_instr is None:
-            b_instr = self.fminstr(name)
+            b_instr = self.fmin_instrumental(name)
         size, strain = self.size_strain(name, b_instr)
         cor = self.corr(b_instr,
                         *self._x_y_cos_t(self.cryb[self.selected[name]]))
@@ -120,7 +123,7 @@ class BroadAn:
         tab.write(r)
         for name in sorted(self.selected.keys()):
             if b_instr is None:
-                b_instr = self.fminstr(name)
+                b_instr = self.fmin_instrumental(name)
             size, strain = self.size_strain(name, b_instr)
             cor = self.corr(b_instr,
                             *self._x_y_cos_t(self.cryb[self.selected[name]]))

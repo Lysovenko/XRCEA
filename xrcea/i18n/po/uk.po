@@ -222,7 +222,7 @@ msgid "Cell params"
 msgstr "Параметри комірки"
 
 #: ../../components/cryp/describer.py:80
-msgid "Broadering analysis"
+msgid "Broadening analysis"
 msgstr "Аналіз розширень"
 
 #: ../../components/cryp/indexer.py:29
@@ -405,7 +405,7 @@ msgid "Cell parameters"
 msgstr "Параметри комірки"
 
 #: ../../components/cryp/vcellparams.py:31
-msgid "Peak broadering"
+msgid "Peak broadening"
 msgstr "Розширення піку"
 
 #: ../../components/cryp/vcellparams.py:44
@@ -413,7 +413,7 @@ msgid "Unable to find cell params"
 msgstr "Не можу знайти параметри комірки"
 
 #: ../../components/cryp/vcellparams.py:50
-msgid "Unable to analyze broadering"
+msgid "Unable to analyze broadening"
 msgstr "Неможливо проаналізувати розширення"
 
 #: ../../components/describer/__init__.py:26
