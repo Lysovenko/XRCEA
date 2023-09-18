@@ -41,6 +41,8 @@ class BroadAn:
         cryb = extra_data["crypbells"]
         cryb = cryb.reshape(len(cryb) // 4, 4)
         self.shape = shape = extra_data["crypShape"]
+        if self.shape not in ("GaussRad", "LorentzRad"):
+            raise KeyError("Unsupported shape")
         cryb[:, 1] = CALCS_FWHM[shape](cryb[:, 2])
         self.cryb = array(sorted(map(tuple, cryb[:, :2])))
         indexed = {
@@ -53,7 +55,6 @@ class BroadAn:
         }
 
     def b_samp(self, b_instr, b_tot):
-        assert self.shape in ("GaussRad", "LorentzRad")
         if self.shape == "GaussRad":
             return sqrt(b_tot**2 - b_instr**2)
         if self.shape == "LorentzRad":
