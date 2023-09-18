@@ -74,8 +74,10 @@ class BroadAn:
         cryb = self.cryb[self.selected[name]]
         x, y, cos_t = self._x_y_cos_t(cryb)
         a, b = lstsq(
-            vstack([x, ones(len(x))]).T, self.b_samp(b_instr, y) * cos_t,
-            rcond=None)[0]
+            vstack([x, ones(len(x))]).T,
+            self.b_samp(b_instr, y) * cos_t,
+            rcond=None,
+        )[0]
         L = 0.9 * self._lambda / b
         E = a / 4
         return L, E
@@ -95,8 +97,9 @@ class BroadAn:
         if b_instr is None:
             b_instr = self.fmin_instrumental(name)
         size, strain = self.size_strain(name, b_instr)
-        cor = self.corr(b_instr,
-                        *self._x_y_cos_t(self.cryb[self.selected[name]]))
+        cor = self.corr(
+            b_instr, *self._x_y_cos_t(self.cryb[self.selected[name]])
+        )
         x, y, c = self._x_y_cos_t(self.cryb[self.selected[name]])
         if len(y):
             brm = b_instr
@@ -116,7 +119,10 @@ class BroadAn:
             s += "\n\n\n" + "\n".join(
                 format_string("%g\t%g\t%g\t%g", i)
                 for i in zip(
-                    x, y * c, self.b_samp(brm / 3, y) * c, self.b_samp(brm / 2, y) * c
+                    x,
+                    y * c,
+                    self.b_samp(brm / 3, y) * c,
+                    self.b_samp(brm / 2, y) * c,
                 )
             )
         else:
@@ -146,7 +152,9 @@ class BroadAn:
             if b_instr is None:
                 b_instr = self.fmin_instrumental(name)
             size, strain = self.size_strain(name, b_instr)
-            cor = self.corr(b_instr, *self._x_y_cos_t(self.cryb[self.selected[name]]))
+            cor = self.corr(
+                b_instr, *self._x_y_cos_t(self.cryb[self.selected[name]])
+            )
             r = Row()
             r.write(Cell(name))
             r.write(Cell(b_instr))
