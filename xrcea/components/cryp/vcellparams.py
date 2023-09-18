@@ -19,6 +19,8 @@ from xrcea.core.vi import Page
 from .cellparams import CellParams
 from .broadening import BroadAn
 from xrcea.core.application import APPLICATION as APP
+
+_ = __builtins__["_"]
 _calculate = _("Calculate")
 
 
@@ -26,13 +28,12 @@ class DisplayCellParams(Page):
     def __init__(self, xrd):
         self._xrd = xrd
         super().__init__(str(xrd.name) + _(" (cell params)"), None)
-        self.menu.append_item((_calculate,), _("Cell parameters"),
-                              self.calc_pars, None)
-        self.menu.append_item((_calculate,), _("Peak broadening"),
-                              self.calc_broad, None)
+        self.menu.append_item((_calculate,), _("Cell parameters"), self.calc_pars, None)
+        self.menu.append_item(
+            (_calculate,), _("Peak broadening"), self.calc_broad, None
+        )
         for name, func in APP.runtime_data["cryp"].get("extra_calcs", []):
-            self.menu.append_item((_calculate,), name,
-                                  self.wrap_extras(func), None)
+            self.menu.append_item((_calculate,), name, self.wrap_extras(func), None)
         self.show()
         self.calc_pars()
 
