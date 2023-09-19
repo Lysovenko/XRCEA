@@ -159,6 +159,12 @@ class FoundBells(Spreadsheet):
         )
         self.menu.append_item(
             (_treat,),
+            _("Set instrumental broadening..."),
+            self.set_instrumental_broadening,
+            None,
+        )
+        self.menu.append_item(
+            (_treat,),
             _("Calculate Cell parameters"),
             self.calc_cell_params,
             None,
@@ -314,6 +320,24 @@ class FoundBells(Spreadsheet):
         self.value.insert_column(
             self.value.columns, name, lambda x=indices: HklCell(x)
         )
+
+    def set_instrumental_broadening(self):
+        instrumental = self._xrd.extra_data.setdefault("crypInstrumental", {})
+        try:
+            broadening = float(instrumental.get("Broadening", 0.0))
+        except (TypeError, ValueError):
+            broadening = 0.0
+        dlgr = self.input_dialog(
+            _("Instrumental broadening"),
+            [(_("Broadening:"), broadening), (_("Drop:"), False)],
+        )
+        if dlgr is None:
+            return
+        (broadening, drop) = dlgr
+        if drop:
+            instrumental.pop("Broadening")
+        else:
+            instrumental["Broadening"] = broadening
 
     def _clear_auto(self):
         if not self.ask_question(

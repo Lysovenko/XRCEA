@@ -38,6 +38,9 @@ class BroadAn:
     def __init__(self, xrd):
         extra_data = xrd.extra_data
         self._lambda = xrd.lambda1
+        self._instr_broad = extra_data.get("crypInstrumental", {}).get(
+            "Broadening"
+        )
         cryb = extra_data["crypbells"]
         cryb = cryb.reshape(len(cryb) // 4, 4)
         self.shape = shape = extra_data["crypShape"]
@@ -102,7 +105,8 @@ class BroadAn:
         )
         return (size, strain, b_instr, cor)
 
-    def as_text(self, name, b_instr=None):
+    def as_text(self, name):
+        b_instr = self._instr_broad
         size, strain, b_instr, cor = self._params_to_display(name, b_instr)
         x, y, c = self._x_y_cos_t(self.cryb[self.selected[name]])
         if len(y):
@@ -137,10 +141,11 @@ class BroadAn:
             f"instr = {b_instr}\n{s}\n"
         )
 
-    def to_text(self, b_instr=None):
-        return "\n".join(self.as_text(name, b_instr) for name in self.selected)
+    def to_text(self):
+        return "\n".join(self.as_text(name) for name in self.selected)
 
-    def to_doc(self, doc, b_instr=None):
+    def to_doc(self, doc):
+        b_instr = self._instr_broad
         tab = Table()
         r = Row()
         for cn in (
