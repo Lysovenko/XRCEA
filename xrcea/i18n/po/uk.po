@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-11 15:07+0300\n"
+"POT-Creation-Date: 2023-09-19 15:26+0300\n"
 "PO-Revision-Date: 2023-09-11 15:42+0300\n"
 "Last-Translator: Serhii <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -177,51 +177,51 @@ msgstr "Опис рефлексів"
 msgid "Mode"
 msgstr "Режим"
 
-#: ../../components/cryp/broaderan.py:117
+#: ../../components/cryp/broadening.py:147
 #: ../../components/cryp/cellparams.py:431 ../../components/cryp/preflex.py:96
 #: ../../components/pddb/browser.py:56 ../../core/project.py:118
 #: ../../core/project.py:119 ../../core/project.py:171
 msgid "Name"
 msgstr "Назва"
 
-#: ../../components/cryp/broaderan.py:117
-msgid "Instrumental"
-msgstr "Інструментальна"
+#: ../../components/cryp/broadening.py:148
+msgid "Coherent block size"
+msgstr "Розмір когерентного блоку"
 
-#: ../../components/cryp/broaderan.py:117
-msgid "Size"
-msgstr "Розмір"
-
-#: ../../components/cryp/broaderan.py:117
+#: ../../components/cryp/broadening.py:149
 msgid "Strain"
 msgstr "Напруження"
 
-#: ../../components/cryp/broaderan.py:118
-msgid "Correlation"
-msgstr "Кореляція"
+#: ../../components/cryp/broadening.py:150
+msgid "Instrumental broadening"
+msgstr "Інструментальне розширення"
 
-#: ../../components/cryp/describer.py:47
+#: ../../components/cryp/broadening.py:151
+msgid "Correlation Coefficient"
+msgstr "Коефіцієнт кореляції"
+
+#: ../../components/cryp/describer.py:51
 msgid "Crystall peaks"
 msgstr "Кристалічні піки"
 
-#: ../../components/cryp/describer.py:50
+#: ../../components/cryp/describer.py:54
 #, python-format
 msgid "Peak shape: %s"
 msgstr "Профіль піку: %s"
 
-#: ../../components/cryp/describer.py:61
+#: ../../components/cryp/describer.py:65
 msgid "FWHM"
 msgstr "ПШПВ"
 
-#: ../../components/cryp/describer.py:62
+#: ../../components/cryp/describer.py:66
 msgid "#"
 msgstr "№"
 
-#: ../../components/cryp/describer.py:73
+#: ../../components/cryp/describer.py:77
 msgid "Cell params"
 msgstr "Параметри комірки"
 
-#: ../../components/cryp/describer.py:80
+#: ../../components/cryp/describer.py:84
 msgid "Broadening analysis"
 msgstr "Аналіз розширень"
 
@@ -229,106 +229,106 @@ msgstr "Аналіз розширень"
 msgid "Trying to find Miller's indices..."
 msgstr "Намагаюсь знайти індекси Міллера..."
 
-#: ../../components/cryp/positions.py:27
+#: ../../components/cryp/positions.py:33
 msgid "Treat"
 msgstr "Обробка"
 
-#: ../../components/cryp/positions.py:29
+#: ../../components/cryp/positions.py:36
 msgid "Cubic"
 msgstr "Кубічна"
 
-#: ../../components/cryp/positions.py:30
+#: ../../components/cryp/positions.py:37
 msgid "Tetragonal"
 msgstr "Тетрагональна"
 
-#: ../../components/cryp/positions.py:31
+#: ../../components/cryp/positions.py:38
 msgid "Orthorhombic"
 msgstr "Орторомбічна"
 
-#: ../../components/cryp/positions.py:32
+#: ../../components/cryp/positions.py:39
 msgid "Hexagonal"
 msgstr "Гексагональна"
 
-#: ../../components/cryp/positions.py:33
+#: ../../components/cryp/positions.py:40
 msgid "Rhombohedral"
 msgstr "Ромбоедрична"
 
-#: ../../components/cryp/positions.py:34
+#: ../../components/cryp/positions.py:41
 msgid "Monoclinic"
 msgstr "Моноклінна"
 
-#: ../../components/cryp/positions.py:69
+#: ../../components/cryp/positions.py:79
 msgid "#VALUE!"
 msgstr "#ЗНАЧЕННЯ!"
 
-#: ../../components/cryp/positions.py:136
+#: ../../components/cryp/positions.py:148
 msgid " (found reflexes)"
 msgstr " (знайдені рефлекси)"
 
-#: ../../components/cryp/positions.py:139
+#: ../../components/cryp/positions.py:153
 msgid "Try find Miller's indices..."
 msgstr "Спробувати знайти індекси Міллера..."
 
-#: ../../components/cryp/positions.py:141
-msgid "Add user indexes..."
+#: ../../components/cryp/positions.py:158
+msgid "Add user indices..."
 msgstr "Додати користувацькі індекси..."
 
-#: ../../components/cryp/positions.py:143
+#: ../../components/cryp/positions.py:162
 msgid "Calculate Cell parameters"
 msgstr "Розрахувати параметри комірки"
 
-#: ../../components/cryp/positions.py:145
+#: ../../components/cryp/positions.py:167
 msgid "Clear automatic indexation"
 msgstr "Очистити автоматичне індексування"
 
-#: ../../components/cryp/positions.py:148 ../../components/cryp/preflex.py:247
+#: ../../components/cryp/positions.py:173 ../../components/cryp/preflex.py:247
 #, python-format
 msgid "Units to display %s:"
 msgstr "Одиниці для відображення %s:"
 
-#: ../../components/cryp/positions.py:152
+#: ../../components/cryp/positions.py:188
 msgid "Copy all"
 msgstr "Скопіювати все"
 
-#: ../../components/cryp/positions.py:181
+#: ../../components/cryp/positions.py:233
 msgid "Params for search indices"
 msgstr "Параметри для пошуку індексів"
 
-#: ../../components/cryp/positions.py:182
+#: ../../components/cryp/positions.py:235
 msgid "Minimum peaks:"
 msgstr "Мінімум піків:"
 
-#: ../../components/cryp/positions.py:183
+#: ../../components/cryp/positions.py:236
 msgid "Max index:"
 msgstr "Макс. індекс:"
 
-#: ../../components/cryp/positions.py:184
+#: ../../components/cryp/positions.py:237
 msgid "Max results:"
 msgstr "Макс. результатів:"
 
-#: ../../components/cryp/positions.py:191
-#: ../../components/cryp/positions.py:236
+#: ../../components/cryp/positions.py:244
+#: ../../components/cryp/positions.py:298
 msgid "Cell:"
 msgstr "Комірка:"
 
-#: ../../components/cryp/positions.py:201
+#: ../../components/cryp/positions.py:256
 msgid "Number of peaks should be greater than number of free members"
 msgstr "Кількість піків має бути більшою за кількість вільних членів"
 
-#: ../../components/cryp/positions.py:235
+#: ../../components/cryp/positions.py:297
 msgid "New index column"
 msgstr "Нова колонка з індексами"
 
-#: ../../components/cryp/positions.py:236 ../../core/idata.py:462
+#: ../../components/cryp/positions.py:298 ../../core/idata.py:462
 msgid "Name:"
 msgstr "Назва:"
 
-#: ../../components/cryp/positions.py:245
+#: ../../components/cryp/positions.py:308
 #, python-format
 msgid "Index with name `%(n)s' of type %(t)s already exists"
 msgstr "Індекси з іменем %(n)s та типом %(t)s вже існують"
 
-#: ../../components/cryp/positions.py:254
+#: ../../components/cryp/positions.py:320
 msgid "Do remove automatically calculated Miller indices?"
 msgstr "Дійсно видалити автоматично знайдені індекси Міллера?"
 
@@ -352,7 +352,7 @@ msgstr "Просторова група"
 msgid "Parameter"
 msgstr "Параметр"
 
-#: ../../components/cryp/preflex.py:183
+#: ../../components/cryp/preflex.py:183 ../../core/project.py:118
 msgid "Value"
 msgstr "Значення"
 
@@ -392,27 +392,27 @@ msgstr "Змінити розмір обраних карток"
 msgid "Resize by:"
 msgstr "Змінити розмір в:"
 
-#: ../../components/cryp/vcellparams.py:22
+#: ../../components/cryp/vcellparams.py:24
 msgid "Calculate"
 msgstr "Розрахувати"
 
-#: ../../components/cryp/vcellparams.py:28
+#: ../../components/cryp/vcellparams.py:30
 msgid " (cell params)"
 msgstr " (параметри комірки)"
 
-#: ../../components/cryp/vcellparams.py:29
+#: ../../components/cryp/vcellparams.py:31
 msgid "Cell parameters"
 msgstr "Параметри комірки"
 
-#: ../../components/cryp/vcellparams.py:31
+#: ../../components/cryp/vcellparams.py:33
 msgid "Peak broadening"
 msgstr "Розширення піку"
 
-#: ../../components/cryp/vcellparams.py:44
+#: ../../components/cryp/vcellparams.py:45
 msgid "Unable to find cell params"
 msgstr "Не можу знайти параметри комірки"
 
-#: ../../components/cryp/vcellparams.py:50
+#: ../../components/cryp/vcellparams.py:51
 msgid "Unable to analyze broadening"
 msgstr "Неможливо проаналізувати розширення"
 
@@ -809,8 +809,8 @@ msgid "Sample description"
 msgstr "Опис зразка"
 
 #: ../../core/project.py:118
-msgid "About"
-msgstr "Про"
+msgid "Project description"
+msgstr "Опис проекту"
 
 #: ../../core/project.py:119
 msgid "Components"
@@ -892,6 +892,12 @@ msgstr "Файли DAT"
 #, python-format
 msgid "Unable to write %s"
 msgstr "Не можу записати %s"
+
+#~ msgid "Size"
+#~ msgstr "Розмір"
+
+#~ msgid "About"
+#~ msgstr "Про"
 
 #~ msgid "Save cards list"
 #~ msgstr "Зберегти список карток"

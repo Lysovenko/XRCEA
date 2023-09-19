@@ -93,13 +93,17 @@ class BroadAn:
         opt = fmin(min_it, [inst], initial_simplex=[[inst], [inst / 16.0]])
         return opt[0]
 
-    def as_text(self, name, b_instr=None):
+    def _params_to_display(self, name, b_instr):
         if b_instr is None:
             b_instr = self.fmin_instrumental(name)
         size, strain = self.size_strain(name, b_instr)
         cor = self.corr(
             b_instr, *self._x_y_cos_t(self.cryb[self.selected[name]])
         )
+        return (size, strain, b_instr, cor)
+
+    def as_text(self, name, b_instr=None):
+        size, strain, b_instr, cor = self._params_to_display(name, b_instr)
         x, y, c = self._x_y_cos_t(self.cryb[self.selected[name]])
         if len(y):
             brm = b_instr
@@ -136,30 +140,27 @@ class BroadAn:
     def to_text(self, b_instr=None):
         return "\n".join(self.as_text(name, b_instr) for name in self.selected)
 
-    def to_doc(self, b_instr, doc):
+    def to_doc(self, doc, b_instr=None):
         tab = Table()
         r = Row()
         for cn in (
             _("Name"),
-            _("Instrumental"),
-            _("Size"),
+            _("Coherent block size"),
             _("Strain"),
-            _("Correlation"),
+            _("Instrumental broadening"),
+            _("Correlation Coefficient"),
         ):
             r.write(Cell(cn))
         tab.write(r)
         for name in sorted(self.selected.keys()):
-            if b_instr is None:
-                b_instr = self.fmin_instrumental(name)
-            size, strain = self.size_strain(name, b_instr)
-            cor = self.corr(
-                b_instr, *self._x_y_cos_t(self.cryb[self.selected[name]])
+            size, strain, br_instr, cor = self._params_to_display(
+                name, b_instr
             )
             r = Row()
             r.write(Cell(name))
-            r.write(Cell(b_instr))
             r.write(Cell(size))
             r.write(Cell(strain))
+            r.write(Cell(br_instr))
             r.write(Cell(cor))
             tab.write(r)
         doc.write(tab)

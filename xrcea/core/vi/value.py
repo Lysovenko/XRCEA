@@ -74,17 +74,23 @@ def lfloat(noless=None, nomore=None, default=0):
                 value = noless
             if value is None and nomore is not None:
                 value = nomore
-            if noless is not None and value < noless or \
-               nomore is not None and value > nomore:
-                raise ValueError("value is not in range {0}:{1}".format(
-                    noless, nomore))
+            if (
+                noless is not None
+                and value < noless
+                or nomore is not None
+                and value > nomore
+            ):
+                raise ValueError(
+                    "value is not in range {0}:{1}".format(noless, nomore)
+                )
             return float.__new__(cls, value)
 
         def __format__(self, spec):
-            return loc.format_string('%' + spec, self)
+            return loc.format_string("%" + spec, self)
 
         def __str__(self):
             return loc.str(self)
+
     return efloat
 
 
@@ -105,10 +111,12 @@ class TabCell:
 
 
 class Tabular:
-    def __init__(self, rows=None,  # type: Optional[int]
-                 colnames=None,    # type: Optional[List[String]]
-                 coltypes=None     # type: Optional[List[Any]]
-                 ):
+    def __init__(
+        self,
+        rows=None,  # type: Optional[int]
+        colnames=None,  # type: Optional[List[String]]
+        coltypes=None,  # type: Optional[List[Any]]
+    ):
         if rows is not None and cols is not None:
             self._data = [[None] * len(colnames)] * rows
         else:
@@ -116,12 +124,14 @@ class Tabular:
         self._coltypes = coltypes
         self._colnames = colnames
         if coltypes is not None and type(coltypes) is not type(colnames):
-            raise RuntimeError("colnames and coltypes "
-                               "should be the same type")
+            raise RuntimeError(
+                "colnames and coltypes " "should be the same type"
+            )
         try:
             if len(colnames) != len(coltypes):
-                raise RuntimeError("colnames and coltypes "
-                                   "should be the same length")
+                raise RuntimeError(
+                    "colnames and coltypes " "should be the same length"
+                )
         except TypeError:
             pass
         self._updater = None
@@ -173,17 +183,20 @@ class Tabular:
         except Exception:
             pass
 
-    def insert_row(self, index: int,
-                   row=None  # type: Optional[List[Any]]
-                   ):
+    def insert_row(
+        self, index: int, row=None  # type: Optional[List[Any]]
+    ):
         if row is not None and len(row) != self.columns:
-            raise RuntimeError(f"length of row is not appropriate "
-                               "({len(row)} vs {self.columns})")
+            raise RuntimeError(
+                f"length of row is not appropriate "
+                "({len(row)} vs {self.columns})"
+            )
         if row is not None:
             row = list(row)
         try:
             self._data.insert(
-                index, [None] * self.columns if row is None else row)
+                index, [None] * self.columns if row is None else row
+            )
         except AttributeError:
             self._data = [[None] * self.columns if row is None else row]
         for i, c in enumerate(self._data[index]):
@@ -238,11 +251,11 @@ class Tabular:
                     pass
         self.refresh()
 
-    def remove_rows(self, indexes=None):
-        if indexes is None:
+    def remove_rows(self, indices=None):
+        if indices is None:
             self._data.clear()
         else:
-            for index in sorted(indexes, reverse=True):
+            for index in sorted(indices, reverse=True):
                 self._data.pop(index)
             for r, dr in enumerate(self._data[index:], index):
                 for c in dr:
