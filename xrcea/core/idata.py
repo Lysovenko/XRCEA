@@ -41,6 +41,7 @@ class XrayData:
     :param fname: Path to file with X-ray diffraction data.
     :type fname: string
     """
+
     loaders = []
     actions = {(_("Diffractogram"), _("Properties...")): _diff_props}
     plotters = {}
@@ -53,11 +54,23 @@ class XrayData:
         self.extra_data = {}
         self._saved_plots = {}
         self.UIs = {}
-        for i in ("contains", "density", "x_data", "y_data",
-                  # diffraction angle of monochromer
-                  "alpha1", "alpha2", "name",
-                  "x_units", "lambda1", "lambda2", "lambda3",
-                  "I2", "I3", "comment"):
+        for i in (
+            "contains",
+            "density",
+            "x_data",
+            "y_data",
+            # diffraction angle of monochromer
+            "alpha1",
+            "alpha2",
+            "name",
+            "x_units",
+            "lambda1",
+            "lambda2",
+            "lambda3",
+            "I2",
+            "I3",
+            "comment",
+        ):
             setattr(self, i, None)
         if not XrayData.loaders:
             XrayData.loaders.append(XrayData.open_xrd)
@@ -76,28 +89,36 @@ class XrayData:
     def set_description(self, dct):
         self.__dict.clear()
         self.__dict.update(dct)
-        for i in ("lambda1", "lambda2", "lambda3", "alpha1", "alpha2",
-                  "I2", "I3", "density"):
+        for i in (
+            "lambda1",
+            "lambda2",
+            "lambda3",
+            "alpha1",
+            "alpha2",
+            "I2",
+            "I3",
+            "density",
+        ):
             try:
                 setattr(self, i, float(dct[i]))
-            except(ValueError, KeyError):
+            except (ValueError, KeyError):
                 setattr(self, i, None)
-        if 'x_units' in dct:
-            if dct['x_units'] in ['2theta', "theta", "q"]:
-                self.x_units = dct['x_units']
+        if "x_units" in dct:
+            if dct["x_units"] in ["2theta", "theta", "q"]:
+                self.x_units = dct["x_units"]
             else:
                 self.x_units = None
-        if 'contains' in dct:
+        if "contains" in dct:
             try:
-                self.contains = loads(dct['contains'])
+                self.contains = loads(dct["contains"])
             except Exception:
                 self.contains = None
-        if 'sample' in dct:
-            self.__sample = dct['sample'].lower()
-        if 'name' in dct:
-            self.name = dct['name']
-        if 'comment' in dct:
-            comment = dct['comment']
+        if "sample" in dct:
+            self.__sample = dct["sample"].lower()
+        if "name" in dct:
+            self.name = dct["name"]
+        if "comment" in dct:
+            comment = dct["comment"]
             if isinstance(comment, list):
                 self.comment = "\n".join(comment)
             else:
@@ -140,8 +161,8 @@ class XrayData:
         with fobj:
             for line in fobj:
                 line = line.strip()
-                if line.startswith('#'):
-                    n, p, v = (i.strip() for i in line[1:].partition(':'))
+                if line.startswith("#"):
+                    n, p, v = (i.strip() for i in line[1:].partition(":"))
                     if p:
                         if n in odict:
                             if not isinstance(odict[n], list):
@@ -196,10 +217,10 @@ class XrayData:
         if self.x_units == "q":
             return self.x_data
         if self.x_units == "2theta":
-            acoef = np.pi / 360.
+            acoef = np.pi / 360.0
         else:  # self.x_units == "theta"
-            acoef = np.pi / 180.
-        coffee = 4. * np.pi / self.wavelength
+            acoef = np.pi / 180.0
+        coffee = 4.0 * np.pi / self.wavelength
         return coffee * np.sin(self.x_data * acoef)
 
     @property
@@ -207,20 +228,20 @@ class XrayData:
         if self.x_units == "q":
             return None
         if self.x_units == "2theta":
-            acoef = np.pi / 360.
+            acoef = np.pi / 360.0
         else:  # self.x_units == "theta"
-            acoef = np.pi / 180.
+            acoef = np.pi / 180.0
         return np.array(self.x_data) * acoef
 
     @property
     def two_theta(self):
-        acoef = 1.
+        acoef = 1.0
         if self.x_units == "q":
             return None
         if self.x_units == "2theta":
-            acoef = np.pi / 180.
+            acoef = np.pi / 180.0
         else:  # self.x_units == "theta"
-            acoef = np.pi / 90.
+            acoef = np.pi / 90.0
         return np.array(self.x_data) * acoef
 
     def get_y(self):
@@ -234,25 +255,25 @@ class XrayData:
         if ang is None:
             return Iex
         if self.alpha1 is self.alpha2 is None:
-            return Iex / (np.cos(ang) ** 2 + 1.) * 2.
+            return Iex / (np.cos(ang) ** 2 + 1.0) * 2.0
         if self.alpha2 is None:
-            c2a = np.cos(self.alpha1 * np.pi / 90.) ** 2
-            return Iex / (c2a * np.cos(ang) ** 2 + 1.) * (1. + c2a)
+            c2a = np.cos(self.alpha1 * np.pi / 90.0) ** 2
+            return Iex / (c2a * np.cos(ang) ** 2 + 1.0) * (1.0 + c2a)
         if self.alpha1 is None:
-            c2a = np.cos(self.alpha2 * np.pi / 90.) ** 2
-            return Iex / (c2a * np.cos(ang) ** 2 + 1.) * 2.
-        c2a1 = np.cos(self.alpha1 * np.pi / 90.) ** 2
-        c2a2 = np.cos(self.alpha2 * np.pi / 90.) ** 2
-        return Iex / (c2a1 * c2a2 * np.cos(ang) ** 2 + 1.) * (1. + c2a1)
+            c2a = np.cos(self.alpha2 * np.pi / 90.0) ** 2
+            return Iex / (c2a * np.cos(ang) ** 2 + 1.0) * 2.0
+        c2a1 = np.cos(self.alpha1 * np.pi / 90.0) ** 2
+        c2a2 = np.cos(self.alpha2 * np.pi / 90.0) ** 2
+        return Iex / (c2a1 * c2a2 * np.cos(ang) ** 2 + 1.0) * (1.0 + c2a1)
 
     @property
     def wavelength(self):
         try:
             res = getattr(self, "lambda1")
-            n = 1.
+            n = 1.0
         except AttributeError:
-            res = 0.
-            n = 0.
+            res = 0.0
+            n = 0.0
         for i, j in (("lambda2", "I2"), ("lambda3", "I3")):
             try:
                 n += getattr(self, j)
@@ -265,16 +286,16 @@ class XrayData:
         """reverse correct intensity"""
         ang = self.two_theta
         if self.alpha1 is self.alpha2 is None:
-            return Icor / 2. * (np.cos(ang) ** 2 + 1.)
+            return Icor / 2.0 * (np.cos(ang) ** 2 + 1.0)
         if self.alpha2 is None:
-            c2a = np.cos(2. * self.alpha1) ** 2
-            return Icor * (c2a * np.cos(ang) ** 2 + 1.) / (1. + c2a)
+            c2a = np.cos(2.0 * self.alpha1) ** 2
+            return Icor * (c2a * np.cos(ang) ** 2 + 1.0) / (1.0 + c2a)
         if self.alpha1 is None:
-            c2a = np.cos(2. * self.alpha2) ** 2
-            return Icor * (c2a * np.cos(ang) ** 2 + 1.) / 2.
-        c2a1 = np.cos(2. * self.alpha1) ** 2
-        c2a2 = np.cos(2. * self.alpha2) ** 2
-        return Icor * (c2a1 * c2a2 * np.cos(ang) ** 2 + 1.) / (1. + c2a1)
+            c2a = np.cos(2.0 * self.alpha2) ** 2
+            return Icor * (c2a * np.cos(ang) ** 2 + 1.0) / 2.0
+        c2a1 = np.cos(2.0 * self.alpha1) ** 2
+        c2a2 = np.cos(2.0 * self.alpha2) ** 2
+        return Icor * (c2a1 * c2a2 * np.cos(ang) ** 2 + 1.0) / (1.0 + c2a1)
 
     def restore_plots(self):
         plt = self.UIs.get("main")
@@ -309,7 +330,7 @@ class XrayData:
                     try:
                         axdata = self.extra_data[dname]
                     except KeyError:
-                        raise(RuntimeError(f"Incorrect data name {dname}"))
+                        raise (RuntimeError(f"Incorrect data name {dname}"))
                 pplot[axis] = axdata
             pplots.append(pplot)
         return plt
@@ -320,18 +341,40 @@ class XrayData:
         self._emit_changed()
 
     def make_plot(self):
-        x_label = {"theta": "$\\theta$", "2theta": "$2\\theta$",
-                   "q": "q", None: _("Unknown")}[self.x_units]
-        return {"plots": [{"x1": self.x_data, "y1": self.y_data,
-                           "color": "exp_dat"}],
-                "x1label": x_label, "y1label": _("pps"),
-                "x1units": self.x_units,
-                "Comment": self.comment}
+        x_label = {
+            "theta": "$\\theta$",
+            "2theta": "$2\\theta$",
+            "q": "q",
+            None: _("Unknown"),
+        }[self.x_units]
+        return {
+            "plots": [
+                {"x1": self.x_data, "y1": self.y_data, "color": "exp_dat"}
+            ],
+            "x1label": x_label,
+            "y1label": _("pps"),
+            "x1units": self.x_units,
+            "Comment": self.comment,
+        }
 
     def get_description(self):
-        items = ((i, getattr(self, i, None)) for i in (
-            "density", "alpha1", "alpha2", "lambda1", "lambda2", "lambda3",
-            "I2", "I3", "contains", "name", "x_units", "comment"))
+        items = (
+            (i, getattr(self, i, None))
+            for i in (
+                "density",
+                "alpha1",
+                "alpha2",
+                "lambda1",
+                "lambda2",
+                "lambda3",
+                "I2",
+                "I3",
+                "contains",
+                "name",
+                "x_units",
+                "comment",
+            )
+        )
         return {k: v for k, v in items if v is not None}
 
     def get_obj(self):
@@ -363,9 +406,20 @@ class XrayData:
     def from_obj(self, xrd):
         """Get X-ray data from dict"""
         assert xrd["objtype"] == self.objtype
-        for i in ("density", "alpha1", "alpha2", "lambda1", "lambda2",
-                  "lambda3", "I2", "I3", "contains", "name", "x_units",
-                  "comment"):
+        for i in (
+            "density",
+            "alpha1",
+            "alpha2",
+            "lambda1",
+            "lambda2",
+            "lambda3",
+            "I2",
+            "I3",
+            "contains",
+            "name",
+            "x_units",
+            "comment",
+        ):
             try:
                 setattr(self, i, xrd[i])
             except KeyError:
@@ -375,7 +429,7 @@ class XrayData:
         try:
             for n, v in xrd["extras"].items():
                 nda = np.array(v)
-                if nda.dtype.kind in 'if':
+                if nda.ndim > 0 and nda.dtype.kind in "if":
                     self.extra_data[n] = nda
                 else:
                     self.extra_data[n] = v
@@ -399,12 +453,16 @@ class XrayData:
             for mi in sorted(actions.keys()):
                 args = actions[mi]
                 if isinstance(args, tuple):
-                    plt.menu.append_item(mi[:-1], mi[-1],
-                                         lambda x=self, f=args[0]: f(x),
-                                         *args[1:])
+                    plt.menu.append_item(
+                        mi[:-1],
+                        mi[-1],
+                        lambda x=self, f=args[0]: f(x),
+                        *args[1:],
+                    )
                 else:
-                    plt.menu.append_item(mi[:-1], mi[-1],
-                                         lambda x=self, f=args: f(x))
+                    plt.menu.append_item(
+                        mi[:-1], mi[-1], lambda x=self, f=args: f(x)
+                    )
             plt.add_plot(exp_data, self.make_plot())
         self.restore_plots()
         plt.show()
@@ -425,18 +483,23 @@ def ask_about_sample(sdict):
     # Cr, Co, Cu, Mo
     # According to the last re-examination of Holzer et al. (1997)
     #    Ka1      Ka2      Kb1
-    ANODES = {"Cr": (2.289760, 2.293663, 2.084920, .506, .21),
-              "Fe": (1.93604, 1.93998, 1.75661, .491, .182),
-              "Co": (1.789010, 1.792900, 1.620830, .532, .191),
-              "Cu": (1.540598, 1.544426, 1.392250, .46, .158),
-              "Mo": (0.709319, 0.713609, 0.632305, .506, .233),
-              "Ni": (1.65784, 1.66169, 1.50010, .476, .171),
-              "Ag": (0.55936, 0.56378, 0.49701, .5, .2),
-              "W": (0.208992, 0.213813, 0.18439, .5, .2)}
+    ANODES = {
+        "Cr": (2.289760, 2.293663, 2.084920, 0.506, 0.21),
+        "Fe": (1.93604, 1.93998, 1.75661, 0.491, 0.182),
+        "Co": (1.789010, 1.792900, 1.620830, 0.532, 0.191),
+        "Cu": (1.540598, 1.544426, 1.392250, 0.46, 0.158),
+        "Mo": (0.709319, 0.713609, 0.632305, 0.506, 0.233),
+        "Ni": (1.65784, 1.66169, 1.50010, 0.476, 0.171),
+        "Ag": (0.55936, 0.56378, 0.49701, 0.5, 0.2),
+        "W": (0.208992, 0.213813, 0.18439, 0.5, 0.2),
+    }
     danodes = tuple(sorted(ANODES.keys()))
     sett = APP.settings.get
-    filterings = (_("Monochromed"), _("With %s-filter") % "\u03b2",
-                  _("No filtering"))
+    filterings = (
+        _("Monochromed"),
+        _("With %s-filter") % "\u03b2",
+        _("No filtering"),
+    )
     axes = ["2theta", "theta", "q"]
     daxes = ("2\u03b8", "\u03b8", "q: 4\u03c0 sin(\u03b8)/\u03bb")
     samples = ("powder", "liquid")
@@ -459,12 +522,14 @@ def ask_about_sample(sdict):
         axis_guess = axes.index(sdict["x_units"])
     except (IndexError, KeyError):
         axis_guess = sett("last_axis", 0)
-    fields = [(_("Name:"), sdict.get("name", "")),
-              (_("Sample:"), dsamples, sample_guess),
-              (_("Anticatode:"), danodes, anode_guess),
-              (_("Radiation:"), filterings, filter_guess),
-              (_("X axis:"), daxes, axis_guess),
-              (_("Comment:"), sdict.get("comment", ""))]
+    fields = [
+        (_("Name:"), sdict.get("name", "")),
+        (_("Sample:"), dsamples, sample_guess),
+        (_("Anticatode:"), danodes, anode_guess),
+        (_("Radiation:"), filterings, filter_guess),
+        (_("X axis:"), daxes, axis_guess),
+        (_("Comment:"), sdict.get("comment", "")),
+    ]
     question = ""
     if "question" in sdict:
         question = sdict["question"]
@@ -473,8 +538,9 @@ def ask_about_sample(sdict):
     res = input_dialog(_("Sample description"), question, fields)
     if res is None:
         return
-    name, sample, anode, filtering, xaxis, rem = \
+    name, sample, anode, filtering, xaxis, rem = (
         res if "question" not in sdict else [None] + res + [None]
+    )
     sett = APP.settings.set
     sett("last_sample", sample)
     sett("last_anode", anode)
