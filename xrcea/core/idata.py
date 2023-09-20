@@ -18,8 +18,8 @@
 from typing import Dict, Union
 import numpy as np
 from os.path import basename, splitext
-from json import loads, dumps
-from .application import APPLICATION as APP, icon_file
+from json import loads, JSONDecodeError
+from .application import APPLICATION as APP
 from .vi import Plot, input_dialog
 
 
@@ -49,29 +49,25 @@ class XrayData:
     type = _("Diffractogram")
 
     def __init__(self, obj=None):
-        self.__sample = None
+        self._container = None
         self.__dict = {}
         self.extra_data = {}
         self._saved_plots = {}
         self.UIs = {}
-        for i in (
-            "contains",
-            "density",
-            "x_data",
-            "y_data",
-            # diffraction angle of monochromer
-            "alpha1",
-            "alpha2",
-            "name",
-            "x_units",
-            "lambda1",
-            "lambda2",
-            "lambda3",
-            "I2",
-            "I3",
-            "comment",
-        ):
-            setattr(self, i, None)
+        self.contains = None
+        self.density = None
+        self.x_data = None
+        self.y_data = None
+        self.alpha1 = None  # diffraction angle of monochromer
+        self.alpha2 = None
+        self.name = None
+        self.x_units = None
+        self.lambda1 = None
+        self.lambda2 = None
+        self.lambda3 = None
+        self.I2 = None
+        self.I3 = None
+        self.comment = None
         if not XrayData.loaders:
             XrayData.loaders.append(XrayData.open_xrd)
         if isinstance(obj, str):
@@ -111,10 +107,8 @@ class XrayData:
         if "contains" in dct:
             try:
                 self.contains = loads(dct["contains"])
-            except Exception:
+            except (KeyError, JSONDecodeError):
                 self.contains = None
-        if "sample" in dct:
-            self.__sample = dct["sample"].lower()
         if "name" in dct:
             self.name = dct["name"]
         if "comment" in dct:
@@ -157,7 +151,7 @@ class XrayData:
         """
         arr = []
         odict = {}
-        fobj = open(fname)
+        fobj = open(fname, encoding="utf8")
         with fobj:
             for line in fobj:
                 line = line.strip()
@@ -329,8 +323,10 @@ class XrayData:
                 except AttributeError:
                     try:
                         axdata = self.extra_data[dname]
-                    except KeyError:
-                        raise (RuntimeError(f"Incorrect data name {dname}"))
+                    except KeyError as exc:
+                        raise (
+                            RuntimeError(f"Incorrect data name {dname}")
+                        ) from exc
                 pplot[axis] = axdata
             pplots.append(pplot)
         return plt

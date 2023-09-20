@@ -15,17 +15,11 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Spreadsheet with some peaks positions"""
 
-from locale import atof, format_string
+from locale import format_string
 from math import asin, pi
 from xrcea.core.vi.spreadsheet import Spreadsheet
-from xrcea.core.application import APPLICATION as APP
 from xrcea.core.vi.value import Tabular, TabCell, Value, lfloat
-from xrcea.core.vi import (
-    Button,
-    print_information,
-    print_error,
-    copy_to_clipboard,
-)
+from xrcea.core.vi import copy_to_clipboard
 from .indexer import find_indices
 from .vcellparams import show_cell_params
 from .fviewer import show_func_view
@@ -255,7 +249,7 @@ class FoundBells(Spreadsheet):
         )
         if dlgr is None:
             return
-        mp, mi, mr, x, x, x, x, x, x, cs = dlgr
+        mp, mi, mr, _x, _x, _x, _x, _x, _x, cs = dlgr
         ipars = [i.get() for i in (a, b, c, alp, bet, gam)]
         if mp > len(self.cryb):
             mp = len(self.cryb)
@@ -344,7 +338,7 @@ class FoundBells(Spreadsheet):
 
     def _clear_auto(self):
         if not self.ask_question(
-            _("Do remove automatically " "calculated Miller indices?")
+            _("Do remove automatically calculated Miller indices?")
         ):
             return
         val = self.value
