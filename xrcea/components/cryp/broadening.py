@@ -15,7 +15,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Analise peaks broadening"""
 from locale import format_string
-from numpy import pi, log, sqrt, array, corrcoef, vstack, ones
+from numpy import pi, log, sqrt, array, corrcoef, vstack, ones, linspace
 from numpy.linalg import lstsq
 from scipy.optimize import fmin
 from xrcea.core.description import Table, Row, Cell
@@ -103,6 +103,12 @@ class BroadAn:
             b_instr, *self._x_y_cos_t(self.cryb[self.selected[name]])
         )
         return (size, strain, b_instr, cor)
+
+    def plot_correlation(self, name, start, stop, points):
+        x, y, c = self._x_y_cos_t(self.cryb[self.selected[name]])
+        broadening = linspace(start, stop, points)
+        correlation = array([self.corr(br, x, y, c) for br in broadening])
+        return broadening, correlation
 
     def as_text(self, name):
         b_instr = self._instr_broad

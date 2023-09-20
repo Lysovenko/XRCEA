@@ -28,6 +28,7 @@ from xrcea.core.vi import (
 )
 from .indexer import find_indices
 from .vcellparams import show_cell_params
+from .fviewer import show_func_view
 
 _treat = _("Treat")
 CELL_TYPE_C, CELL_PARAMS, CELL_TYPE_N = zip(
@@ -161,6 +162,9 @@ class FoundBells(Spreadsheet):
             _("Set instrumental broadening..."),
             self.set_instrumental_broadening,
             None,
+        )
+        self.menu.append_item(
+            (_treat,), _("Show func viewer"), self.display_func_viewer, None
         )
         self.menu.append_item(
             (_treat,),
@@ -368,6 +372,9 @@ class FoundBells(Spreadsheet):
 
     def calc_cell_params(self):
         show_cell_params(self._xrd)
+
+    def display_func_viewer(self):
+        show_func_view(self._xrd)
 
 
 def show_sheet(xrd):
