@@ -16,7 +16,8 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from .pddb import switch_number
-_name = _("PDDB Pattern")
+d_ = str
+_name = d_("PDDB Pattern")
 
 
 def plot_over(pddb, xrd, cur=None):

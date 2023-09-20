@@ -16,6 +16,7 @@
 """
 """
 
+from locale import format as lformat
 import numpy as np
 from xrcea.core.application import APPLICATION as APP
 from xrcea.core.idata import XrayData
@@ -32,6 +33,7 @@ _BELL_NAMES = (_("Gauss"), _("Lorentz"), _("Pseudo Voit"),
                _("Gauss in radianes"), _("Lorentz in radianes"),
                _("Pseudo Voit in radianes"))
 _data = {"data": APP.runtime_data.setdefault("cryp", {})}
+d_ = str
 
 
 def introduce():
@@ -104,15 +106,14 @@ class Mcall:
                 {"x1": "x_data", "y1": "stripped", "color": "crp_strip"}],
                 "x1label": x_label, "y1label": _("Relative units"),
                 "x1units": dat.x_units}
-            _name = _("Background")
-            dat.remember_plot(_name, plt)
+            dat.remember_plot(d_("Background"), plt)
             plt = {"plots": [{"x1": "x_data", "y1": "stripped",
                               "color": "exp_dat"}],
                    "x1label": x_label, "y1label": _("Relative units"),
                    "x1units": dat.x_units}
-            _name = _("Stripped")
-            dat.remember_plot(_name, plt)
-            plot.draw(_name)
+            plot_name = d_("Stripped")
+            dat.remember_plot(plot_name, plt)
+            plot.draw(plot_name)
 
     def calc_reflexes(self):
         dat = self.data
@@ -122,9 +123,9 @@ class Mcall:
         itms = rv["items"]
         dat.extra_data["crypShape"] = rv["shape"]
         dat.extra_data["crypbells"] = np.array(itms).flatten()
-        _name = _("Peaks description")
-        dat.remember_plot(_name, "cryp" + rv["shape"])
-        dat.UIs["main"].draw(_name)
+        plot_name = d_("Peaks description")
+        dat.remember_plot(plot_name, "cryp" + rv["shape"])
+        dat.UIs["main"].draw(plot_name)
 
     def show_sheet(self):
         dat = self.data
@@ -229,8 +230,8 @@ def reflexes_markup(reflexes):
     wav = reflexes["lambda"]
     for i in reflexes["items"]:
         tbl.append("|-")
-        tbl.append("| %s" % loc.format("%g", i[0]))
-        tbl.append("| %s" % loc.format("%g", wav / 2. / i[0]))
+        tbl.append("| %s" % lformat("%g", i[0]))
+        tbl.append("| %s" % lformat("%g", wav / 2. / i[0]))
         hght = i[1]
         if rti == 1:
             wdth = np.sqrt(i[2]) / wav
@@ -241,9 +242,9 @@ def reflexes_markup(reflexes):
         else:
             wdth = np.sqrt(i[2] / 2.) / wav
             area = hght * wdth * np.sqrt(2. * np.pi)
-        tbl.append("| %s" % loc.format("%g", hght))
-        tbl.append("| %s" % loc.format("%g", wdth))
-        tbl.append("| %s" % loc.format("%g", area))
-        tbl.append("| %s" % loc.format("%g", i[3]))
+        tbl.append("| %s" % lformat("%g", hght))
+        tbl.append("| %s" % lformat("%g", wdth))
+        tbl.append("| %s" % lformat("%g", area))
+        tbl.append("| %s" % lformat("%g", i[3]))
     tbl.append("|}")
     return info + "\n".join(tbl)

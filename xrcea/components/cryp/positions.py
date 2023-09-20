@@ -158,7 +158,8 @@ class FoundBells(Spreadsheet):
             None,
         )
         self.menu.append_item(
-            (_treat,), _("Show func viewer"), self.display_func_viewer, None
+            (_treat,), _("Launch visual analyser"),
+            self.display_func_viewer, None
         )
         self.menu.append_item(
             (_treat,),

@@ -1,5 +1,6 @@
 #!/bin/bash
-git ls-files ../.. | grep \\.py$ | xargs xgettext --language=Python -cNOTE -o xrcea.pot
+git ls-files ../.. | grep \\.py$ | xargs xgettext --language=Python \
+    -cNOTE -o xrcea.pot --keyword='p_:1c,2' --keyword=d_
 msguniq  xrcea.pot -u -o xrcea.pot
 for i in *.po
 do

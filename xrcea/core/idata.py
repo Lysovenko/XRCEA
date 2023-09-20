@@ -294,9 +294,13 @@ class XrayData:
     def restore_plots(self):
         plt = self.UIs.get("main")
         for n, p in sorted(self._saved_plots.items()):
-            plot = self.abstraction2plot(p)
+            try:
+                plot = self.abstraction2plot(p)
+            except RuntimeError as e:
+                plot = None
+                print(e)
             if plot is not None:
-                plt.add_plot(n, plot)
+                plt.add_plot(_(n), plot)
 
     def abstraction2plot(self, abstr: Union[str, Dict[str, Dict]]):
         """
@@ -333,7 +337,7 @@ class XrayData:
 
     def remember_plot(self, name, plot):
         self._saved_plots[name] = plot
-        self.UIs["main"].add_plot(name, self.abstraction2plot(plot))
+        self.UIs["main"].add_plot(_(name), self.abstraction2plot(plot))
         self._emit_changed()
 
     def make_plot(self):
