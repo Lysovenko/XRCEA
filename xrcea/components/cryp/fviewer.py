@@ -43,25 +43,31 @@ class FuncView(Plot):
                     (_("To:"), 1.0),
                     (_("Points:"), 100),
                     (_("Name:"), names),
+                    (_("Show all:"), False),
                 ],
             )
         except (KeyError, AttributeError):
             return
         if dlgr is None:
             return
-        start, stop, points, name = dlgr
+        start, stop, points, name, show_all = dlgr
         name = names[name]
         try:
             bro = BroadAn(self._xrd)
         except KeyError:
             self.print_error(_("Can not launch broadening analyser"))
-        x, y = bro.plot_correlation(name, start, stop, points)
+        if not show_all:
+            names = (name,)
+        plots = []
+        for name in names:
+            x, y = bro.plot_correlation(name, start, stop, points)
+            plots.append({"x1": x, "y1": y, "legend": name})
         self.add_plot(
             "Correlation",
             {
-                "plots": [{"x1": x, "y1": y, "color": "exp_dat"}],
-                "x1label": "Instrumental broadening",
-                "y1label": "Correlation",
+                "plots": plots,
+                "x1label": _("Instrumental broadening"),
+                "y1label": _("Correlation"),
             },
         )
         self.draw("Correlation")
