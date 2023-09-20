@@ -16,13 +16,13 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from .pddb import switch_number
+
 d_ = str
 _name = d_("PDDB Pattern")
 
 
 def plot_over(pddb, xrd, cur=None):
-    """
-    """
+    """ """
     try:
         plot = xrd.UIs["main"]
     except KeyError:
@@ -31,7 +31,7 @@ def plot_over(pddb, xrd, cur=None):
     if plt is None:
         return
     limits = plot.get_limits()
-    if name == _name:
+    if name == _(_name):
         for p in reversed(plt["plots"]):
             if p.get("type") == "pulse":
                 plt["plots"].pop()
@@ -44,8 +44,8 @@ def plot_over(pddb, xrd, cur=None):
     except KeyError:
         pass
     xrd.remember_plot(_name, "pddb_pattern")
-    plot.add_plot(_name, extend_plt(plt, xrd, pddb, cur))
-    plot.draw(_name)
+    plot.add_plot(_(_name), extend_plt(plt, xrd, pddb, cur))
+    plot.draw(_(_name))
 
 
 def restore_plot(xrd):
@@ -69,19 +69,26 @@ def extend_plt(plt, xrd, pddb, cur=None):
     xmin = xrd.x_data.min()
     xmax = xrd.x_data.max()
     units = xrd.x_units
-    wavis = [(wavel, intens) for wavel, intens in (
-        (xrd.lambda1, 1.), (xrd.lambda2, xrd.I2), (xrd.lambda3, xrd.I3))
-        if wavel is not None and intens is not None]
+    wavis = [
+        (wavel, intens)
+        for wavel, intens in (
+            (xrd.lambda1, 1.0),
+            (xrd.lambda2, xrd.I2),
+            (xrd.lambda3, xrd.I3),
+        )
+        if wavel is not None and intens is not None
+    ]
     wavels = tuple(i[0] for i in wavis)
     for card, clr in ((int(i), j) for i, j in colors.items()):
         dis = pddb.get_di(card, units, wavels, (xmin, xmax))
-        for (x, y), lstl, (w, i) in zip(dis, (
-                "solid", "dashed", "dashdot"), wavis):
+        for (x, y), lstl, (w, i) in zip(
+            dis, ("solid", "dashed", "dashdot"), wavis
+        ):
             eplt = {"type": "pulse", "linestyle": lstl, "color": clr}
             if lstl == "solid":
                 eplt["legend"] = "{} ({})".format(
-                    pddb.formula_markup(card, None),
-                    switch_number(card))
+                    pddb.formula_markup(card, None), switch_number(card)
+                )
             eplt["x1"] = x
             eplt["y2"] = y * i
             plt["plots"].append(eplt)

@@ -25,13 +25,27 @@ from .preflex import show_assumed
 from .positions import show_sheet
 from .cellparams import CALCULATORS
 from .describer import Describer
-_DEFAULTS = {"bg_sigmul": 2.0, "bg_polrang": 2, "refl_sigmin": 1e-3,
-             "refl_consig": False, "refl_mbells": 10, "refl_bt": 0,
-             "refl_ptm": 4, "refloc_sz": "(640,480)", "refl_bf": 2.}
+
+_DEFAULTS = {
+    "bg_sigmul": 2.0,
+    "bg_polrang": 2,
+    "refl_sigmin": 1e-3,
+    "refl_consig": False,
+    "refl_mbells": 10,
+    "refl_bt": 0,
+    "refl_ptm": 4,
+    "refloc_sz": "(640,480)",
+    "refl_bf": 2.0,
+}
 _BELL_TYPES = ("Gauss", "Lorentz", "Voit", "GaussRad", "LorentzRad", "VoitRad")
-_BELL_NAMES = (_("Gauss"), _("Lorentz"), _("Pseudo Voit"),
-               _("Gauss in radianes"), _("Lorentz in radianes"),
-               _("Pseudo Voit in radianes"))
+_BELL_NAMES = (
+    _("Gauss"),
+    _("Lorentz"),
+    _("Pseudo Voit"),
+    _("Gauss in radianes"),
+    _("Lorentz in radianes"),
+    _("Pseudo Voit in radianes"),
+)
 _data = {"data": APP.runtime_data.setdefault("cryp", {})}
 d_ = str
 
@@ -39,14 +53,12 @@ d_ = str
 def introduce():
     """Entry point. Declares menu items."""
     p = (_("Diffractogram"),)
-    mitems = [(p + (_("Find background..."),),
-               Mcall(_data, 'calc_bg')),
-              (p + (_("Calc. refl. shapes..."),),
-               Mcall(_data, 'calc_reflexes')),
-              (p + (_("Show found refl. shapes"),),
-               Mcall(_data, 'show_sheet')),
-              (p + (_("Predefined reflexes..."),),
-               show_assumed)]
+    mitems = [
+        (p + (_("Find background..."),), Mcall(_data, "calc_bg")),
+        (p + (_("Calc. refl. shapes..."),), Mcall(_data, "calc_reflexes")),
+        (p + (_("Show found refl. shapes"),), Mcall(_data, "show_sheet")),
+        (p + (_("Predefined reflexes..."),), show_assumed),
+    ]
     for p, e in mitems:
         XrayData.actions[p] = e
     for i in _BELL_TYPES:
@@ -56,8 +68,13 @@ def introduce():
     for n, v in _DEFAULTS.items():
         _data[n] = iget(n, v, "Peaks")
     APP.settings.add_default_colors(
-        {"crp_strip": "blue", "crp_bg": "#FF4500", "crp_refl": "red",
-         "crp_srefl": "magenta"})
+        {
+            "crp_strip": "blue",
+            "crp_bg": "#FF4500",
+            "crp_refl": "red",
+            "crp_srefl": "magenta",
+        }
+    )
     _data["data"]["cell_calc"] = CALCULATORS
     _data["data"]["extra_calcs"] = []
     describers = APP.runtime_data.setdefault("Describers", {})
@@ -82,10 +99,13 @@ class Mcall:
     def calc_bg(self):
         dat = self.data
         plot = dat.UIs.get("main")
-        dlgr = plot.input_dialog(_("Calculate background"), [
-            (_("Sigma multiplier:"), self.idat["bg_sigmul"]),
-            (_("Polynomial's degree:"), self.idat["bg_polrang"]),
-        ])
+        dlgr = plot.input_dialog(
+            _("Calculate background"),
+            [
+                (_("Sigma multiplier:"), self.idat["bg_sigmul"]),
+                (_("Polynomial's degree:"), self.idat["bg_polrang"]),
+            ],
+        )
         if dlgr is not None:
             sigmul, deg = dlgr
             if self.data.x_units != "q":
@@ -98,22 +118,34 @@ class Mcall:
             self.idat["bg_sigmul"] = sigmul
             dat.extra_data["background"] = bgnd = calc_bg(x, y, deg, sigmul)[0]
             dat.extra_data["stripped"] = y - bgnd
-            x_label = {"theta": "$\\theta$", "2theta": "$2\\theta$",
-                       "q": "q", None: _("Unknown")}[dat.x_units]
-            plt = {"plots": [
-                {"x1": "x_data", "y1": "corr_intens", "color": "exp_dat"},
-                {"x1": "x_data", "y1": "background", "color": "crp_bg"},
-                {"x1": "x_data", "y1": "stripped", "color": "crp_strip"}],
-                "x1label": x_label, "y1label": _("Relative units"),
-                "x1units": dat.x_units}
+            x_label = {
+                "theta": "$\\theta$",
+                "2theta": "$2\\theta$",
+                "q": "q",
+                None: _("Unknown"),
+            }[dat.x_units]
+            plt = {
+                "plots": [
+                    {"x1": "x_data", "y1": "corr_intens", "color": "exp_dat"},
+                    {"x1": "x_data", "y1": "background", "color": "crp_bg"},
+                    {"x1": "x_data", "y1": "stripped", "color": "crp_strip"},
+                ],
+                "x1label": x_label,
+                "y1label": _("Relative units"),
+                "x1units": dat.x_units,
+            }
             dat.remember_plot(d_("Background"), plt)
-            plt = {"plots": [{"x1": "x_data", "y1": "stripped",
-                              "color": "exp_dat"}],
-                   "x1label": x_label, "y1label": _("Relative units"),
-                   "x1units": dat.x_units}
+            plt = {
+                "plots": [
+                    {"x1": "x_data", "y1": "stripped", "color": "exp_dat"}
+                ],
+                "x1label": x_label,
+                "y1label": _("Relative units"),
+                "x1units": dat.x_units,
+            }
             plot_name = d_("Stripped")
             dat.remember_plot(plot_name, plt)
-            plot.draw(plot_name)
+            dat.show_plot(plot_name)
 
     def calc_reflexes(self):
         dat = self.data
@@ -125,7 +157,7 @@ class Mcall:
         dat.extra_data["crypbells"] = np.array(itms).flatten()
         plot_name = d_("Peaks description")
         dat.remember_plot(plot_name, "cryp" + rv["shape"])
-        dat.UIs["main"].draw(plot_name)
+        dat.show_plot(plot_name)
 
     def show_sheet(self):
         dat = self.data
@@ -159,10 +191,15 @@ def calculate_reflexes(idata):
     pts_mi = _("Ignore points:"), _data["refl_ptm"], 4
     bf = _("Believe factor:"), _data["refl_bf"]
     alg = 1 if idata.extra_data.get("CompCards") else 0
-    algorithm = _("Mode:"), (_("Without any user assumption"),
-                             _("By predefined reflexes")), alg
-    rv = plot.input_dialog(_("Shapes of reflexes"), [
-        sigmin, consig, mbells, bell_t, bf, pts_mi, algorithm])
+    algorithm = (
+        _("Mode:"),
+        (_("Without any user assumption"), _("By predefined reflexes")),
+        alg,
+    )
+    rv = plot.input_dialog(
+        _("Shapes of reflexes"),
+        [sigmin, consig, mbells, bell_t, bf, pts_mi, algorithm],
+    )
     if rv is None:
         return
     sigmin, consig, mbells, bell_t, bf, pts_mi, algorithm = rv
@@ -183,7 +220,7 @@ def calculate_reflexes(idata):
             for i, r in enumerate(v.get("reflexes", ())):
                 if i not in extinguished:
                     apposs.append(r[0])
-        apposs = idata.lambda1 / 2. / np.array(apposs)
+        apposs = idata.lambda1 / 2.0 / np.array(apposs)
 
     def progress(status):
         status["description"] = _("Calculating shapes of the reflexes...")
@@ -192,24 +229,29 @@ def calculate_reflexes(idata):
             status["part"] = i / lsec
             if status.get("stop"):
                 break
-            print(len(sect), np.arcsin(
-                np.array(sect)[(0, -1), 0]) / np.pi * 360.)
+            print(
+                len(sect),
+                np.arcsin(np.array(sect)[(0, -1), 0]) / np.pi * 360.0,
+            )
             rfd = ReflexDedect(sect, l21, I2)
             if algorithm == 0:
-                reflexes, stdev = rfd.find_bells(sigmin, not consig,
-                                                 mbells, _BELL_TYPES[bell_t])
+                reflexes, stdev = rfd.find_bells(
+                    sigmin, not consig, mbells, _BELL_TYPES[bell_t]
+                )
                 reflexes = list(reflexes)
                 print(reflexes, stdev)
             else:
                 mi = sect[0][0]
                 ma = sect[-1][0]
                 pposs = [i for i in apposs if mi <= i <= ma]
-                reflexes, stdev = rfd.find_bells_pp(_BELL_TYPES[bell_t],
-                                                    pposs, ())
+                reflexes, stdev = rfd.find_bells_pp(
+                    _BELL_TYPES[bell_t], pposs, ()
+                )
             totreflexes.extend(reflexes)
             totsigmas.extend([stdev] * (len(totreflexes) - len(totsigmas)))
-            rfd.x_ar = np.linspace(rfd.x_ar[0], rfd.x_ar[-1],
-                                   len(rfd.x_ar) * 10)
+            rfd.x_ar = np.linspace(
+                rfd.x_ar[0], rfd.x_ar[-1], len(rfd.x_ar) * 10
+            )
             rfd.lambda21 = None
         status["complete"] = True
 
@@ -224,24 +266,26 @@ def reflexes_markup(reflexes):
     info = "\n== %s ==\n\n" % _("Reflexes description")
     rti = _BELL_TYPES.index(reflexes["shape"])
     info += "* %s: %s\n" % (_("Mode"), _BELL_NAMES[rti])
-    info += "\n\n{|\n! x_{0}\n! d\n! h\n! %s\n! S\n! std\n" % \
-        ("\u03c3", "\u03b3", "\u03b3")[rti]
+    info += (
+        "\n\n{|\n! x_{0}\n! d\n! h\n! %s\n! S\n! std\n"
+        % ("\u03c3", "\u03b3", "\u03b3")[rti]
+    )
     tbl = []
     wav = reflexes["lambda"]
     for i in reflexes["items"]:
         tbl.append("|-")
         tbl.append("| %s" % lformat("%g", i[0]))
-        tbl.append("| %s" % lformat("%g", wav / 2. / i[0]))
+        tbl.append("| %s" % lformat("%g", wav / 2.0 / i[0]))
         hght = i[1]
         if rti == 1:
             wdth = np.sqrt(i[2]) / wav
             area = hght * np.pi * wdth
         elif rti == 2:
-            wdth = np.sqrt(i[2]) / wav / 2.
+            wdth = np.sqrt(i[2]) / wav / 2.0
             area = hght * np.pi * wdth
         else:
-            wdth = np.sqrt(i[2] / 2.) / wav
-            area = hght * wdth * np.sqrt(2. * np.pi)
+            wdth = np.sqrt(i[2] / 2.0) / wav
+            area = hght * wdth * np.sqrt(2.0 * np.pi)
         tbl.append("| %s" % lformat("%g", hght))
         tbl.append("| %s" % lformat("%g", wdth))
         tbl.append("| %s" % lformat("%g", area))

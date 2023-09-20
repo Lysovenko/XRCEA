@@ -340,6 +340,9 @@ class XrayData:
         self.UIs["main"].add_plot(_(name), self.abstraction2plot(plot))
         self._emit_changed()
 
+    def show_plot(self, name):
+        self.UIs["main"].draw(_(name))
+
     def make_plot(self):
         x_label = {
             "theta": "$\\theta$",
