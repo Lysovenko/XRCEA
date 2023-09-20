@@ -14,7 +14,6 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Analise peaks broadening"""
-from locale import format_string
 from numpy import pi, log, sqrt, array, corrcoef, vstack, ones, linspace
 from numpy.linalg import lstsq
 from scipy.optimize import fmin
@@ -80,9 +79,9 @@ class BroadAn:
             self.b_samp(b_instr, y) * cos_t,
             rcond=None,
         )[0]
-        L = 0.9 * self._lambda / b
-        E = a / 4
-        return L, E
+        size = 0.9 * self._lambda / b
+        strain = a / 4
+        return size, strain
 
     def fmin_instrumental(self, name):
         cryb = self.cryb[self.selected[name]]
@@ -110,40 +109,18 @@ class BroadAn:
         correlation = array([self.corr(br, x, y, c) for br in broadening])
         return broadening, correlation
 
+    def plot_size_strain(self, name, start, stop, points):
+        broadening = linspace(start, stop, points)
+        size_strain = array([self.size_strain(name, br) for br in broadening])
+        return broadening, size_strain
+
     def as_text(self, name):
         b_instr = self._instr_broad
         size, strain, b_instr, cor = self._params_to_display(name, b_instr)
-        x, y, c = self._x_y_cos_t(self.cryb[self.selected[name]])
-        if len(y):
-            brm = b_instr
-            s = "\n".join(
-                format_string(
-                    "%g\t%.9g\t%g\t%g",
-                    (br, self.corr(br, x, y, c)) + self.size_strain(name, br),
-                )
-                for br in map(lambda i: i * brm / 100.0, range(0, 125))
-            )
-
-            def ex(br=0):
-                for j in range(len(x)):
-                    ar = [True] * j + [False] + [True] * (len(x) - j - 1)
-                    yield self.corr(br, x[ar], y[ar], c[ar])
-
-            s += "\n\n\n" + "\n".join(
-                format_string("%g\t%g\t%g\t%g", i)
-                for i in zip(
-                    x,
-                    y * c,
-                    self.b_samp(brm / 3, y) * c,
-                    self.b_samp(brm / 2, y) * c,
-                )
-            )
-        else:
-            s = None
         return (
             f'name: "{name}"\nshape: {self.shape}\n'
             f"size = {size}\nstrain = {strain}\ncorr = {cor}\n"
-            f"instr = {b_instr}\n{s}\n"
+            f"instr = {b_instr}\n"
         )
 
     def to_text(self):

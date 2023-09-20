@@ -31,6 +31,12 @@ class FuncView(Plot):
             self.calc_broad_corelation,
             None,
         )
+        self.menu.append_item(
+            (_calculate,),
+            _("Size and strain..."),
+            self.calc_size_strain,
+            None,
+        )
 
     def calc_broad_corelation(self):
         """Display dialog to calc correlation"""
@@ -71,6 +77,57 @@ class FuncView(Plot):
             },
         )
         self.draw("Correlation")
+
+    def calc_size_strain(self):
+        """Display dialog to calc siaze and strain"""
+        try:
+            names = tuple(self._xrd.extra_data["UserIndexes"].keys())
+            dlgr = self.input_dialog(
+                _("Set instrumental broadening range"),
+                [
+                    (_("From:"), 0.0),
+                    (_("To:"), 1.0),
+                    (_("Points:"), 100),
+                    (_("Name:"), names),
+                    (_("Show all:"), False),
+                ],
+            )
+        except (KeyError, AttributeError):
+            return
+        if dlgr is None:
+            return
+        start, stop, points, name, show_all = dlgr
+        name = names[name]
+        try:
+            bro = BroadAn(self._xrd)
+        except KeyError:
+            self.print_error(_("Can not launch broadening analyser"))
+        if not show_all:
+            names = (name,)
+        plots = []
+        for name in names:
+            x, y = bro.plot_size_strain(name, start, stop, points)
+            plots.append(
+                {"x1": x, "y1": y[:, 0], "legend": "size " + name, "type": "-"}
+            )
+            plots.append(
+                {
+                    "x1": x,
+                    "y2": y[:, 1],
+                    "legend": "strain " + name,
+                    "type": "--",
+                }
+            )
+        self.add_plot(
+            "Size + Strain",
+            {
+                "plots": plots,
+                "x1label": _("Instrumental broadening"),
+                "y1label": _("Size"),
+                "y2label": _("Strain"),
+            },
+        )
+        self.draw("Size + Strain")
 
 
 def show_func_view(xrd):
