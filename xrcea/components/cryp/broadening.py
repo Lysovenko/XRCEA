@@ -86,13 +86,13 @@ class BroadAn:
 
     def fmin_instrumental(self, name):
         cryb = self.cryb[self.selected[name]]
-        inst = cryb[:, 1].mean()
         x, y, cos_t = self._x_y_cos_t(cryb)
+        inst = y.mean() / 4.0
 
         def min_it(instr):
             return -abs(self.corr(instr[0], x, y, cos_t))
 
-        opt = fmin(min_it, [inst], initial_simplex=[[inst], [inst / 16.0]])
+        opt = fmin(min_it, [inst], initial_simplex=[[inst], [inst / 4.0]])
         return opt[0]
 
     def _params_to_display(self, name, b_instr):
