@@ -21,7 +21,6 @@ from math import asin, pi, sqrt, log
 from .broadening import BroadAn
 from .cellparams import CellParams
 
-_ = __builtins__["_"]
 _GAUSS_RAD_C = 360.0 / pi * 2.0 * sqrt(log(2))
 _LORENTZ_RAD_C = 360.0 / pi * 2.0
 _VOIT_RAD_C = 360.0 / pi * 2.0 * sqrt(sqrt(2.0) - 1.0)

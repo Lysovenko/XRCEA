@@ -29,7 +29,6 @@ from xrcea.core.vi import (
 from .indexer import find_indices
 from .vcellparams import show_cell_params
 
-_ = __builtins__["_"]
 _treat = _("Treat")
 CELL_TYPE_C, CELL_PARAMS, CELL_TYPE_N = zip(
     *(

@@ -23,8 +23,9 @@ from .mixins import DialogsMixin
 
 
 class Plot(DialogsMixin):
-    def __init__(self, name,
-                 class_name=None, identifier=None):
+    """Parent of plots in this APP"""
+
+    def __init__(self, name, class_name=None, identifier=None):
         self.__name = name
         self.identifier = identifier
         self.close_lock = None
@@ -37,8 +38,9 @@ class Plot(DialogsMixin):
         self.plots = {}
         self._currently_showing = None
         self.menu.append_item((_("Plot"),), _("Export DAT"), self.export_dat)
-        self.menu.append_item((_("Plot"),), _("Show comment"),
-                              self.show_comment)
+        self.menu.append_item(
+            (_("Plot"),), _("Show comment"), self.show_comment
+        )
         self.menu.append_item((_("Plot"),), None, None)
 
     @property
@@ -52,7 +54,8 @@ class Plot(DialogsMixin):
         self.__name = name_
 
     def show(self):
-        from ..application import get_actual_interface
+        from ..application import get_actual_interface  # pylint: disable=C0415
+
         get_actual_interface().show_vi(self)
 
     def draw(self, pl_name):
@@ -64,7 +67,7 @@ class Plot(DialogsMixin):
             pass
 
     def add_plot(self, pl_name, plt):
-        """ adds plot with name, where plt is:
+        """adds plot with name, where plt is:
         {"plots": [{
         "type": "-", # ("pulse" or MathPlotLib types)
         "color": None,
@@ -80,8 +83,9 @@ class Plot(DialogsMixin):
         "x1units": "2theta", # used for adding extra plots
         }"""
         if pl_name not in self.plots:
-            self.menu.append_item((_("Plot"),), pl_name,
-                                  lambda x=pl_name, f=self.draw: f(x))
+            self.menu.append_item(
+                (_("Plot"),), pl_name, lambda x=pl_name, f=self.draw: f(x)
+            )
         self.plots[pl_name] = plt
 
     def get_plot(self, pl_name):
@@ -142,20 +146,21 @@ class Plot(DialogsMixin):
                 yarr = plt.get("y2")
                 print("#Second Y", file=fpout)
             for x, y in zip(xarr, yarr):
-                print(x, y, sep='\t', file=fpout)
-            print('\n', file=fpout)
+                print(x, y, sep="\t", file=fpout)
+            print("\n", file=fpout)
 
     def export_dat(self):
         if not self._currently_showing:
             return
         fname = self.ask_save_filename(
-            self._currently_showing + ".dat", [("*.dat", _("DAT files"))])
+            self._currently_showing + ".dat", [("*.dat", _("DAT files"))]
+        )
         if fname:
             if splitext(fname)[1] != ".dat":
                 fname += ".dat"
             try:
-                with open(fname, "w") as fp:
-                    self._export_as_ssv(self._currently_showing, fp)
+                with open(fname, "w", encoding="utf-8") as file:
+                    self._export_as_ssv(self._currently_showing, file)
             except OSError:
                 self.print_error(_("Unable to write %s") % fname)
                 return
