@@ -132,7 +132,7 @@ class BroadAn:
 
     def as_text(self, name):
         b_instr = self._instr_broad
-        out = f"## Name: {name} ##\nShape: {self.shape}\n\n"
+        out = f"\n## Name: {name} ##\n"
         if isinstance(b_instr, float):
             size, strain, b_instr, cor = self._params_to_display(name, b_instr)
             out += (
@@ -141,19 +141,21 @@ class BroadAn:
             )
         size, strain, b_instr, cor = self._params_to_display(name, "cor")
         out += (
-            f"\nInstrumental broadening, optiized by correlation: {b_instr}\n"
+            f"\nInstrumental broadening, optimized by correlation: {b_instr}\n"
             f"size = {size}\nstrain = {strain}\ncorr = {cor}\n"
         )
         size, strain, b_instr, cor = self._params_to_display(name, "size")
         out += (
-            f"\nInstrumental broadening, optiized by size: {b_instr}\n"
+            f"\nInstrumental broadening, optimized by size: {b_instr}\n"
             f"size = {size}\nstrain = {strain}\ncorr = {cor}\n"
         )
 
         return out
 
     def to_text(self):
-        return "\n".join(self.as_text(name) for name in self.selected)
+        return f"Shape: {self.shape}\n" + "\n".join(
+            self.as_text(name) for name in self.selected
+        )
 
     def to_doc(self, doc):
         b_instr = self._instr_broad

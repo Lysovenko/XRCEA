@@ -33,7 +33,7 @@ class DisplayCellParams(Page):
             (_calculate,), _("Cell parameters"), self.calc_pars, None
         )
         self.menu.append_item(
-            (_calculate,), _("Peak broadening"), self.calc_broad, None
+            (_calculate,), _("Analyse Peak broadening"), self.calc_broad, None
         )
         for name, func in APP.runtime_data["cryp"].get("extra_calcs", []):
             self.menu.append_item(
@@ -53,7 +53,7 @@ class DisplayCellParams(Page):
         try:
             bro = BroadAn(self._xrd)
         except KeyError:
-            self.print_error(_("Unable to analyze broadening"))
+            self.print_error(_("Unable to analyse broadening"))
             return
         self.set_text(bro.to_text())
 
