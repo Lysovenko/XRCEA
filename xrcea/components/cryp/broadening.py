@@ -92,7 +92,7 @@ class BroadAn:
         inst = y.mean() / 4.0
 
         def min_it(instr):
-            return -abs(self.corr(instr[0], x, y, cos_t))
+            return -self.corr(instr[0], x, y, cos_t)
 
         opt = fmin(min_it, [inst], initial_simplex=[[inst], [inst / 2.0]])
         return opt[0]
