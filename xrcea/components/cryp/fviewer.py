@@ -165,8 +165,17 @@ class FuncView(Plot):
             self.print_error(_("Can not launch broadening analyser"))
             return
         x, y, lin_x, lin_y = bro.plot_williamson_hall(name, instr_broad)
+        inds = {
+            int(k): v
+            for k, v in self._xrd.extra_data["UserIndexes"][name][
+                "indices"
+            ].items()
+        }
+        annotations = [
+            "(%d %d %d)" % tuple(inds[k]) for k in sorted(inds.keys())
+        ]
         plots = [
-            {"x1": x, "y1": y, "type": "o"},
+            {"x1": x, "y1": y, "type": "o", "annotations": annotations},
             {"x1": lin_x, "y1": lin_y, "type": "-", "color": "green"},
         ]
         pname = _("Williamson-Hall Plot")

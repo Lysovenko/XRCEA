@@ -33,13 +33,27 @@
 # }
 """Display plots"""
 
-from PyQt5.QtCore import (QFile, QFileInfo, QPoint, QSettings, QSize, Qt,
-                          QTextStream)
+from PyQt5.QtCore import (
+    QFile,
+    QFileInfo,
+    QPoint,
+    QSettings,
+    QSize,
+    Qt,
+    QTextStream,
+)
 from PyQt5.QtGui import QIcon, QKeySequence
-from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog,
-                             QMessageBox, QSizePolicy)
+from PyQt5.QtWidgets import (
+    QAction,
+    QApplication,
+    QFileDialog,
+    QMessageBox,
+    QSizePolicy,
+)
 from matplotlib.backends.backend_qt5agg import (
-    FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+    FigureCanvas,
+    NavigationToolbar2QT as NavigationToolbar,
+)
 from matplotlib.figure import Figure
 from .idialog import DialogsMixin
 from .core import qMainWindow
@@ -62,8 +76,8 @@ class Canvas(FigureCanvas):
         self.axes1 = self.figure.add_subplot(111)
         self.axes1.grid(True)
         self.axes2 = None
-        self.axes1.set_xlabel(r'$s,\, \AA^{-1}$')
-        self.axes1.set_ylabel('Intensity')
+        self.axes1.set_xlabel(r"$s,\, \AA^{-1}$")
+        self.axes1.set_ylabel("Intensity")
 
     def get_limits(self):
         res = {}
@@ -87,10 +101,12 @@ class Canvas(FigureCanvas):
             self.axes2 = None
         if "x1label" in dset:
             self.axes1.set_xlabel(
-                dset["x1label"], fontdict={"family": "serif"})
+                dset["x1label"], fontdict={"family": "serif"}
+            )
         if "y1label" in dset:
             self.axes1.set_ylabel(
-                dset["y1label"], fontdict={"family": "serif"})
+                dset["y1label"], fontdict={"family": "serif"}
+            )
         for plot in dset["plots"]:
             ltype = plot.get("type", "-")
             color = plot.get("color")
@@ -110,13 +126,32 @@ class Canvas(FigureCanvas):
             else:
                 a2p = self.axes1
             if ltype == "pulse":
-                a2p.vlines(plot["x1"], 0, plot.get("y1", plot.get("y2")),
-                           color=color, **extras)
+                a2p.vlines(
+                    plot["x1"],
+                    0,
+                    plot.get("y1", plot.get("y2")),
+                    color=color,
+                    **extras
+                )
             else:
-                a2p.plot(plot["x1"], plot.get("y1", plot.get("y2")), ltype,
-                         color=color, **extras)
+                a2p.plot(
+                    plot["x1"],
+                    plot.get("y1", plot.get("y2")),
+                    ltype,
+                    color=color,
+                    **extras
+                )
             if "legend" in plot:
                 a2p.legend()
+            if "annotations" in plot:
+                for i, note in enumerate(plot["annotations"]):
+                    try:
+                        x = plot["x1"][i]
+                        y = plot.get("y1", plot.get("y2", ()))[i]
+                    except IndexError:
+                        continue
+                    if isinstance(note, str):
+                        a2p.annotate(note, (x, y))
             for lim in ("xlim", "ylim"):
                 try:
                     getattr(a2p, "set_" + lim)(plot[lim])
@@ -127,6 +162,7 @@ class Canvas(FigureCanvas):
 
 class PlotWindow(qMainWindow):
     """Plot and toolbar"""
+
     def __init__(self, vi_obj):
         super(PlotWindow, self).__init__(vi_obj)
         self.setAttribute(Qt.WA_DeleteOnClose)
