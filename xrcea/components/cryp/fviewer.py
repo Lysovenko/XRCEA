@@ -69,8 +69,10 @@ class FuncView(Plot):
             return
         if dlgr is not None:
             ibr["start"], ibr["stop"], ibr["points"], ibr["name"], _d = dlgr
-            start, stop, points, name, draw_all = dlgr
-            return start, stop, points, names[name], draw_all
+            start, stop, points, name, all_names = dlgr
+            if not all_names:
+                names = (names[name],)
+            return start, stop, points, names
         return dlgr
 
     def calc_broad_corelation(self):
@@ -80,14 +82,12 @@ class FuncView(Plot):
         )
         if dlgr is None:
             return
-        start, stop, points, name, show_all = dlgr
+        start, stop, points, names = dlgr
         try:
             bro = BroadAn(self._xrd)
         except KeyError:
             self.print_error(_("Can not launch broadening analyser"))
             return
-        if not show_all:
-            names = (name,)
         plots = []
         for name in names:
             x, y = bro.plot_correlation(name, start, stop, points)
@@ -109,13 +109,11 @@ class FuncView(Plot):
         )
         if dlgr is None:
             return
-        start, stop, points, name, show_all = dlgr
+        start, stop, points, names = dlgr
         try:
             bro = BroadAn(self._xrd)
         except KeyError:
             self.print_error(_("Can not launch broadening analyser"))
-        if not show_all:
-            names = (name,)
         plots = []
         for name in names:
             x, y = bro.plot_size_strain(name, start, stop, points)
