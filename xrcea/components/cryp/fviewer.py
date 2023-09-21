@@ -25,6 +25,12 @@ class FuncView(Plot):
     def __init__(self, xrd):
         self._xrd = xrd
         super().__init__(str(xrd.name) + "Plot Exploring")
+        self._default_instrumental_broadening_range = {
+            "start": 0.0,
+            "stop": 0.5,
+            "points": 100,
+            "name": 0,
+        }
         self.menu.append_item(
             (_calculate,),
             _("Peak broadening Correlation..."),
@@ -38,26 +44,36 @@ class FuncView(Plot):
             None,
         )
 
-    def calc_broad_corelation(self):
-        """Display dialog to calc correlation"""
+    def _ask_instrumental_broadening_range(self, asker):
+        ibr = self._default_instrumental_broadening_range
         try:
             names = tuple(self._xrd.extra_data["UserIndexes"].keys())
             dlgr = self.input_dialog(
-                _("Set instrumental broadening range"),
+                _("Set instrumental broadening range\nfor ") + asker,
                 [
-                    (_("From:"), 0.0),
-                    (_("To:"), 1.0),
-                    (_("Points:"), 100),
-                    (_("Name:"), names),
+                    (_("From:"), ibr["start"]),
+                    (_("To:"), ibr["stop"]),
+                    (_("Points:"), ibr["points"]),
+                    (_("Name:"), names, ibr["name"]),
                     (_("Show all:"), False),
                 ],
             )
         except (KeyError, AttributeError):
             return
+        if dlgr is not None:
+            ibr["start"], ibr["stop"], ibr["points"], ibr["name"], _d = dlgr
+            start, stop, points, name, draw_all = dlgr
+            return start, stop, points, names[name], draw_all
+        return dlgr
+
+    def calc_broad_corelation(self):
+        """Display dialog to calc correlation"""
+        dlgr = self._ask_instrumental_broadening_range(
+            _("broadening correlation plot")
+        )
         if dlgr is None:
             return
         start, stop, points, name, show_all = dlgr
-        name = names[name]
         try:
             bro = BroadAn(self._xrd)
         except KeyError:
@@ -80,24 +96,12 @@ class FuncView(Plot):
 
     def calc_size_strain(self):
         """Display dialog to calc siaze and strain"""
-        try:
-            names = tuple(self._xrd.extra_data["UserIndexes"].keys())
-            dlgr = self.input_dialog(
-                _("Set instrumental broadening range"),
-                [
-                    (_("From:"), 0.0),
-                    (_("To:"), 1.0),
-                    (_("Points:"), 100),
-                    (_("Name:"), names),
-                    (_("Show all:"), False),
-                ],
-            )
-        except (KeyError, AttributeError):
-            return
+        dlgr = self._ask_instrumental_broadening_range(
+            _("size and strain plot")
+        )
         if dlgr is None:
             return
         start, stop, points, name, show_all = dlgr
-        name = names[name]
         try:
             bro = BroadAn(self._xrd)
         except KeyError:
