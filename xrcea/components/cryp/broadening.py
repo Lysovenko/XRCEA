@@ -72,6 +72,7 @@ class BroadAn:
         return x, y, cos_t
 
     def size_strain(self, name, b_instr, x_y_cos=None):
+        """http://pd.chem.ucl.ac.uk/pdnn/peaks/sizedet.htm"""
         if x_y_cos is None:
             cryb = self.cryb[self.selected[name]]
             x, y, cos_t = self._x_y_cos_t(cryb)
@@ -130,7 +131,20 @@ class BroadAn:
         size_strain = array([self.size_strain(name, br) for br in broadening])
         return broadening, size_strain
 
-    def as_text(self, name):
+    def plot_williamson_hall(self, name, b_instr):
+        cryb = self.cryb[self.selected[name]]
+        x, y, cos_t = self._x_y_cos_t(cryb)
+        y = self.b_samp(b_instr, y) * cos_t
+        a, b = lstsq(
+            vstack([x, ones(len(x))]).T,
+            y,
+            rcond=None,
+        )[0]
+        lin_x = array([0.0, x.max()])
+        lin_y = lin_x * a + b
+        return x, y, lin_x, lin_y
+
+    def _as_text(self, name):
         b_instr = self._instr_broad
         out = f"\n## Name: {name} ##\n"
         if isinstance(b_instr, float):
@@ -154,7 +168,7 @@ class BroadAn:
 
     def to_text(self):
         return f"Shape: {self.shape}\n" + "\n".join(
-            self.as_text(name) for name in self.selected
+            self._as_text(name) for name in self.selected
         )
 
     def to_doc(self, doc):

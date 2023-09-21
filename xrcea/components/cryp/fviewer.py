@@ -31,6 +31,7 @@ class FuncView(Plot):
             "points": 100,
             "name": 0,
         }
+        self._default_williamson = {"name": 0, "instr": 0.0}
         self.menu.append_item(
             (_calculate,),
             _("Peak broadening Correlation..."),
@@ -41,6 +42,12 @@ class FuncView(Plot):
             (_calculate,),
             _("Size and strain..."),
             self.calc_size_strain,
+            None,
+        )
+        self.menu.append_item(
+            (_calculate,),
+            _("Draw Williamson-Hall Plot..."),
+            self.williamson_hall_plot,
             None,
         )
 
@@ -78,6 +85,7 @@ class FuncView(Plot):
             bro = BroadAn(self._xrd)
         except KeyError:
             self.print_error(_("Can not launch broadening analyser"))
+            return
         if not show_all:
             names = (name,)
         plots = []
@@ -85,14 +93,14 @@ class FuncView(Plot):
             x, y = bro.plot_correlation(name, start, stop, points)
             plots.append({"x1": x, "y1": y, "legend": name})
         self.add_plot(
-            "Correlation",
+            _("Correlation"),
             {
                 "plots": plots,
                 "x1label": _("Instrumental broadening"),
                 "y1label": _("Correlation"),
             },
         )
-        self.draw("Correlation")
+        self.draw(_("Correlation"))
 
     def calc_size_strain(self):
         """Display dialog to calc siaze and strain"""
@@ -132,6 +140,47 @@ class FuncView(Plot):
             },
         )
         self.draw("Size + Strain")
+
+    def williamson_hall_plot(self):
+        r"""Williamson-Hall Plot
+        $\beta_{tot}\cos\theta$ versus $\sin\theta$"""
+        def_will = self._default_williamson
+        try:
+            names = tuple(self._xrd.extra_data["UserIndexes"].keys())
+            dlgr = self.input_dialog(
+                _("Parameters for Williamson-Hall Plot"),
+                [
+                    (_("Name:"), names, def_will["name"]),
+                    (_("Instrumental broadening:"), def_will["instr"]),
+                ],
+            )
+        except (KeyError, AttributeError):
+            return
+        if dlgr is None:
+            return
+        name, instr_broad = dlgr
+        def_will["name"], def_will["instr"] = dlgr
+        name = names[name]
+        try:
+            bro = BroadAn(self._xrd)
+        except KeyError:
+            self.print_error(_("Can not launch broadening analyser"))
+            return
+        x, y, lin_x, lin_y = bro.plot_williamson_hall(name, instr_broad)
+        plots = [
+            {"x1": x, "y1": y, "type": "o"},
+            {"x1": lin_x, "y1": lin_y, "type": "-", "color": "green"},
+        ]
+        pname = _("Williamson-Hall Plot")
+        self.add_plot(
+            pname,
+            {
+                "plots": plots,
+                "x1label": r"$\sin\theta$",
+                "y1label": r"$B\cos\theta$",
+            },
+        )
+        self.draw(pname)
 
 
 def show_func_view(xrd):
