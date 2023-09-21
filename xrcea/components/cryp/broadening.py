@@ -71,9 +71,12 @@ class BroadAn:
         cos_t = sqrt(1.0 - x**2)
         return x, y, cos_t
 
-    def size_strain(self, name, b_instr):
-        cryb = self.cryb[self.selected[name]]
-        x, y, cos_t = self._x_y_cos_t(cryb)
+    def size_strain(self, name, b_instr, x_y_cos=None):
+        if x_y_cos is None:
+            cryb = self.cryb[self.selected[name]]
+            x, y, cos_t = self._x_y_cos_t(cryb)
+        else:
+            x, y, cos_t = x_y_cos
         a, b = lstsq(
             vstack([x, ones(len(x))]).T,
             self.b_samp(b_instr, y) * cos_t,
@@ -83,7 +86,7 @@ class BroadAn:
         strain = a / 4
         return size, strain
 
-    def fmin_instrumental(self, name):
+    def opt_instrumental_cor(self, name):
         cryb = self.cryb[self.selected[name]]
         x, y, cos_t = self._x_y_cos_t(cryb)
         inst = y.mean() / 4.0
@@ -91,12 +94,25 @@ class BroadAn:
         def min_it(instr):
             return -abs(self.corr(instr[0], x, y, cos_t))
 
-        opt = fmin(min_it, [inst], initial_simplex=[[inst], [inst / 4.0]])
+        opt = fmin(min_it, [inst], initial_simplex=[[inst], [inst / 2.0]])
+        return opt[0]
+
+    def opt_instrumental_size(self, name):
+        cryb = self.cryb[self.selected[name]]
+        x_y_cos = self._x_y_cos_t(cryb)
+        inst = x_y_cos[1].mean() / 4.0
+
+        def min_it(instr):
+            return -self.size_strain(None, instr[0], x_y_cos)[0]
+
+        opt = fmin(min_it, [inst], initial_simplex=[[inst], [inst / 2.0]])
         return opt[0]
 
     def _params_to_display(self, name, b_instr):
-        if b_instr is None:
-            b_instr = self.fmin_instrumental(name)
+        if b_instr is None or b_instr == "cor":
+            b_instr = self.opt_instrumental_cor(name)
+        elif b_instr == "size":
+            b_instr = self.opt_instrumental_size(name)
         size, strain = self.size_strain(name, b_instr)
         cor = self.corr(
             b_instr, *self._x_y_cos_t(self.cryb[self.selected[name]])
@@ -116,12 +132,25 @@ class BroadAn:
 
     def as_text(self, name):
         b_instr = self._instr_broad
-        size, strain, b_instr, cor = self._params_to_display(name, b_instr)
-        return (
-            f'name: "{name}"\nshape: {self.shape}\n'
+        out = f"## Name: {name} ##\nShape: {self.shape}\n\n"
+        if isinstance(b_instr, float):
+            size, strain, b_instr, cor = self._params_to_display(name, b_instr)
+            out += (
+                f"Predefined instrumental broadening: {b_instr}\n"
+                f"size = {size}\nstrain = {strain}\ncorr = {cor}\n"
+            )
+        size, strain, b_instr, cor = self._params_to_display(name, "cor")
+        out += (
+            f"\nInstrumental broadening, optiized by correlation: {b_instr}\n"
             f"size = {size}\nstrain = {strain}\ncorr = {cor}\n"
-            f"instr = {b_instr}\n"
         )
+        size, strain, b_instr, cor = self._params_to_display(name, "size")
+        out += (
+            f"\nInstrumental broadening, optiized by size: {b_instr}\n"
+            f"size = {size}\nstrain = {strain}\ncorr = {cor}\n"
+        )
+
+        return out
 
     def to_text(self):
         return "\n".join(self.as_text(name) for name in self.selected)
