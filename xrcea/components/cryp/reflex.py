@@ -290,7 +290,7 @@ class Cryplots:
                   "color": "exp_dat"}]
         cryb = xrd.extra_data["crypbells"]
         shfunc = _SH_FUNCTIONS[fname]
-        comment = "x0\th\tw\ts\n"
+        comment = f"{fname}\nx0\th\tw\ts\n"
         for x0, h, w, s in cryb.reshape(len(cryb) // 4, 4):
             comment += f"{x0}\t{h}\t{w}\t{s}\n"
             halfwidth = 3 * np.sqrt(w)

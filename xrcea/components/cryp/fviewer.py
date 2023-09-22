@@ -90,8 +90,7 @@ class FuncView(Plot):
             return
         plots = []
         for name in names:
-            x, y = bro.plot_correlation(name, start, stop, points)
-            plots.append({"x1": x, "y1": y, "legend": name})
+            plots.append(bro.plot_correlation(name, start, stop, points))
         self.add_plot(
             _("Correlation"),
             {
@@ -116,20 +115,9 @@ class FuncView(Plot):
             self.print_error(_("Can not launch broadening analyser"))
         plots = []
         for name in names:
-            x, y = bro.plot_size_strain(name, start, stop, points)
-            plots.append(
-                {"x1": x, "y1": y[:, 0], "legend": "size " + name, "type": "-"}
-            )
-            plots.append(
-                {
-                    "x1": x,
-                    "y2": y[:, 1],
-                    "legend": "strain " + name,
-                    "type": "--",
-                }
-            )
+            plots.extend(bro.plot_size_strain(name, start, stop, points))
         self.add_plot(
-            "Size + Strain",
+            _("Size + Strain"),
             {
                 "plots": plots,
                 "x1label": _("Instrumental broadening"),
@@ -137,7 +125,7 @@ class FuncView(Plot):
                 "y2label": _("Strain"),
             },
         )
-        self.draw("Size + Strain")
+        self.draw(_("Size + Strain"))
 
     def williamson_hall_plot(self):
         r"""Williamson-Hall Plot
@@ -161,23 +149,10 @@ class FuncView(Plot):
         name = names[name]
         try:
             bro = BroadAn(self._xrd)
+            plots = bro.plot_williamson_hall(name, instr_broad)
         except KeyError:
             self.print_error(_("Can not launch broadening analyser"))
             return
-        x, y, lin_x, lin_y = bro.plot_williamson_hall(name, instr_broad)
-        inds = {
-            int(k): v
-            for k, v in self._xrd.extra_data["UserIndexes"][name][
-                "indices"
-            ].items()
-        }
-        annotations = [
-            "(%d %d %d)" % tuple(inds[k]) for k in sorted(inds.keys())
-        ]
-        plots = [
-            {"x1": x, "y1": y, "type": "o", "annotations": annotations},
-            {"x1": lin_x, "y1": lin_y, "type": "-", "color": "green"},
-        ]
         pname = _("Williamson-Hall Plot")
         self.add_plot(
             pname,

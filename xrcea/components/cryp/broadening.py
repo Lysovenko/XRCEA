@@ -50,6 +50,13 @@ class BroadAn:
             name: set(int(i) for i in v["indices"].keys())
             for name, v in extra_data["UserIndexes"].items()
         }
+        self.miller_indices = {
+            name: [
+                i[1]
+                for i in sorted(v["indices"].items(), key=lambda x: int(x[0]))
+            ]
+            for name, v in extra_data["UserIndexes"].items()
+        }
         self.selected = {
             name: [i in v for i in range(len(cryb))]
             for name, v in indexed.items()
@@ -124,12 +131,25 @@ class BroadAn:
         x, y, c = self._x_y_cos_t(self.cryb[self.selected[name]])
         broadening = linspace(start, stop, points)
         correlation = array([self.corr(br, x, y, c) for br in broadening])
-        return broadening, correlation
+        return {"x1": broadening, "y1": correlation, "legend": name}
 
     def plot_size_strain(self, name, start, stop, points):
         broadening = linspace(start, stop, points)
         size_strain = array([self.size_strain(name, br) for br in broadening])
-        return broadening, size_strain
+        return [
+            {
+                "x1": broadening,
+                "y1": size_strain[:, 0],
+                "legend": _("size ") + name,
+                "type": "-",
+            },
+            {
+                "x1": broadening,
+                "y2": size_strain[:, 1],
+                "legend": _("strain ") + name,
+                "type": "--",
+            },
+        ]
 
     def plot_williamson_hall(self, name, b_instr):
         cryb = self.cryb[self.selected[name]]
@@ -142,7 +162,11 @@ class BroadAn:
         )[0]
         lin_x = array([0.0, x.max()])
         lin_y = lin_x * a + b
-        return x, y, lin_x, lin_y
+        millers = ["(%d %d %d)" % tuple(i) for i in self.miller_indices[name]]
+        return [
+            {"x1": x, "y1": y, "type": "o", "annotations": millers},
+            {"x1": lin_x, "y1": lin_y, "type": "-", "color": "green"},
+        ]
 
     def _as_text(self, name):
         b_instr = self._instr_broad
