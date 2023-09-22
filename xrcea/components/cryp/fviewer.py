@@ -46,6 +46,12 @@ class FuncView(Plot):
         )
         self.menu.append_item(
             (_calculate,),
+            _("Least squares..."),
+            self.plot_least_sqares,
+            None,
+        )
+        self.menu.append_item(
+            (_calculate,),
             _("Draw Williamson-Hall Plot..."),
             self.williamson_hall_plot,
             None,
@@ -149,20 +155,47 @@ class FuncView(Plot):
         name = names[name]
         try:
             bro = BroadAn(self._xrd)
-            plots = bro.plot_williamson_hall(name, instr_broad)
+            upd_plot = bro.plot_williamson_hall(name, instr_broad)
         except KeyError:
             self.print_error(_("Can not launch broadening analyser"))
             return
         pname = _("Williamson-Hall Plot")
+        plot = {
+            "x1label": r"$\sin\theta$",
+            "y1label": r"$B\cos\theta$",
+        }
+        plot.update(upd_plot)
         self.add_plot(
             pname,
-            {
-                "plots": plots,
-                "x1label": r"$\sin\theta$",
-                "y1label": r"$B\cos\theta$",
-            },
+            plot,
         )
         self.draw(pname)
+
+    def plot_least_sqares(self):
+        dlgr = self._ask_instrumental_broadening_range(
+            _("least squares optimization")
+        )
+        if dlgr is None:
+            return
+        start, stop, points, names = dlgr
+        try:
+            bro = BroadAn(self._xrd)
+        except KeyError:
+            self.print_error(_("Can not launch broadening analyser"))
+            return
+        plots = []
+        for name in names:
+            plots.extend(bro.plot_lstsq(name, start, stop, points))
+        plot_name = _("Least squares")
+        self.add_plot(
+            plot_name,
+            {
+                "plots": plots,
+                "x1label": _("Instrumental broadening"),
+                "y1label": _("Correlation"),
+            },
+        )
+        self.draw(plot_name)
 
 
 def show_func_view(xrd):

@@ -133,6 +133,24 @@ class BroadAn:
         correlation = array([self.corr(br, x, y, c) for br in broadening])
         return {"x1": broadening, "y1": correlation, "legend": name}
 
+    def plot_lstsq(self, name, start, stop, points):
+        x, y, cos_t = self._x_y_cos_t(self.cryb[self.selected[name]])
+        broadening = linspace(start, stop, points)
+        xmat = vstack([x, ones(len(x))]).T
+
+        def ab_chi(b_instr):
+            (a, b), c = lstsq(
+                xmat, self.b_samp(b_instr, y) * cos_t, rcond=None
+            )[:2]
+            return a, b, c[0]
+
+        abc = array([ab_chi(br) for br in broadening])
+        return [
+            {"x1": broadening, "y1": abc[:, 0], "type": "-", "legend": name},
+            {"x1": broadening, "y1": abc[:, 1], "type": "--"},
+            {"x1": broadening, "y2": abc[:, 2], "type": "."},
+        ]
+
     def plot_size_strain(self, name, start, stop, points):
         broadening = linspace(start, stop, points)
         size_strain = array([self.size_strain(name, br) for br in broadening])
@@ -155,18 +173,25 @@ class BroadAn:
         cryb = self.cryb[self.selected[name]]
         x, y, cos_t = self._x_y_cos_t(cryb)
         y = self.b_samp(b_instr, y) * cos_t
-        a, b = lstsq(
+        (a, b), c = lstsq(
             vstack([x, ones(len(x))]).T,
             y,
             rcond=None,
-        )[0]
+        )[:2]
+        comment = f"A = {a}\nB = {b}\nC = {c}\nChi^2 = {c[0]/len(x)}\n"
+        size, strain = self.size_strain(name, b_instr)
+        comment += f"\nSize = {size}\nStrain = {strain}\n"
+        comment += f"debug chi2: {c[0] - ((a * x + b - y)**2).sum()}"
         lin_x = array([0.0, x.max()])
         lin_y = lin_x * a + b
         millers = ["(%d %d %d)" % tuple(i) for i in self.miller_indices[name]]
-        return [
-            {"x1": x, "y1": y, "type": "o", "annotations": millers},
-            {"x1": lin_x, "y1": lin_y, "type": "-", "color": "green"},
-        ]
+        return {
+            "plots": [
+                {"x1": x, "y1": y, "type": "o", "annotations": millers},
+                {"x1": lin_x, "y1": lin_y, "type": "-", "color": "green"},
+            ],
+            "Comment": comment,
+        }
 
     def _as_text(self, name):
         b_instr = self._instr_broad
