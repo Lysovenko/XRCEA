@@ -15,8 +15,8 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from PyQt5.QtCore import Qt, QModelIndex, QAbstractTableModel
-from PyQt5.QtWidgets import QTableView, QTreeView, QAbstractItemView, QMenu
-from PyQt5.QtGui import (QStandardItem, QStandardItemModel, QColor)
+from PyQt5.QtWidgets import QTableView, QAbstractItemView, QMenu
+from PyQt5.QtGui import QColor
 
 COLORS = {"red": Qt.red, "blue": Qt.blue, "gray": Qt.gray,
           "light gray": Qt.lightGray,
@@ -53,7 +53,7 @@ class VisualTableModel(QAbstractTableModel):
                 return v.edit
             except AttributeError:
                 return str(v)
-        if role == Qt.BackgroundRole or role == Qt.ForegroundRole:
+        if role in (Qt.BackgroundRole, Qt.ForegroundRole):
             tc = self.value.get(index.row(), index.column())
             try:
                 if role == Qt.ForegroundRole and tc.foreground is not None:
@@ -68,12 +68,12 @@ class VisualTableModel(QAbstractTableModel):
         if role == Qt.EditRole:
             self.value.set(index.row(), index.column(), data)
             return True
-        print(role, index.row(), index.column(), data)
+        return print(role, index.row(), index.column(), data)
 
-    def rowCount(self, *dummy):
+    def rowCount(self, *_dummy):
         return self.value.rows
 
-    def columnCount(self, parent=None):
+    def columnCount(self, _parent=None):
         return self.value.columns
 
     def flags(self, index):

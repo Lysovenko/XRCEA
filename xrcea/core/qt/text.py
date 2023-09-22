@@ -45,7 +45,7 @@ class LineEdit(QLineEdit):
         val = self.value
         try:
             val.update(txt, False)
-        except ValueError as err:
+        except ValueError:
             val.had_error = True
             self.setStyleSheet("QLineEdit { background: rgb(255, 55, 55); }")
         else:

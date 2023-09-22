@@ -17,7 +17,7 @@
 
 from PyQt5.QtCore import Qt, QModelIndex, QAbstractTableModel
 from PyQt5.QtWidgets import QListWidget, QTreeView, QAbstractItemView, QMenu
-from PyQt5.QtGui import (QStandardItem, QStandardItemModel, QColor)
+from PyQt5.QtGui import QColor
 
 COLORS = {"red": Qt.red, "blue": Qt.blue, "gray": Qt.gray,
           "light gray": Qt.lightGray,
@@ -29,7 +29,7 @@ class CheckedList(QListWidget):
         super().__init__(parent)
         self.value = value
         self.addItems(i[1] for i in value)
-        for i, (uid, name, sel) in enumerate(value):
+        for i, (_uid, _name, sel) in enumerate(value):
             item = self.item(i)
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             check = Qt.Checked if sel else Qt.Unchecked
@@ -65,7 +65,7 @@ class VisualListModel(QAbstractTableModel):
         value.set_updater(self.updater)
         self.styles = styles
 
-    def updater(self, lst):
+    def updater(self, _lst):
         self.layoutChanged.emit()
 
     def headerData(self, section, orientation, role):
@@ -76,7 +76,7 @@ class VisualListModel(QAbstractTableModel):
     def data(self, index, role):
         if role == Qt.DisplayRole:
             return self.value.get()[index.row()][index.column()]
-        if role == Qt.BackgroundRole or role == Qt.ForegroundRole:
+        if role in (Qt.BackgroundRole, Qt.ForegroundRole):
             tup = self.value.get()[index.row()]
             try:
                 style = tup[self.columnCount()]
@@ -94,10 +94,10 @@ class VisualListModel(QAbstractTableModel):
                     return QColor(bg)
         return None
 
-    def rowCount(self, *dummy):
+    def rowCount(self, *_dummy):
         return len(self.value.value)
 
-    def columnCount(self, parent=None):
+    def columnCount(self, _parent=None):
         return len(self.colnames)
 
     def flags(self, index):
@@ -112,14 +112,15 @@ class VisualListModel(QAbstractTableModel):
 
 
 class VisualList(QTreeView):
-    def __init__(self, parent, colnames, value, styles={}):
+    def __init__(self, parent, colnames, value, styles=None):
         super().__init__(parent)
         self.value = value
-        self.styles = styles
+        self.styles = {} if styles is None else styles
         self.setRootIsDecorated(False)
         self.setAlternatingRowColors(True)
         self.ncols = len(colnames)
-        self.model = model = VisualListModel(colnames, value, styles, self)
+        self.model = model = VisualListModel(
+            colnames, value, self.styles, self)
         self.setModel(model)
         self.activated.connect(self.on_activated)
         self.choicer = None

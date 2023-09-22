@@ -20,11 +20,8 @@ import sys
 from threading import Lock
 from time import time
 from ..application import APPLICATION
-from PyQt5.QtGui import QKeySequence
-from PyQt5.QtCore import Qt, QSettings, QTimer, QSignalMapper
-from PyQt5.QtWidgets import (QMainWindow, QMessageBox, QApplication,
-                             QShortcut, QWidget, QTextEdit)
-from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QMainWindow, QMessageBox, QApplication
 from ..vi import Plot, Lister, Page, Spreadsheet
 from .idialog import DialogsMixin
 from .menu import SDIMenu
@@ -103,7 +100,7 @@ def clearLayout(layout):
 
 def print_status(status):
     # DODO: implement
-    pass
+    print(status)
 
 
 def copy_to_clipboard(text):
@@ -146,6 +143,7 @@ class qMainWindow(QMainWindow, DialogsMixin):
                 return True
         if can_accept:
             event.accept()
+        return False
 
 
 def gui_exit():

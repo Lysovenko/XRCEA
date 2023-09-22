@@ -16,10 +16,9 @@
 """Draw progress dialog"""
 
 
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import (
-    QVBoxLayout, QDialog, QDialogButtonBox, QLabel, QComboBox, QFileDialog,
-    QFormLayout, QLineEdit, QCheckBox, QMessageBox, QProgressBar)
+    QVBoxLayout, QDialog, QDialogButtonBox, QLabel, QProgressBar)
 
 
 class Progress(QDialog):

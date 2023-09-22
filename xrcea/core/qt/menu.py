@@ -18,8 +18,8 @@
 
 from ..application import APPLICATION
 from PyQt5.QtCore import QSignalMapper
-from PyQt5.QtWidgets import (QAction, QWidget)
-from PyQt5.QtGui import QIcon, QKeySequence
+from PyQt5.QtWidgets import QAction
+from PyQt5.QtGui import QIcon
 
 
 class SDIMenu:

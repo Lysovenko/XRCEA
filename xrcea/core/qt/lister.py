@@ -22,7 +22,7 @@ from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QIcon
 from .lists import VisualList
 from .core import clearLayout, qMainWindow
-from .idialog import DialogsMixin, get_widget_value, get_widget_from_value
+from .idialog import get_widget_value, get_widget_from_value
 
 
 class Lister(qMainWindow):

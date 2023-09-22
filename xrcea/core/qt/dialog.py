@@ -17,16 +17,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import os
-from sys import stderr
-from PyQt5.QtWidgets import QDialog, QMessageBox, QFileDialog
-from PyQt5.QtCore import Qt
-
-
-def run_dialog(puzzle):
-    dlg = Frame(puzzle)
-    dlg.setWindowModality(Qt.ApplicationModal)
-    dlgr = dlg.exec_()
-    return bool(dlgr)
+from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
 
 def print_information(title, info):
@@ -35,11 +26,8 @@ def print_information(title, info):
 
 
 def print_error(title, info):
-    try:
-        parent = None
-        return QMessageBox.critical(parent, title, info) == QMessageBox.Ok
-    except KeyError:
-        print(title, "\n", info, file=stderr)
+    parent = None
+    return QMessageBox.critical(parent, title, info) == QMessageBox.Ok
 
 
 def ask_question(title, question):
@@ -54,10 +42,11 @@ def ask_open_filename(title, filename, masks):
     options = QFileDialog.Options()
     if os.name == "posix":
         options |= QFileDialog.DontUseNativeDialog
-    fname, h = QFileDialog.getOpenFileName(
+    fname, _h = QFileDialog.getOpenFileName(
         None, title, filename, fltr, options=options)
     if fname:
         return fname
+    return None
 
 
 def ask_save_filename(title, filename, masks):
@@ -65,7 +54,8 @@ def ask_save_filename(title, filename, masks):
     options = QFileDialog.Options()
     if os.name == "posix":
         options |= QFileDialog.DontUseNativeDialog
-    fname, h = QFileDialog.getSaveFileName(
+    fname, _h = QFileDialog.getSaveFileName(
         None, title, filename, fltr, options=options)
     if fname:
         return fname
+    return None

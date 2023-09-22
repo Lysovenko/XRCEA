@@ -18,11 +18,11 @@
 
 from PyQt5.QtWidgets import (QFormLayout, QWidget, QVBoxLayout, QSplitter,
                              QPushButton)
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QIcon
 from .table import VisualTable
 from .core import clearLayout, qMainWindow
-from .idialog import DialogsMixin, get_widget_value, get_widget_from_value
+from .idialog import get_widget_value, get_widget_from_value
 
 
 class Spreadsheet(qMainWindow):
@@ -33,6 +33,7 @@ class Spreadsheet(qMainWindow):
         self.timers = []
         self.form_edas = []
         self.form = None
+        self.table = None
 
     def draw_shape(self, value):
         """Internal. Draw window shape"""
@@ -93,10 +94,10 @@ class Spreadsheet(qMainWindow):
                 layout.addRow(n, ew)
                 self.form_edas.append(ew)
 
-    def get_form_vals(self, which):
+    def get_form_vals(self, _which):
         return tuple(get_widget_value(e) for e in self.form_edas)
 
-    def closeEvent(self, event=None, **kwargs):
+    def closeEvent(self, _event=None, **_kwargs):
         for t in self.timers:
             try:
                 t.stop()

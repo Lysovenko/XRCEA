@@ -33,31 +33,15 @@
 # }
 """Display plots"""
 
-from PyQt5.QtCore import (
-    QFile,
-    QFileInfo,
-    QPoint,
-    QSettings,
-    QSize,
-    Qt,
-    QTextStream,
-)
-from PyQt5.QtGui import QIcon, QKeySequence
-from PyQt5.QtWidgets import (
-    QAction,
-    QApplication,
-    QFileDialog,
-    QMessageBox,
-    QSizePolicy,
-)
-from matplotlib.backends.backend_qt5agg import (
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QSizePolicy
+from matplotlib.backends.backend_qt5agg import (  # pylint: disable=E0611
     FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar,
 )
 from matplotlib.figure import Figure
-from .idialog import DialogsMixin
-from .core import qMainWindow
-from ..application import APPLICATION as APP
+from .core import qMainWindow, APPLICATION as APP
 
 
 class Canvas(FigureCanvas):
@@ -65,19 +49,15 @@ class Canvas(FigureCanvas):
 
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         self.figure = fig = Figure(figsize=(width, height), dpi=dpi)
-        self.mk_axes()
-        super().__init__(fig)
-        self.setParent(parent)
-
-        super().setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        super().updateGeometry()
-
-    def mk_axes(self):
         self.axes1 = self.figure.add_subplot(111)
         self.axes1.grid(True)
         self.axes2 = None
         self.axes1.set_xlabel(r"$s,\, \AA^{-1}$")
         self.axes1.set_ylabel("Intensity")
+        super().__init__(fig)
+        self.setParent(parent)
+        super().setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        super().updateGeometry()
 
     def get_limits(self):
         res = {}
@@ -157,21 +137,21 @@ class Canvas(FigureCanvas):
                     getattr(a2p, "set_" + lim)(plot[lim])
                 except KeyError:
                     pass
-        super().draw()
+        return super().draw()
 
 
 class PlotWindow(qMainWindow):
     """Plot and toolbar"""
 
     def __init__(self, vi_obj):
-        super(PlotWindow, self).__init__(vi_obj)
+        super().__init__(vi_obj)
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.canvas = Canvas(self)
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.addToolBar(self.toolbar)
         self.setCentralWidget(self.canvas)
 
-    def closeEvent(self, event):
+    def closeEvent(self, _event):
         self.vi_obj.currently_alive = False
         self.vi_obj.gui_functions.clear()
 

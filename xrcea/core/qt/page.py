@@ -23,7 +23,7 @@ from PyQt5.QtCore import Qt, QTextCodec
 from PyQt5.QtGui import (QKeySequence, QIcon)
 from .lists import VisualList
 from .core import clearLayout, qMainWindow
-from .idialog import DialogsMixin, get_widget_value, get_widget_from_value
+from .idialog import get_widget_value, get_widget_from_value
 
 
 class Page(qMainWindow):
