@@ -1,6 +1,7 @@
 import setuptools
 from os.path import dirname, realpath
 from sys import path
+
 try:
     rp = dirname(realpath(__file__))
     path.insert(0, rp)
@@ -35,12 +36,25 @@ setuptools.setup(
         "Topic :: Scientific/Engineering :: Physics",
     ],
     package_dir={"": "."},
-    packages=["xrcea", "xrcea.core", "xrcea.core.vi", "xrcea.core.qt",
-              "xrcea.components.bbg",
-              "xrcea.components.cryp", "xrcea.components.pddb"],
+    packages=[
+        "xrcea",
+        "xrcea.core",
+        "xrcea.core.vi",
+        "xrcea.core.qt",
+        "xrcea.components.bbg",
+        "xrcea.components.describer",
+        "xrcea.components.cryp",
+        "xrcea.components.pddb",
+    ],
     python_requires=">=3.6",
     entry_points={"console_scripts": ["xrcea=xrcea.core.application:main"]},
     install_requires=["numpy", "scipy", "PyQt5", "matplotlib"],
-    package_data={"xrcea": ["i18n/locale/*/*/*.mo", "doc/*/html/*.*",
-                            "doc/*/html/_static/*.*", "components/*.*"]}
+    package_data={
+        "xrcea": [
+            "i18n/locale/*/*/*.mo",
+            "doc/*/html/*.*",
+            "doc/*/html/_static/*.*",
+            "components/*.comp",
+        ]
+    },
 )
