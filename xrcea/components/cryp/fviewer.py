@@ -24,7 +24,7 @@ _calculate = _("Calculate")
 class FuncView(Plot):
     def __init__(self, xrd):
         self._xrd = xrd
-        super().__init__(str(xrd.name) + "Plot Exploring")
+        super().__init__(str(xrd.name) + _(" Visual Analyser"))
         self._default_instrumental_broadening_range = {
             "start": 0.0,
             "stop": 0.5,
@@ -46,7 +46,7 @@ class FuncView(Plot):
         )
         self.menu.append_item(
             (_calculate,),
-            _("Least squares..."),
+            _("Parameters of approximation line..."),
             self.plot_least_sqares,
             None,
         )
@@ -186,7 +186,7 @@ class FuncView(Plot):
         plots = []
         for name in names:
             plots.extend(bro.plot_lstsq(name, start, stop, points))
-        plot_name = _("Least squares")
+        plot_name = _("Approximation line parameters")
         self.add_plot(
             plot_name,
             {
