@@ -19,4 +19,4 @@ do
     fi
 done
 cd -
-python3 setup.py sdist --formats="zip,gztar"
+python3 setup.py sdist --formats="gztar"
