@@ -28,6 +28,7 @@ def introduce_input():
     APP.register_treater(XrayData)
     APP.register_opener(".xrd", open_xrd, _("Diffractograms"))
     APP.register_opener(".dat", open_xrd, _("Generic diffractograms"))
+    APP.register_opener(".xy", open_xrd, _("Generic diffractograms"))
 
 
 def _diff_props(xrd):

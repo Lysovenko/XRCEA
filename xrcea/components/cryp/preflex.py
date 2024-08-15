@@ -15,11 +15,13 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """
 """
+import json
 from locale import atof, format_string
 from math import asin, pi, sin
-from xrcea.core.application import APPLICATION as APP
 from xrcea.core.vi.value import Tabular, TabCell, Value, lfloat
 from xrcea.core.vi.spreadsheet import Spreadsheet
+from xrcea.core.vi import ask_save_filename
+
 _edit = _("Edit")
 
 
@@ -30,31 +32,30 @@ class PeakLocator:
 
     def to_units(self, val):
         if self.units == "sin":
-            return self.wavel / (2. * val)
-        if self.units == "d":
-            return val
+            return self.wavel / (2.0 * val)
         if self.units == "d2":
             return val**-2
         if self.units == "theta":
-            return asin(self.wavel / (2. * val)) * 180. / pi
+            return asin(self.wavel / (2.0 * val)) * 180.0 / pi
         if self.units == "2theta":
-            return asin(self.wavel / (2. * val)) * 360. / pi
+            return asin(self.wavel / (2.0 * val)) * 360.0 / pi
+        return val
 
     def to_d(self, val):
         if self.units == "sin":
-            return self.wavel / (2. * val)
-        if self.units == "d":
-            return val
+            return self.wavel / (2.0 * val)
         if self.units == "d2":
-            return val**-.5
+            return val**-0.5
         if self.units == "theta":
-            return self.wavel / (2. * sin(val * pi / 180.))
+            return self.wavel / (2.0 * sin(val * pi / 180.0))
         if self.units == "2theta":
-            return self.wavel / (2. * sin(val * pi / 360.))
+            return self.wavel / (2.0 * sin(val * pi / 360.0))
+        return val
 
 
 class PosCell(TabCell):
     """Cell with peak position"""
+
     def __init__(self, cont, locator):
         self._locator = locator
         self.__cont = cont
@@ -76,28 +77,32 @@ class PosCell(TabCell):
     def __str__(self):
         try:
             return format_string(
-                "%.5g", self._locator.to_units(self.__cont[0]))
+                "%.5g", self._locator.to_units(self.__cont[0])
+            )
         except (ValueError, ZeroDivisionError):
             return ""
 
     def shift_in_units(self, shift):
         try:
             self.__cont[0] = self._locator.to_d(
-                self._locator.to_units(self.__cont[0]) + shift)
+                self._locator.to_units(self.__cont[0]) + shift
+            )
         except (ValueError, ZeroDivisionError):
             pass
 
 
 class CompCard:
     """Card to compare with"""
+
     def __init__(self, crd, locator):
         self._crd = crd
         self._locator = locator
         self._parnames = [_("Number"), _("Name"), _("Formula")]
         self._par_ids = ["number", "name", "formula"]
         params = crd.get("params", ())
-        self._cellpars = [i for i in "a b c alpha beta gamma".split()
-                          if i in params]
+        self._cellpars = [
+            i for i in "a b c alpha beta gamma".split() if i in params
+        ]
         if crd.get("spacegroup"):
             self._parnames.append(_("Spacegroup"))
             self._par_ids.append("spacegroup")
@@ -139,8 +144,11 @@ class CompCard:
                 pass
             try:
                 return format_string(
-                    "%.5g", self._crd["params"][self._cellpars[
-                        row - len(self._par_ids)]])
+                    "%.5g",
+                    self._crd["params"][
+                        self._cellpars[row - len(self._par_ids)]
+                    ],
+                )
             except (KeyError, IndexError):
                 return
 
@@ -152,7 +160,8 @@ class CompCard:
         if not rows:
             return
         self._crd["extinguished"] = list(
-            set(self._crd.get("extinguished", ())).symmetric_difference(rows))
+            set(self._crd.get("extinguished", ())).symmetric_difference(rows)
+        )
 
     def resize_by(self, factor):
         for r in self._crd["reflexes"]:
@@ -175,12 +184,14 @@ class CompCard:
 
 class CompCards(Tabular):
     """Cards to compare with"""
+
     def __init__(self, xrd, locator):
         self._locator = locator
         self._cards = xrd.extra_data.setdefault("CompCards", {})
         self._comp_cards = []
-        super().__init__(colnames=[
-            "x\u2080", "I", "(h k l)", _("Parameter"), _("Value")])
+        super().__init__(
+            colnames=["x\u2080", "I", "(h k l)", _("Parameter"), _("Value")]
+        )
         self.from_origin()
 
     @property
@@ -189,8 +200,10 @@ class CompCards(Tabular):
 
     def from_origin(self):
         self._comp_cards.clear()
-        self._comp_cards.extend(CompCard(self._cards[cno], self._locator)
-                                for cno in sorted(self._cards, key=int))
+        self._comp_cards.extend(
+            CompCard(self._cards[cno], self._locator)
+            for cno in sorted(self._cards, key=int)
+        )
 
     def get(self, row, col):
         nr = 0
@@ -211,8 +224,11 @@ class CompCards(Tabular):
         cells = list(cells)
         for card in self._comp_cards:
             end = start + card.rows
-            card.switch(set(c[0] - start for c in cells
-                            if c[0] >= start and c[0] < end))
+            card.switch(
+                set(
+                    c[0] - start for c in cells if c[0] >= start and c[0] < end
+                )
+            )
             start = end
         self.refresh()
 
@@ -220,11 +236,15 @@ class CompCards(Tabular):
         start = 0
         for card in self._comp_cards:
             end = start + card.rows
-            if [1 for c in cells
-                    if c[0] >= start and c[0] < end]:
+            if [1 for c in cells if c[0] >= start and c[0] < end]:
                 card.resize_by(factor)
             start = end
         self.refresh()
+
+    def export_cards(self, fname):
+        "Export cards to file"
+        with open(fname, "w", encoding="utf8") as fptr:
+            json.dump(self._cards, fptr, indent="    ")
 
 
 class AssumedCards(Spreadsheet):
@@ -234,19 +254,33 @@ class AssumedCards(Spreadsheet):
         self._tab = tab = CompCards(idat, to_show)
         super().__init__(str(idat.name) + _(" (assumed cards)"), tab)
         self.reread()
-        self.menu.append_item((_edit,), _("Shift by..."),
-                              self.shift_by, None)
-        self.menu.append_item((_edit,), _("Resize by..."),
-                              self.resize_by, None)
+        self.menu.append_item((_edit,), _("Shift by..."), self.shift_by, None)
+        self.menu.append_item(
+            (_edit,), _("Resize by..."), self.resize_by, None
+        )
+        self.menu.append_item((_edit,), _("Export..."), self.export_tab, None)
+        self.menu.append_item((_edit,), _("Import..."), self.resize_by, None)
         self.show()
 
-        def select_units(u):
-            to_show.units = ["sin", "d", "d2", "theta", "2theta"][u]
+        def select_units(units):
+            to_show.units = ["sin", "d", "d2", "theta", "2theta"][units]
             tab.refresh()
 
-        self.set_form([(_("Units to display %s:") % "x\u2080", (
-            "sin(\u03b8)", "d (\u212b)", "d\u207b\u00b2 (\u212b\u207b\u00b2)",
-            "\u03b8 (\u00b0)", "2\u03b8 (\u00b0)"), select_units)])
+        self.set_form(
+            [
+                (
+                    _("Units to display %s:") % "x\u2080",
+                    (
+                        "sin(\u03b8)",
+                        "d (\u212b)",
+                        "d\u207b\u00b2 (\u212b\u207b\u00b2)",
+                        "\u03b8 (\u00b0)",
+                        "2\u03b8 (\u00b0)",
+                    ),
+                    select_units,
+                )
+            ]
+        )
 
     def reread(self):
         self._tab.from_origin()
@@ -257,8 +291,9 @@ class AssumedCards(Spreadsheet):
             self.print_error(_("No cells selected."))
             return
         shift = Value(lfloat())
-        dlgr = self.input_dialog(_("Shift selected cells"),
-                                 [(_("Shift by:"), shift)])
+        dlgr = self.input_dialog(
+            _("Shift selected cells"), [(_("Shift by:"), shift)]
+        )
         if dlgr is None:
             return
         for i in sels:
@@ -269,12 +304,21 @@ class AssumedCards(Spreadsheet):
         if not sels:
             self.print_error(_("No cards selected."))
             return
-        factor = Value(lfloat(0.001, 5., 1.))
-        dlgr = self.input_dialog(_("Resize selected cards"),
-                                 [(_("Resize by:"), factor)])
+        factor = Value(lfloat(0.001, 5.0, 1.0))
+        dlgr = self.input_dialog(
+            _("Resize selected cards"), [(_("Resize by:"), factor)]
+        )
         if dlgr is None:
             return
         self._tab.resize_by(factor.get(), sels)
+
+    def export_tab(self):
+        "export table to json"
+        fname = ask_save_filename(
+            _("Export table"), "", [("*.js", _("JSON dump"))]
+        )
+        if fname:
+            self._tab.export_cards(fname)
 
 
 def show_assumed(idat):

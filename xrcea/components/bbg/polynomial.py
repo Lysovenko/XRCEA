@@ -28,19 +28,26 @@ def detect_polynome(xrd, vis):
     aps = APP.settings
     params = vis.input_dialog(
         _("Initial simplex params"),
-        [(_("Range:"), aps.get("range", 3, "BBG")),
-         (_("Radius:"), aps.get("radius", 1.e-5, "BBG")),
-         (_("Mode:"), ("2\u03b8", "sin(\u03b8)"), aps.get("mode", 0, "BBG"))])
+        [
+            (_("Range:"), aps.get("range", 3, "BBG")),
+            (_("Radius:"), aps.get("radius", 1.0e-5, "BBG")),
+            (
+                _("Mode:"),
+                ("2\u03b8", "sin(\u03b8)"),
+                aps.get("mode", 0, "BBG"),
+            ),
+        ],
+    )
     if params is None:
         return
     rng, rad, mode = params
-    if rng < 1 or rad < 0.:
+    if rng < 1 or rad < 0.0:
         return
     aps.set("range", rng, "BBG")
     aps.set("radius", rad, "BBG")
     aps.set("mode", mode, "BBG")
     simplex = zeros((rng + 2, rng + 1), float)
-    simplex[:, -2] = 1.
+    simplex[:, -2] = 1.0
     simplex[-1] -= rad / sqrt(rng + 1)
     for i in range(rng + 1):
         simplex[i][i] += rad
@@ -52,28 +59,35 @@ def detect_polynome(xrd, vis):
         try:
             calc = calculs[indset[name]["cell"]]
             callb = FitPolynomial(xrd, calc, inds, mode)
-            no_fix = callb([1., 0.])
+            no_fix = callb([1.0, 0.0])
             if no_fix is None:
                 continue
             xopt = fmin(callb, simplex[0], initial_simplex=simplex)
-            res[name] = ("%s <div><b>%g => %g</b></div>"
-                         "<div>%s</div><div>%s</div>") % (
-                callb.to_markup(xopt), no_fix, callb(xopt),
-                callb.mark_params([1, 0]), callb.mark_params(xopt))
+            res[name] = (
+                "%s <div><b>%g => %g</b></div>" "<div>%s</div><div>%s</div>"
+            ) % (
+                callb.to_markup(xopt),
+                no_fix,
+                callb(xopt),
+                callb.mark_params([1, 0]),
+                callb.mark_params(xopt),
+            )
         except KeyError:
             print(f"TODO: calculator for {indset[name]['cell']}")
             pass
-    vis.set_text("<html><body>%s</body></html>" %
-                 "<br/>".join(
-                     "<div><b>%s:</b> %s</div>" % i for i in res.items()))
+    vis.set_text(
+        "<html><body>%s</body></html>"
+        % "<br/>".join("<div><b>%s:</b> %s</div>" % i for i in res.items())
+    )
 
 
 class FitPolynomial:
     def __init__(self, xrd, calc, inds, way):
         cryb = xrd.extra_data.get("crypbells")
-        hwave = xrd.lambda1 / 2.
-        ipd = sorted(hwave / cryb.reshape(len(cryb) // 4, 4)[:, 0],
-                     reverse=True)
+        hwave = xrd.lambda1 / 2.0
+        ipd = sorted(
+            hwave / cryb.reshape(len(cryb) // 4, 4)[:, 0], reverse=True
+        )
         self.calc = calc
         self.hwave = hwave
         self.crybp = cryb.reshape(len(cryb) // 4, 4)[:, 0]
@@ -101,7 +115,7 @@ class FitPolynomial:
             rng -= 1
             if not m:
                 continue
-            if m < 0.:
+            if m < 0.0:
                 sign = "-"
             elif parts:
                 sign = "+"
@@ -125,14 +139,23 @@ class FitPolynomial:
         return " ".join(parts)
 
     def mark_params(self, corvec):
-        pnr = ["a", "b", "c", "\u03b1", "\u03b2", "\u03b3",
-               "\u03c7<sup>2</sup>",
-               "\u03c3<sup>2</sup><sub>a</sub>",
-               "\u03c3<sup>2</sup><sub>b</sub>",
-               "\u03c3<sup>2</sup><sub>c</sub>",
-               "\u03c3<sup>2</sup><sub>\u03b1</sub>",
-               "\u03c3<sup>2</sup><sub>\u03b2</sub>",
-               "\u03c3<sup>2</sup><sub>\u03b3</sub>"]
-        return "; ".join("%s= %s" % (n, format_string("%g", v))
-                         for n, v in zip(pnr, self(corvec, True))
-                         if v is not None)
+        pnr = [
+            "a",
+            "b",
+            "c",
+            "\u03b1",
+            "\u03b2",
+            "\u03b3",
+            "\u03c7<sup>2</sup>",
+            "\u03c3<sup>2</sup><sub>a</sub>",
+            "\u03c3<sup>2</sup><sub>b</sub>",
+            "\u03c3<sup>2</sup><sub>c</sub>",
+            "\u03c3<sup>2</sup><sub>\u03b1</sub>",
+            "\u03c3<sup>2</sup><sub>\u03b2</sub>",
+            "\u03c3<sup>2</sup><sub>\u03b3</sub>",
+        ]
+        return "; ".join(
+            "%s= %s" % (n, format_string("%g", v))
+            for n, v in zip(pnr, self(corvec, True))
+            if v is not None
+        )
