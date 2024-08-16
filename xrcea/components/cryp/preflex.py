@@ -20,17 +20,20 @@ from locale import atof, format_string
 from math import asin, pi, sin
 from xrcea.core.vi.value import Tabular, TabCell, Value, lfloat
 from xrcea.core.vi.spreadsheet import Spreadsheet
-from xrcea.core.vi import ask_save_filename
+from xrcea.core.vi import ask_save_filename, ask_open_filename
 
-_edit = _("Edit")
+_edit = _("Edit")  # type: ignore[undefined-variable]
 
 
 class PeakLocator:
+    "Locate peaks"
+
     def __init__(self, units, wavel):
         self.units = units
         self.wavel = wavel
 
     def to_units(self, val):
+        "d to some units"
         if self.units == "sin":
             return self.wavel / (2.0 * val)
         if self.units == "d2":
@@ -42,6 +45,7 @@ class PeakLocator:
         return val
 
     def to_d(self, val):
+        "some units to d"
         if self.units == "sin":
             return self.wavel / (2.0 * val)
         if self.units == "d2":
@@ -63,6 +67,7 @@ class PosCell(TabCell):
 
     @property
     def value(self):
+        "return cell's value"
         return self.__cont[0]
 
     @value.setter
@@ -83,6 +88,7 @@ class PosCell(TabCell):
             return ""
 
     def shift_in_units(self, shift):
+        "Shift peak in some units"
         try:
             self.__cont[0] = self._locator.to_d(
                 self._locator.to_units(self.__cont[0]) + shift
@@ -244,7 +250,12 @@ class CompCards(Tabular):
     def export_cards(self, fname):
         "Export cards to file"
         with open(fname, "w", encoding="utf8") as fptr:
-            json.dump(self._cards, fptr, indent="    ")
+            json.dump(self._cards, fptr, indent=4)
+
+    def import_cards(self, fname):
+        "Import cards from file"
+        with open(fname, encoding="utf8") as fptr:
+            self._cards.update(json.load(fptr))
 
 
 class AssumedCards(Spreadsheet):
@@ -259,7 +270,7 @@ class AssumedCards(Spreadsheet):
             (_edit,), _("Resize by..."), self.resize_by, None
         )
         self.menu.append_item((_edit,), _("Export..."), self.export_tab, None)
-        self.menu.append_item((_edit,), _("Import..."), self.resize_by, None)
+        self.menu.append_item((_edit,), _("Import..."), self.import_tab, None)
         self.show()
 
         def select_units(units):
@@ -315,10 +326,22 @@ class AssumedCards(Spreadsheet):
     def export_tab(self):
         "export table to json"
         fname = ask_save_filename(
-            _("Export table"), "", [("*.js", _("JSON dump"))]
+            _("Export table"), "", [("*.json", _("JSON dump"))]
         )
         if fname:
+            if not fname.endswith(".json"):
+                fname += ".json"
             self._tab.export_cards(fname)
+
+    def import_tab(self):
+        "Import table from JSON"
+        fname = ask_open_filename(
+            _("Import table"), "", [("*.json", _("JSON dump"))]
+        )
+        if fname:
+            self._tab.import_cards(fname)
+            self._tab.from_origin()
+            self.show()
 
 
 def show_assumed(idat):

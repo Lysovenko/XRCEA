@@ -15,3 +15,5 @@ TAGS
 dist
 xrcea.pot
 .vscode
+.ropeproject/
+.mypy_cache/
