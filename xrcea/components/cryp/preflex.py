@@ -14,15 +14,17 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """
+About predefined reflexes
 """
 import json
+from gettext import gettext as _
 from locale import atof, format_string
 from math import asin, pi, sin
 from xrcea.core.vi.value import Tabular, TabCell, Value, lfloat
 from xrcea.core.vi.spreadsheet import Spreadsheet
 from xrcea.core.vi import ask_save_filename, ask_open_filename
 
-_edit = _("Edit")  # type: ignore[undefined-variable]
+_edit: str = _("Edit")  # type: ignore[name-defined]
 
 
 class PeakLocator:
@@ -115,10 +117,8 @@ class CompCard:
         self._parnames.extend(self._cellpars)
         self.rows = max((len(crd["reflexes"]), len(self._parnames)))
 
-    def __int__(self):
-        return self._cno
-
-    def get(self, row, col):
+    def get(self, row, col):  # type: ignore
+        "get cell"
         if col == 0:
             try:
                 return PosCell(self._crd["reflexes"][row], self._locator)
@@ -159,10 +159,13 @@ class CompCard:
                 return
 
     def set(self, row, col, data):
+        "set column with data"
         if col == 0:
             return self._fit_resize(row, data)
+        return None
 
     def switch(self, rows):
+        "Peak is present or not"
         if not rows:
             return
         self._crd["extinguished"] = list(
@@ -170,11 +173,12 @@ class CompCard:
         )
 
     def resize_by(self, factor):
-        for r in self._crd["reflexes"]:
-            r[0] *= factor
-        for p in ("a", "b", "c"):
+        "resize all cell"
+        for row in self._crd["reflexes"]:
+            row[0] *= factor
+        for param in ("a", "b", "c"):
             try:
-                self._crd["params"][p] *= factor
+                self._crd["params"][param] *= factor
             except KeyError:
                 pass
 
@@ -311,6 +315,7 @@ class AssumedCards(Spreadsheet):
             self._tab.get(i, 0).shift_in_units(shift.get())
 
     def resize_by(self):
+        "Resize by factor"
         sels = list(self.get_selected_cells())
         if not sels:
             self.print_error(_("No cards selected."))
@@ -345,6 +350,7 @@ class AssumedCards(Spreadsheet):
 
 
 def show_assumed(idat):
+    "Show assumed cards"
     predef = idat.UIs.get("AssumedCards")
     if predef:
         predef.show()
