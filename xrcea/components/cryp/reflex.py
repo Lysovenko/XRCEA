@@ -17,7 +17,7 @@
 """
 
 import numpy as np
-from scipy.optimize import fmin, curve_fit
+from scipy.optimize import fmin, curve_fit  # type: ignore
 
 _SH_FUNCTIONS = {
     "Gauss": lambda the_x, x0, h, w: h * np.exp(-((the_x - x0) ** 2) / w),

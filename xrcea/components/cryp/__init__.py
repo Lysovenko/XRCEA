@@ -1,4 +1,4 @@
-# XRCEA (C) 2020 Serhii Lysovenko
+# XRCEA (C) 2020-2024 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,9 +14,11 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """
+Crystalline peak
 """
 
-from locale import format as lformat
+from locale import format_string as lformat
+from gettext import gettext as _
 import numpy as np
 from xrcea.core.application import APPLICATION as APP
 from xrcea.core.idata import XrayData
@@ -82,21 +84,26 @@ def introduce():
 
 
 def terminate():
+    "Terminate addon"
     iset = APP.settings.set
     for i in _DEFAULTS:
         iset(i, _data[i], "Peaks")
 
 
 class Mcall:
+    "Menu Call"
+
     def __init__(self, data, action):
         self.__action = getattr(self, action)
         self.idat = data
+        self.data = None
 
     def __call__(self, xrd):
         self.data = xrd
         return self.__action()
 
     def calc_bg(self):
+        "Calculate background"
         dat = self.data
         plot = dat.UIs.get("main")
         dlgr = plot.input_dialog(
@@ -148,6 +155,7 @@ class Mcall:
             dat.show_plot(plot_name)
 
     def calc_reflexes(self):
+        "calculate reflexes"
         dat = self.data
         rv = calculate_reflexes(dat)
         if rv is None:
@@ -160,8 +168,30 @@ class Mcall:
         dat.show_plot(plot_name)
 
     def show_sheet(self):
+        "Show table"
         dat = self.data
         show_sheet(dat)
+
+
+def calc_refl_dialog(idata):
+    "Dialog for reflexes calculation"
+    plot = idata.UIs.get("main")
+    sigmin = _("Min. %s:") % "\u03c3", _data["refl_sigmin"]
+    consig = _("Const. %s") % "\u03c3", _data["refl_consig"]
+    mbells = _("Max. bells:"), _data["refl_mbells"]
+    bell_t = _("Shape function:"), _BELL_NAMES, _data["refl_bt"]
+    pts_mi = _("Ignore points:"), _data["refl_ptm"], 4
+    bf = _("Believe factor:"), _data["refl_bf"]
+    alg = 1 if idata.extra_data.get("CompCards") else 0
+    algorithm = (
+        _("Mode:"),
+        (_("Without any user assumption"), _("By predefined reflexes")),
+        alg,
+    )
+    return plot.input_dialog(
+        _("Shapes of reflexes"),
+        [sigmin, consig, mbells, bell_t, bf, pts_mi, algorithm],
+    )
 
 
 def calculate_reflexes(idata):
@@ -184,22 +214,7 @@ def calculate_reflexes(idata):
     dreflexes = {}
     dreflexes["lambda"] = idata.lambda1
     I2 = idata.I2
-    sigmin = _("Min. %s:") % "\u03c3", _data["refl_sigmin"]
-    consig = _("Const. %s") % "\u03c3", _data["refl_consig"]
-    mbells = _("Max. bells:"), _data["refl_mbells"]
-    bell_t = _("Shape function:"), _BELL_NAMES, _data["refl_bt"]
-    pts_mi = _("Ignore points:"), _data["refl_ptm"], 4
-    bf = _("Believe factor:"), _data["refl_bf"]
-    alg = 1 if idata.extra_data.get("CompCards") else 0
-    algorithm = (
-        _("Mode:"),
-        (_("Without any user assumption"), _("By predefined reflexes")),
-        alg,
-    )
-    rv = plot.input_dialog(
-        _("Shapes of reflexes"),
-        [sigmin, consig, mbells, bell_t, bf, pts_mi, algorithm],
-    )
+    rv = calc_refl_dialog(idata)
     if rv is None:
         return
     sigmin, consig, mbells, bell_t, bf, pts_mi, algorithm = rv
@@ -263,19 +278,17 @@ def calculate_reflexes(idata):
 
 def reflexes_markup(reflexes):
     "makes reflexes description in wiki format"
-    info = "\n== %s ==\n\n" % _("Reflexes description")
+    info = f"\n== {_('Reflexes description')} ==\n\n"
     rti = _BELL_TYPES.index(reflexes["shape"])
-    info += "* %s: %s\n" % (_("Mode"), _BELL_NAMES[rti])
-    info += (
-        "\n\n{|\n! x_{0}\n! d\n! h\n! %s\n! S\n! std\n"
-        % ("\u03c3", "\u03b3", "\u03b3")[rti]
-    )
+    info += f"* {_('Mode')}: {_BELL_NAMES[rti]}\n"
+    rtname = ("\u03c3", "\u03b3", "\u03b3")[rti]
+    info += "\n\n{|\n! x_{0}\n! d\n! h\n! " + rtname + "\n! S\n! std\n"
     tbl = []
     wav = reflexes["lambda"]
     for i in reflexes["items"]:
         tbl.append("|-")
-        tbl.append("| %s" % lformat("%g", i[0]))
-        tbl.append("| %s" % lformat("%g", wav / 2.0 / i[0]))
+        tbl.append(f"| {lformat('%g', i[0])}")
+        tbl.append(f"| {lformat('%g', wav / 2.0 / i[0])}")
         hght = i[1]
         if rti == 1:
             wdth = np.sqrt(i[2]) / wav
@@ -286,9 +299,9 @@ def reflexes_markup(reflexes):
         else:
             wdth = np.sqrt(i[2] / 2.0) / wav
             area = hght * wdth * np.sqrt(2.0 * np.pi)
-        tbl.append("| %s" % lformat("%g", hght))
-        tbl.append("| %s" % lformat("%g", wdth))
-        tbl.append("| %s" % lformat("%g", area))
-        tbl.append("| %s" % lformat("%g", i[3]))
+        tbl.append(f"| {lformat('%g', hght)}")
+        tbl.append(f"| {lformat('%g', wdth)}")
+        tbl.append(f"| {lformat('%g', area)}")
+        tbl.append(f"| {lformat('%g', i[3])}")
     tbl.append("|}")
     return info + "\n".join(tbl)
