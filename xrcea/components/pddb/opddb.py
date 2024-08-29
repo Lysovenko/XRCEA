@@ -85,8 +85,10 @@ class ObjDB:
 
     def select_cards(self, query):
         if query is None:
-            return [(k, v["name"], v["formula"], v["quality"])
-                    for k, v in self._db_obj["cards"].items()]
+            return [
+                (k, v["name"], v["formula"], v["quality"])
+                for k, v in self._db_obj["cards"].items()
+            ]
         if isinstance(self._database, Database):
             return self._database.select_cards(query)
         return []
@@ -99,7 +101,7 @@ class ObjDB:
                 a, b, c = vals[:3]
             elif len(vals) == 2:
                 a, b = vals
-                c = 0.
+                c = 0.0
             else:
                 raise ValueError("Too short chunk %s" % chunk)
             if a > b:
@@ -118,12 +120,26 @@ class ObjDB:
                     passed += 1
             if passed == len(conds):
                 result.append(cid)
-        return [(c, self.card_name(c), self.formula_markup(c, None),
-                 self.quality(c)) for c in result]
+        return [
+            (
+                c,
+                self.card_name(c),
+                self.formula_markup(c, None),
+                self.quality(c),
+            )
+            for c in result
+        ]
 
     def list_cards(self, cids):
-        return [(c, self.card_name(c), self.formula_markup(c, None),
-                 self.quality(c)) for c in cids]
+        return [
+            (
+                c,
+                self.card_name(c),
+                self.formula_markup(c, None),
+                self.quality(c),
+            )
+            for c in cids
+        ]
 
     def quality(self, cid):
         if cid in self._db_obj["cards"]:
@@ -148,8 +164,9 @@ class ObjDB:
             if hkl:
                 return self._db_obj["cards"][cid].get("reflexes")
             else:
-                return [i[:2] for i in
-                        self._db_obj["cards"][cid].get("reflexes")]
+                return [
+                    i[:2] for i in self._db_obj["cards"][cid].get("reflexes")
+                ]
         if self._database is not None:
             return self._database.reflexes(cid, hkl)
 
@@ -175,7 +192,7 @@ class ObjDB:
             if mtype == "HTML":
                 return formula_markup(formula)
             return formula
-        return ''
+        return ""
 
     def citations(self, cid):
         if cid in self._db_obj["cards"]:
@@ -189,10 +206,10 @@ class ObjDB:
             return [], []
         dis = np.array(reflexes, "f").transpose()
         intens = dis[1]
-        if intens.max() == 999.:
-            for i in (intens == 999.).nonzero():
-                intens[i] += 1.
-            intens /= 10.
+        if intens.max() == 999.0:
+            for i in (intens == 999.0).nonzero():
+                intens[i] += 1.0
+            intens /= 10.0
         if not isinstance(wavel, (tuple, list)):
             wavel = (wavel,)
             single = True
@@ -202,13 +219,13 @@ class ObjDB:
         restore = np.seterr(invalid="ignore")
         for wave in wavel:
             if xtype == "sin(theta)":
-                abscisas.append(wave / 2. / dis[0])
+                abscisas.append(wave / 2.0 / dis[0])
             elif xtype == "theta":
-                abscisas.append(np.arcsin(wave / 2. / dis[0]) / np.pi * 180.)
+                abscisas.append(np.arcsin(wave / 2.0 / dis[0]) / np.pi * 180.0)
             elif xtype == "2theta":
-                abscisas.append(np.arcsin(wave / 2. / dis[0]) / np.pi * 360.)
+                abscisas.append(np.arcsin(wave / 2.0 / dis[0]) / np.pi * 360.0)
         if xtype == "q":
-            abscisas.append((2. * np.pi) / dis[0])
+            abscisas.append((2.0 * np.pi) / dis[0])
         elif not abscisas:
             abscisas.append(dis[0])
         if between:
@@ -232,18 +249,21 @@ class ObjDB:
         out = []
         for pos, intens, reflex in zip(dis[0], dis[1], refl):
             out.append(
-                "set arrow from %g, second 0 rto 0, second %g nohead" %
-                (pos, intens))
+                "set arrow from %g, second 0 rto 0, second %g nohead"
+                % (pos, intens)
+            )
             if reflex[0] is not None:
                 out.append(
-                    "set label \"%s (%d %d %d)\" "
-                    "at %g, second %g left rotate" %
-                    ((switch_number(cid),) + tuple(reflex) + (pos, intens)))
+                    'set label "%s (%d %d %d)" '
+                    "at %g, second %g left rotate"
+                    % ((switch_number(cid),) + tuple(reflex) + (pos, intens))
+                )
             else:
                 out.append(
-                    "set label \"%s\" "
-                    "at %g, second %g left rotate" %
-                    (switch_number(cid), pos, intens))
+                    'set label "%s" '
+                    "at %g, second %g left rotate"
+                    % (switch_number(cid), pos, intens)
+                )
         return "\n".join(out)
 
     def xrd_units_table(self, cid, xtype="q", wavel=()):
@@ -257,10 +277,16 @@ class ObjDB:
                 hkl = "%d %d %d" % tuple(reflex)
             else:
                 hkl = ""
-            out.append("<tr><td>%g</td><td>%g</td><td>%s</td></tr>" %
-                       (pos, intens, hkl))
-        xt = {'2theta': u"2\u03b8, \u00B0", "theta": u"\u03b8, \u00B0",
-              "q": u"q, \u212b^{-1}", None: u"d, \u212b"}[xtype]
+            out.append(
+                "<tr><td>%g</td><td>%g</td><td>%s</td></tr>"
+                % (pos, intens, hkl)
+            )
+        xt = {
+            "2theta": "2\u03b8, \u00B0",
+            "theta": "\u03b8, \u00B0",
+            "q": "q, \u212b^{-1}",
+            None: "d, \u212b",
+        }[xtype]
         return """<!DOCTYPE html><html>
         <head><style>
 table {
@@ -286,10 +312,13 @@ td {
         <table>
         <tr><th>%(thead)s</th><th>I, %%</th><th>h k l</th></tr>
         %(tbody)s</table></body></html>
-        """ % {"thead": xt, "tbody": "\n".join(out),
-               "name": self.card_name(cid),
-               "formula": self.formula_markup(cid),
-               "number": switch_number(cid)}
+        """ % {
+            "thead": xt,
+            "tbody": "\n".join(out),
+            "name": self.card_name(cid),
+            "formula": self.formula_markup(cid),
+            "number": switch_number(cid),
+        }
 
     def display(self):
         """Display pddb cards set"""
@@ -338,8 +367,10 @@ def show_browser(objdb=None):
             try:
                 db = ObjDB()
             except RuntimeError as err:
-                return print_error(_("DB opening error"),
-                                   _("Failed to open DB file: %s") % str(err))
+                return print_error(
+                    _("DB opening error"),
+                    _("Failed to open DB file: %s") % str(err),
+                )
         else:
             db = objdb
         PARAMS["Browser"] = Browser(db)

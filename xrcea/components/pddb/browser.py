@@ -14,31 +14,39 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+"Browser"
 
+from typing import Dict
 import locale
+from gettext import gettext as _
 from xrcea.core.idata import XrayData
-from xrcea.core.vi import Page, Button, print_error, input_dialog
+from xrcea.core.vi import Page, Button, print_error
 from xrcea.core.vi.value import Value
 from xrcea.core.application import APPLICATION as APP
 from .pddb import switch_number
 from .plot import plot_over
 from .analyse import mul_plot
 
-PARAMS = {}
-COLORS, COLORNAMES = zip(*(
-    ("blue", _("Blue")),
-    ("orange", _("Orange")),
-    ("green", _("Green")),
-    ("red", _("Red")),
-    ("purple", _("Purple")),
-    ("brown", _("Brown")),
-    ("pink", _("Pink")),
-    ("gray", _("Gray")),
-    ("olive", _("Olive")),
-    ("cyan", _("Cyan"))))
+PARAMS: Dict[str, object] = {}
+COLORS, COLORNAMES = zip(
+    *(
+        ("blue", _("Blue")),
+        ("orange", _("Orange")),
+        ("green", _("Green")),
+        ("red", _("Red")),
+        ("purple", _("Purple")),
+        ("brown", _("Brown")),
+        ("pink", _("Pink")),
+        ("gray", _("Gray")),
+        ("olive", _("Olive")),
+        ("cyan", _("Cyan")),
+    )
+)
 
 
 class Browser(Page):
+    "DB browser GUI"
+
     def __init__(self, db):
         self.cards = Value(list)
         self.nums = set()
@@ -51,28 +59,33 @@ class Browser(Page):
         self.search()
         styles = {i: (i, None) for i in COLORS}
         styles["D"] = (None, "red")
-        super().__init__(_("Database browser"),
-                         self.cards,
-                         (_("Number"), _("Name"), _("Formula"), _("On plot")),
-                         styles)
+        super().__init__(
+            _("Database browser"),
+            self.cards,
+            (_("Number"), _("Name"), _("Formula"), _("On plot")),
+            styles,
+        )
         self.show()
         self.set_form([(Button(_("Search:"), self.search), self._query)], True)
         self.set_choicer(self.click_card)
-        self.set_list_context_menu([
-            (_("Order by number"), self.order_number),
-            (_("Order by name"), self.order_name),
-            (_("Order by relevance"), self.order_relevance),
-            (None, None),
-            (_("Clear deleted"), self.remove_deleted),
-            (_("Clear non marked"), self.remove_nonmarked),
-            (_("Show on plot as..."), self.add_colored),
-            (_("Mark the card"), self.mark_card),
-            (_("Delete"), self.del_the_card),
-            (_("Show reflexes in data units"), self.print_in_xrd_units),
-            (_("Print GNUPlot labels"), self.print_gp_labels),
-        ])
+        self.set_list_context_menu(
+            [
+                (_("Order by number"), self.order_number),
+                (_("Order by name"), self.order_name),
+                (_("Order by relevance"), self.order_relevance),
+                (None, None),
+                (_("Clear deleted"), self.remove_deleted),
+                (_("Clear non marked"), self.remove_nonmarked),
+                (_("Show on plot as..."), self.add_colored),
+                (_("Mark the card"), self.mark_card),
+                (_("Delete"), self.del_the_card),
+                (_("Show reflexes in data units"), self.print_in_xrd_units),
+                (_("Print GNUPlot labels"), self.print_gp_labels),
+            ]
+        )
 
     def click_card(self, tup):
+        "List item clicked"
         card = tup[-1]
         self._database.add_card(card, True)
         self._cur_card = card
@@ -81,6 +94,7 @@ class Browser(Page):
         self.plot()
 
     def mark_card(self, row, c=None):
+        "Mark the list item"
         self._marked_cards.add(row[-1])
         nu, na, fo, pt, (snu, sna, sfo, spt), cn = row
         sna = "blue"
@@ -89,6 +103,7 @@ class Browser(Page):
         self.cards.update(cl)
 
     def del_the_card(self, row, c=None):
+        "Remove the card from list"
         cl = self.cards.get()
         self._marked_cards.discard(row[-1])
         self.nums.discard(row[-1])
@@ -99,13 +114,15 @@ class Browser(Page):
             self.plot(True)
 
     def remove_deleted(self, row, c=None):
+        "Remove deleted cards"
         cl = self.cards.get()
         self.cards.update(i for i in cl if "D" not in i[4][0])
         self.nums = set(i[-1] for i in self.cards.get())
         self._marked_cards.intersection_update(self.nums)
         ncolored = len(self._colored_cards)
         for i in self.nums.symmetric_difference(
-                self._colored_cards).intersection(self._colored_cards):
+            self._colored_cards
+        ).intersection(self._colored_cards):
             self._colored_cards.pop(i)
         if ncolored > len(self._colored_cards):
             self._upd_clrs()
@@ -117,7 +134,8 @@ class Browser(Page):
         self.nums.intersection_update(self._marked_cards)
         ncolored = len(self._colored_cards)
         for i in self.nums.symmetric_difference(
-                self._colored_cards).intersection(self._colored_cards):
+            self._colored_cards
+        ).intersection(self._colored_cards):
             self._colored_cards.pop(i)
         if ncolored > len(self._colored_cards):
             self._upd_clrs()
@@ -138,15 +156,21 @@ class Browser(Page):
             if apply_filter:
                 xrd = PARAMS.get("XRD")
                 if not xrd:
-                    xrd = XrayData.dummy_by_dialog({"question": _(
-                        "No plot assumed to compare.\n"
-                        "Set your sample params.")})
+                    xrd = XrayData.dummy_by_dialog(
+                        {
+                            "question": _(
+                                "No plot assumed to compare.\n"
+                                "Set your sample params."
+                            )
+                        }
+                    )
                     if xrd is None:
                         return
                 units = xrd.x_units
                 wavelength = xrd.wavelength
                 cards = self._database.filter_cards(
-                    query[1:], units, wavelength, self.nums)
+                    query[1:], units, wavelength, self.nums
+                )
             elif cancel_filter:
                 cards = self._database.list_cards(self.nums)
             else:
@@ -156,10 +180,20 @@ class Browser(Page):
         self._query.update("")
         if cancel_filter or apply_filter:
             mrk = self._marked_cards
-            self.cards.update([
-                (switch_number(c), n, f, "", (
-                    set(q), "blue" if c in mrk else None, None, None), c)
-                for c, n, f, q in cards if c in self.nums])
+            self.cards.update(
+                [
+                    (
+                        switch_number(c),
+                        n,
+                        f,
+                        "",
+                        (set(q), "blue" if c in mrk else None, None, None),
+                        c,
+                    )
+                    for c, n, f, q in cards
+                    if c in self.nums
+                ]
+            )
             self._upd_clrs()
             self._filtering = apply_filter
             return
@@ -168,8 +202,11 @@ class Browser(Page):
             self._marked_cards.update(i[0] for i in cards)
         else:
             nst = None
-        ext = [(switch_number(c), n, f, "", (set(q), nst, None, None), c)
-               for c, n, f, q in cards if c not in self.nums]
+        ext = [
+            (switch_number(c), n, f, "", (set(q), nst, None, None), c)
+            for c, n, f, q in cards
+            if c not in self.nums
+        ]
         self.nums.update(r[-1] for r in ext)
         self.cards.update(self.cards.get() + ext)
 
@@ -177,15 +214,23 @@ class Browser(Page):
         db = self._database
         qual = db.quality(cid)
         qual = qual[1] + _(" (Deleted)") if qual[0] == "D" else qual[1]
-        res = (_("""
+        res = (
+            _(
+                """
 <table>
 <tr><td>Number:</td><td>%(num)s</td></tr>
 <tr><td>Name:</td><td>%(nam)s</td></tr>
 <tr><td>Formula:</td><td>%(fml)s</td></tr>
 <tr><td>Quality:</td><td>%(qlt)s</td></tr>
-""") %
-               {"num": switch_number(cid), "nam": db.card_name(cid),
-                "fml": db.formula_markup(cid), "qlt": qual})
+"""
+            )
+            % {
+                "num": switch_number(cid),
+                "nam": db.card_name(cid),
+                "fml": db.formula_markup(cid),
+                "qlt": qual,
+            }
+        )
         cell = db.cell_params(cid)
         if cell:
             pnr = ["a", "b", "c", "\u03b1", "\u03b2", "\u03b3"]
@@ -196,8 +241,10 @@ class Browser(Page):
             res += "; ".join(ppr) + "</td></tr>\n"
         spc_grp = db.spacegroup(cid)
         if spc_grp:
-            res += "<tr><td>%s</td><td>%s</td></tr>\n" % \
-                (_("Space group:"), spc_grp)
+            res += "<tr><td>%s</td><td>%s</td></tr>\n" % (
+                _("Space group:"),
+                spc_grp,
+            )
         res += "</table>\n"
         rtbl = "<br>\n<br>\n<table border=1>\n"
         rtblr = "<tr>"
@@ -205,10 +252,12 @@ class Browser(Page):
         for reflex in map(tuple, db.reflexes(cid, True)):
             if reflex[2] is None:
                 rtblr += locale.format_string(
-                    "<td><pre> %.5f %3d </pre></td>", reflex[:2])
+                    "<td><pre> %.5f %3d </pre></td>", reflex[:2]
+                )
             else:
                 rtblr += locale.format_string(
-                    "<td><pre> %.5f %3d  %4d%4d%4d </pre></td>", reflex)
+                    "<td><pre> %.5f %3d  %4d%4d%4d </pre></td>", reflex
+                )
             rcels += 1
             if rcels == 3:
                 rtbl += rtblr + "</tr>\n"
@@ -264,9 +313,15 @@ class Browser(Page):
         if plt is None:
             return
         units = plt["x1units"]
-        wavis = [(wavelength, intensity) for wavelength, intensity in (
-            (xrd.lambda1, 1.), (xrd.lambda2, xrd.I2), (xrd.lambda3, xrd.I3))
-            if wavelength is not None and intensity is not None]
+        wavis = [
+            (wavelength, intensity)
+            for wavelength, intensity in (
+                (xrd.lambda1, 1.0),
+                (xrd.lambda2, xrd.I2),
+                (xrd.lambda3, xrd.I3),
+            )
+            if wavelength is not None and intensity is not None
+        ]
         wavels = tuple(i[0] for i in wavis)
         self.set_text(self._database.gnuplot_lables(cid, units, wavels[0]))
 
@@ -274,8 +329,13 @@ class Browser(Page):
         cid = row[-1]
         xrd = PARAMS.get("XRD")
         if not xrd:
-            xrd = XrayData.dummy_by_dialog({"question": _(
-                "No plot assumed to compare.\nSet your sample params.")})
+            xrd = XrayData.dummy_by_dialog(
+                {
+                    "question": _(
+                        "No plot assumed to compare.\nSet your sample params."
+                    )
+                }
+            )
             if xrd is None:
                 return
         units = xrd.x_units
@@ -287,8 +347,9 @@ class Browser(Page):
         exclude = set(self._colored_cards.values())
         exclude.add("red")
         try:
-            clrs, nms = zip(*[i for i in zip(COLORS, COLORNAMES)
-                              if i[0] not in exclude])
+            clrs, nms = zip(
+                *[i for i in zip(COLORS, COLORNAMES) if i[0] not in exclude]
+            )
         except ValueError:
             self.print_error(_("No colors left."))
             return
@@ -310,10 +371,10 @@ class Browser(Page):
         if self._cur_card not in rcards:
             rcards[self._cur_card] = "red"
         clrnms = {n: COLORNAMES[COLORS.index(v)] for n, v in rcards.items()}
-        self.cards.update((sn, n, f, clrnms.get(c, ""),
-                           (s1, s2, s3, rcards.get(c)), c)
-                          for sn, n, f, d, (s1, s2, s3, s4), c
-                          in self.cards.get())
+        self.cards.update(
+            (sn, n, f, clrnms.get(c, ""), (s1, s2, s3, rcards.get(c)), c)
+            for sn, n, f, d, (s1, s2, s3, s4), c in self.cards.get()
+        )
 
     def set_list(self, objdb):
         self._database = objdb
@@ -332,8 +393,10 @@ class Browser(Page):
             pnr = ["a", "b", "c", "alpha", "beta", "gamma"]
             params = dict((pnr[p[0]], p[1]) for p in params)
             card["params"] = params
-        card["reflexes"] = [r[:2] if r[2] is None else [r[0], r[1], r[2:]]
-                            for r in self._database.reflexes(cid, True)]
+        card["reflexes"] = [
+            r[:2] if r[2] is None else [r[0], r[1], r[2:]]
+            for r in self._database.reflexes(cid, True)
+        ]
         card["formula"] = self._database.formula_markup(cid, None)
         card["number"] = switch_number(cid)
         ccards = xrd.extra_data.setdefault("CompCards", {})
@@ -357,8 +420,12 @@ class Browser(Page):
             xrd = PARAMS["XRD"]
             xrd.extra_data["stripped"]
         except KeyError:
-            self.print_error(_("Can't define relevance if the background "
-                               "is not calculated"))
+            self.print_error(
+                _(
+                    "Can't define relevance if the background "
+                    "is not calculated"
+                )
+            )
             return
         joined = []
 
@@ -402,18 +469,22 @@ def activate(xrd):
             break
     if pddb is None:
         from .opddb import ObjDB
+
         try:
             pddb = ObjDB()
             APP.add_object(pddb)
         except RuntimeError as err:
-            return print_error(_("DB opening error"),
-                               _("Failed to open DB file: %s") % str(err))
+            return print_error(
+                _("DB opening error"),
+                _("Failed to open DB file: %s") % str(err),
+            )
     if not PARAMS.get("Browser"):
         PARAMS["Browser"] = Browser(pddb)
     else:
         PARAMS["Browser"].show()
     try:
-        PARAMS["Browser"].get_colors(dict(
-            (int(i), j) for i, j in xrd.extra_data["pddb_colors"].items()))
+        PARAMS["Browser"].get_colors(
+            dict((int(i), j) for i, j in xrd.extra_data["pddb_colors"].items())
+        )
     except (KeyError, ValueError):
         pass
