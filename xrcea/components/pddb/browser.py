@@ -93,7 +93,7 @@ class Browser(Page):
         self._upd_clrs()
         self.plot()
 
-    def mark_card(self, row, c=None):
+    def mark_card(self, row, _c=None):
         "Mark the list item"
         self._marked_cards.add(row[-1])
         nu, na, fo, pt, (snu, sna, sfo, spt), cn = row
@@ -102,7 +102,7 @@ class Browser(Page):
         cl[cl.index(row)] = nu, na, fo, pt, (snu, sna, sfo, spt), cn
         self.cards.update(cl)
 
-    def del_the_card(self, row, c=None):
+    def del_the_card(self, row, _c=None):
         "Remove the card from list"
         cl = self.cards.get()
         self._marked_cards.discard(row[-1])
@@ -113,7 +113,7 @@ class Browser(Page):
             self._upd_clrs()
             self.plot(True)
 
-    def remove_deleted(self, row, c=None):
+    def remove_deleted(self, _row, _c=None):
         "Remove deleted cards"
         cl = self.cards.get()
         self.cards.update(i for i in cl if "D" not in i[4][0])
@@ -128,7 +128,8 @@ class Browser(Page):
             self._upd_clrs()
             self.plot(True)
 
-    def remove_nonmarked(self, row, c=None):
+    def remove_nonmarked(self, _row, _c=None):
+        "remove non marked cards"
         cl = self.cards.get()
         self.cards.update(i for i in cl if i[-1] in self._marked_cards)
         self.nums.intersection_update(self._marked_cards)
@@ -211,6 +212,7 @@ class Browser(Page):
         self.cards.update(self.cards.get() + ext)
 
     def mkhtext(self, cid):
+        "Make hypertext"
         db = self._database
         qual = db.quality(cid)
         qual = qual[1] + _(" (Deleted)") if qual[0] == "D" else qual[1]
@@ -293,7 +295,7 @@ class Browser(Page):
         res += "</ul>\n"
         return "".join(["<html><body>", res, "</body></html>"])
 
-    def plot(self, shrink=False):
+    def plot(self, _todo_shrink=False):
         try:
             xrd = PARAMS["XRD"]
         except KeyError:
@@ -301,7 +303,7 @@ class Browser(Page):
         xrd.extra_data["pddb_colors"] = dict(self._colored_cards)
         return plot_over(self._database, xrd, self._cur_card)
 
-    def print_gp_labels(self, row, c=None):
+    def print_gp_labels(self, row, _c=None):
         cid = row[-1]
         xrd = PARAMS.get("XRD")
         if not xrd:
@@ -309,7 +311,7 @@ class Browser(Page):
         plot = PARAMS.get("Plot")
         if not plot:
             return
-        name, plt = plot.get_current()
+        _name, plt = plot.get_current()
         if plt is None:
             return
         units = plt["x1units"]
@@ -325,7 +327,7 @@ class Browser(Page):
         wavels = tuple(i[0] for i in wavis)
         self.set_text(self._database.gnuplot_lables(cid, units, wavels[0]))
 
-    def print_in_xrd_units(self, row, c=None):
+    def print_in_xrd_units(self, row, _c=None):
         cid = row[-1]
         xrd = PARAMS.get("XRD")
         if not xrd:
@@ -342,7 +344,7 @@ class Browser(Page):
         wavelength = xrd.wavelength
         self.set_text(self._database.xrd_units_table(cid, units, wavelength))
 
-    def add_colored(self, row, c=None):
+    def add_colored(self, row, _c=None):
         """Add a card to colored"""
         exclude = set(self._colored_cards.values())
         exclude.add("red")
@@ -409,13 +411,13 @@ class Browser(Page):
         self._colored_cards = colors
         self._upd_clrs()
 
-    def order_number(self, row, c=None):
+    def order_number(self, _row, _c=None):
         self.cards.update(sorted(self.cards.get(), key=lambda x: x[-1]))
 
-    def order_name(self, row, c=None):
+    def order_name(self, _row, _c=None):
         self.cards.update(sorted(self.cards.get(), key=lambda x: x[1]))
 
-    def order_relevance(self, row, c=None):
+    def order_relevance(self, _row, _c=None):
         try:
             xrd = PARAMS["XRD"]
             xrd.extra_data["stripped"]
@@ -437,7 +439,7 @@ class Browser(Page):
                 if status.get("stop"):
                     joined.clear()
                     break
-                nu, na, fo, pt, (snu, sna, sfo, spt), cn = row
+                cn = row[-1]
                 joined.append((mul_plot(xrd, self._database, cn), row))
             status["complete"] = True
 
@@ -448,6 +450,7 @@ class Browser(Page):
 
 
 def set_plot(plotting):
+    "set plot"
     PARAMS["Plot"] = plotting.UIs.get("main")
     PARAMS["XRD"] = plotting
     if PARAMS.get("Browser"):
