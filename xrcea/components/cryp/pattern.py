@@ -100,12 +100,13 @@ class CellParams:
         d2 = (
             1.0 / self.a**2.0 * (h**2 / sin(self.beta) ** 2)
             + 1.0 / self.b**2 * k**2
-            + 1 / self.c**2 * el**2 / (sin(self.bet) ** 2)
+            + 1 / self.c**2 * el**2 / (sin(self.beta) ** 2)
             - 2 * h * el / (self.a * self.c * sin(self.beta) * tan(self.beta))
         )
         return sqrt(1.0 / d2)
 
     def reflex(self, hkl):
+        "Calculate reflexes"
         return [
             self._d_cubic,
             self._d_hex,
