@@ -20,6 +20,7 @@ import json
 from gettext import gettext as _
 from locale import atof, format_string
 from math import asin, pi, sin
+from typing import Any, Optional, Union
 from xrcea.core.vi.value import Tabular, TabCell, Value, lfloat
 from xrcea.core.vi.spreadsheet import Spreadsheet
 from xrcea.core.vi import ask_save_filename, ask_open_filename
@@ -102,8 +103,8 @@ class PosCell(TabCell):
 class CompCard:
     """Card to compare with"""
 
-    def __init__(self, crd, locator):
-        self._crd = crd
+    def __init__(self, crd: dict[str, Any], locator: PeakLocator) -> None:
+        self._crd: dict[str, Any] = crd
         self._locator = locator
         self._parnames = [_("Number"), _("Name"), _("Formula")]
         self._par_ids = ["number", "name", "formula"]
@@ -117,46 +118,47 @@ class CompCard:
         self._parnames.extend(self._cellpars)
         self.rows = max((len(crd["reflexes"]), len(self._parnames)))
 
-    def get(self, row, col):  # type: ignore
+    def get(self, row: int, col: int) -> Optional[Union[str, PosCell]]:
         "get cell"
+        reval: Optional[Union[str, PosCell]] = None
         if col == 0:
             try:
-                return PosCell(self._crd["reflexes"][row], self._locator)
+                reval = PosCell(self._crd["reflexes"][row], self._locator)
             except (KeyError, IndexError):
-                return
-        if col == 1:
+                pass
+        elif col == 1:
             try:
                 if row in self._crd.get("extinguished", ()):
-                    return str(self._crd["reflexes"][row][1]) + " *"
-                return str(self._crd["reflexes"][row][1])
+                    reval = str(self._crd["reflexes"][row][1]) + " *"
+                else:
+                    reval = str(self._crd["reflexes"][row][1])
             except (KeyError, IndexError):
-                return
-        if col == 2:
+                pass
+        elif col == 2:
             try:
-                return " ".join(map(str, self._crd["reflexes"][row][2]))
+                reval = " ".join(map(str, self._crd["reflexes"][row][2]))
             except (KeyError, IndexError):
-                return
-        if col == 3:
+                pass
+        elif col == 3:
             try:
-                return self._parnames[row]
-            except IndexError:
-                return
-        if col == 4:
-            try:
-                return self._crd[self._par_ids[row]]
-            except KeyError:
-                return
+                reval = self._parnames[row]
             except IndexError:
                 pass
+        elif col == 4:
             try:
-                return format_string(
+                reval = self._crd[self._par_ids[row]]
+            except (KeyError, IndexError):
+                pass
+            try:
+                reval = format_string(
                     "%.5g",
                     self._crd["params"][
                         self._cellpars[row - len(self._par_ids)]
                     ],
                 )
             except (KeyError, IndexError):
-                return
+                pass
+        return reval
 
     def set(self, row, col, data):
         "set column with data"
@@ -209,24 +211,27 @@ class CompCards(Tabular):
         return sum(i.rows for i in self._comp_cards)
 
     def from_origin(self):
+        "ab initio"
         self._comp_cards.clear()
         self._comp_cards.extend(
             CompCard(self._cards[cno], self._locator)
             for cno in sorted(self._cards, key=int)
         )
 
-    def get(self, row, col):
+    def get(self, row: int, col: int) -> Optional[Union[str, PosCell]]:
         nr = 0
         for card in self._comp_cards:
             if row < nr + card.rows:
                 return card.get(row - nr, col)
             nr += card.rows
+        return None
 
-    def set(self, row, col, data):
+    def set(self, row: int, col: int, data: str) -> None:
         nr = 0
         for card in self._comp_cards:
             if row < nr + card.rows:
-                return card.set(row - nr, col, data)
+                card.set(row - nr, col, data)
+                return
             nr += card.rows
 
     def on_del_pressed(self, cells):
@@ -243,6 +248,7 @@ class CompCards(Tabular):
         self.refresh()
 
     def resize_by(self, factor, cells):
+        "Resize cell by factor"
         start = 0
         for card in self._comp_cards:
             end = start + card.rows
