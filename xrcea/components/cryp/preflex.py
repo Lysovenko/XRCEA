@@ -23,7 +23,7 @@ from math import asin, pi, sin
 from typing import Any, Optional, Union
 from xrcea.core.vi.value import Tabular, TabCell, Value, lfloat
 from xrcea.core.vi.spreadsheet import Spreadsheet
-from xrcea.core.vi import ask_save_filename, ask_open_filename
+from xrcea.core.vi import ask_save_filename, ask_open_filename, print_error
 
 _edit: str = _("Edit")  # type: ignore[name-defined]
 
@@ -262,10 +262,17 @@ class CompCards(Tabular):
         with open(fname, "w", encoding="utf8") as fptr:
             json.dump(self._cards, fptr, indent=4)
 
-    def import_cards(self, fname):
+    def import_cards(self, fname, replace):
         "Import cards from file"
         with open(fname, encoding="utf8") as fptr:
-            self._cards.update(json.load(fptr))
+            try:
+                cards = json.load(fptr)
+            except ValueError:
+                print_error(_("Import cards"), f"Wrong JSON file: {fname}")
+            else:
+                if replace:
+                    self._cards.clear()
+                self._cards.update(cards)
 
 
 class AssumedCards(Spreadsheet):
@@ -281,6 +288,9 @@ class AssumedCards(Spreadsheet):
         )
         self.menu.append_item((_edit,), _("Export..."), self.export_tab, None)
         self.menu.append_item((_edit,), _("Import..."), self.import_tab, None)
+        self.menu.append_item(
+            (_edit,), _("Replace with imported..."), self.replace_tab, None
+        )
         self.show()
 
         def select_units(units):
@@ -344,13 +354,16 @@ class AssumedCards(Spreadsheet):
                 fname += ".json"
             self._tab.export_cards(fname)
 
-    def import_tab(self):
+    def replace_tab(self):
+        self.import_tab(True)
+
+    def import_tab(self, replace=False):
         "Import table from JSON"
         fname = ask_open_filename(
             _("Import table"), "", [("*.json", _("JSON dump"))]
         )
         if fname:
-            self._tab.import_cards(fname)
+            self._tab.import_cards(fname, replace)
             self._tab.from_origin()
             self.show()
 
