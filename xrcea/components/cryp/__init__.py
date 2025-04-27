@@ -22,6 +22,7 @@ from gettext import gettext as _
 import numpy as np
 from xrcea.core.application import APPLICATION as APP
 from xrcea.core.idata import XrayData
+from .assume import show_struct_assumptions
 from .reflex import calc_bg, refl_sects, ReflexDedect, Cryplots
 from .preflex import show_assumed
 from .positions import show_sheet
@@ -60,6 +61,7 @@ def introduce():
         (p + (_("Calc. refl. shapes..."),), Mcall(_data, "calc_reflexes")),
         (p + (_("Show found refl. shapes"),), Mcall(_data, "show_sheet")),
         (p + (_("Predefined reflexes..."),), show_assumed),
+        (p + (_("Make assumptions..."),), show_struct_assumptions),
     ]
     for p, e in mitems:
         XrayData.actions[p] = e
