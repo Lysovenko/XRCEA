@@ -17,10 +17,17 @@
 """Draw an Page (list and text area)"""
 
 
-from PyQt5.QtWidgets import (QFormLayout, QWidget, QVBoxLayout, QTextBrowser,
-                             QSplitter, QPushButton, QShortcut)
+from PyQt5.QtWidgets import (
+    QFormLayout,
+    QWidget,
+    QVBoxLayout,
+    QTextBrowser,
+    QSplitter,
+    QPushButton,
+    QShortcut,
+)
 from PyQt5.QtCore import Qt, QTextCodec
-from PyQt5.QtGui import (QKeySequence, QIcon)
+from PyQt5.QtGui import QKeySequence, QIcon
 from .lists import VisualList
 from .core import clearLayout, qMainWindow
 from .idialog import get_widget_value, get_widget_from_value
@@ -37,6 +44,7 @@ class Page(qMainWindow):
         self.separate_items = False
         self.close_lock = None
         self.form_edas = []
+        self.__shortcuts = {}
 
     def draw_shape(self, colnames, lvalue, styles):
         message_area = QWidget()
@@ -110,10 +118,12 @@ class Page(qMainWindow):
                 call = n
                 n = QPushButton(n.name)
                 n.clicked.connect(
-                    lambda x, y=ew, c=call: c(get_widget_value(y)))
+                    lambda x, y=ew, c=call: c(get_widget_value(y))
+                )
                 if hasattr(ew, "returnPressed"):
                     ew.returnPressed.connect(
-                        lambda y=ew, c=call: c(get_widget_value(y)))
+                        lambda y=ew, c=call: c(get_widget_value(y))
+                    )
             if ew is None:
                 layout.addRow(n)
             else:
@@ -132,6 +142,13 @@ class Page(qMainWindow):
             if super().closeEvent(event):
                 return
         self.vi_obj.currently_alive = False
+
+    def add_shortcut(self, key, func):
+        try:
+            self.__shortcuts[key] = QShortcut(QKeySequence(key), self)
+            self.__shortcuts[key].activated.connect(func)
+        except Exception:
+            pass
 
 
 def show_page(vi_obj):

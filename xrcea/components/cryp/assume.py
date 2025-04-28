@@ -20,8 +20,14 @@ from itertools import product
 import numpy as np
 from xrcea.core.vi import Page
 from xrcea.core.application import APPLICATION as APP
-from .cellparams import (d_hkl_orhomb, d_hkl_hex, d_hkl_tetra, d_hkl_cubic,
-                         d_hkl_rhombohedral, d_hkl_monoclinic)
+from .cellparams import (
+    d_hkl_orhomb,
+    d_hkl_hex,
+    d_hkl_tetra,
+    d_hkl_cubic,
+    d_hkl_rhombohedral,
+    d_hkl_monoclinic,
+)
 
 _assumption = _("Assumption")
 
@@ -32,15 +38,18 @@ class StructAssume(Page):
     def __init__(self, xrd):
         self._xrd = xrd
         self._calculs = {
-            "orhomb": self.di_orhomb, "hex": self.di_hex,
+            "orhomb": self.di_orhomb,
+            "hex": self.di_hex,
             "tetra": self.di_tetra,
-            "cubic": self.di_cubic, "rhombohedral": self.di_rhombohedral,
-            "monoclinic": self.di_monoclinic}
+            "cubic": self.di_cubic,
+            "rhombohedral": self.di_rhombohedral,
+            "monoclinic": self.di_monoclinic,
+        }
         super().__init__(str(xrd.name) + _(" (Assumptions)"), None)
         self.menu.append_item(
-            (_assumption,), _("Plot"), self.calc_plot, None
+            (_assumption,), _("Plot") + "\tCtrl+P", self.calc_plot, None
         )
-        # self.add_shortcut("Ctrl+r", self.calc_plot)
+        self.add_shortcut("Ctrl+p", self.calc_plot)
         self.show()
         self.set_text('[{"t": "cubic", "a": 1}]', True)
 
@@ -95,10 +104,13 @@ class StructAssume(Page):
             for (x, y), lstl, (w, i) in zip(
                 dis, ("solid", "dashed", "dashdot"), wavis
             ):
-                eplt = {"type": "pulse", "linestyle": lstl,
-                        "color": rec.get("clr", "red")}
+                eplt = {
+                    "type": "pulse",
+                    "linestyle": lstl,
+                    "color": rec.get("clr", "red"),
+                }
                 if lstl == "solid":
-                    eplt["legend"] = rec.get('t', 'nothing')
+                    eplt["legend"] = rec.get("t", "nothing")
                 eplt["x1"] = x
                 eplt["y2"] = y * i
                 plt["plots"].append(eplt)
@@ -147,55 +159,55 @@ class StructAssume(Page):
         return res
 
     def calc_reflexes(self, record):
-        return sorted(self._calculs[record['t']](record))
+        return sorted(self._calculs[record["t"]](record))
 
     @staticmethod
     def di_orhomb(rec):
-        hkl_ = list(product(*((tuple(range(rec.get('max', 4) + 1)),) * 3)))[1:]
-        a = rec['a']
-        b = rec['b']
-        c = rec['c']
+        hkl_ = list(product(*((tuple(range(rec.get("max", 4) + 1)),) * 3)))[1:]
+        a = rec["a"]
+        b = rec["b"]
+        c = rec["c"]
         dset = set(d_hkl_orhomb(a, b, c, hkl) for hkl in hkl_)
         return [(d, 100) for d in dset]
 
     @staticmethod
     def di_hex(rec):
-        hkl_ = list(product(*((tuple(range(rec.get('max', 4) + 1)),) * 3)))[1:]
-        a = rec['a']
-        c = rec['c']
+        hkl_ = list(product(*((tuple(range(rec.get("max", 4) + 1)),) * 3)))[1:]
+        a = rec["a"]
+        c = rec["c"]
         dset = set(d_hkl_hex(a, c, hkl) for hkl in hkl_)
         return [(d, 100) for d in dset]
 
     @staticmethod
     def di_tetra(rec):
-        a = rec['a']
-        c = rec['c']
-        hkl_ = list(product(*((tuple(range(rec.get('max', 4) + 1)),) * 3)))[1:]
+        a = rec["a"]
+        c = rec["c"]
+        hkl_ = list(product(*((tuple(range(rec.get("max", 4) + 1)),) * 3)))[1:]
         dset = set(d_hkl_tetra(a, c, hkl) for hkl in hkl_)
         return [(d, 100) for d in dset]
 
     @staticmethod
     def di_cubic(rec):
-        a = rec['a']
-        hkl_ = list(product(*((tuple(range(rec.get('max', 4) + 1)),) * 3)))[1:]
+        a = rec["a"]
+        hkl_ = list(product(*((tuple(range(rec.get("max", 4) + 1)),) * 3)))[1:]
         dset = set(d_hkl_cubic(a, hkl) for hkl in hkl_)
         return [(d, 100) for d in dset]
 
     @staticmethod
     def di_rhombohedral(rec):
-        a = rec['a']
-        alp = rec['alp']
-        hkl_ = list(product(*((tuple(range(rec.get('max', 4) + 1)),) * 3)))[1:]
+        a = rec["a"]
+        alp = rec["alp"]
+        hkl_ = list(product(*((tuple(range(rec.get("max", 4) + 1)),) * 3)))[1:]
         dset = set(d_hkl_rhombohedral(a, alp, hkl) for hkl in hkl_)
         return [(d, 100) for d in dset]
 
     @staticmethod
     def di_monoclinic(rec):
-        a = rec['a']
-        b = rec['b']
-        c = rec['c']
-        bet = rec['bet']
-        hkl_ = list(product(*((tuple(range(rec.get('max', 4) + 1)),) * 3)))[1:]
+        a = rec["a"]
+        b = rec["b"]
+        c = rec["c"]
+        bet = rec["bet"]
+        hkl_ = list(product(*((tuple(range(rec.get("max", 4) + 1)),) * 3)))[1:]
         dset = set(d_hkl_monoclinic(a, b, c, bet, hkl) for hkl in hkl_)
         return [(d, 100) for d in dset]
 
