@@ -20,7 +20,7 @@ from math import asin, pi
 from xrcea.core.vi.spreadsheet import Spreadsheet
 from xrcea.core.vi.value import Tabular, TabCell, Value, lfloat
 from xrcea.core.vi import copy_to_clipboard
-from .indexer import find_indices
+from .indexer import find_indices, indices_from_card
 from .vcellparams import show_cell_params
 from .fviewer import show_func_view
 
@@ -158,8 +158,10 @@ class FoundBells(Spreadsheet):
             None,
         )
         self.menu.append_item(
-            (_treat,), _("Launch visual analyser"),
-            self.display_func_viewer, None
+            (_treat,),
+            _("Launch visual analyser"),
+            self.display_func_viewer,
+            None,
         )
         self.menu.append_item(
             (_treat,),
@@ -297,13 +299,26 @@ class FoundBells(Spreadsheet):
         self.value.refresh()
 
     def add_user_indices(self):
+        cards = self._xrd.extra_data.get("CompCards")
+        _no = _("None")
+        if cards is not None:
+            cards = list(cards.values())
+            assumed = (_no,) + tuple(
+                c.get("name", "") + " " + c.get("number", "") for c in cards
+            )
+        else:
+            assumed = (_no,)
         dlgr = self.input_dialog(
             _("New index column"),
-            [(_("Name:"), ""), (_("Cell:"), CELL_TYPE_N)],
+            [
+                (_("Name:"), ""),
+                (_("Cell:"), CELL_TYPE_N),
+                (_("Assumed:"), assumed),
+            ],
         )
         if dlgr is None:
             return
-        name, cell = dlgr
+        name, cell, assumption = dlgr
         if name in self._uindex:
             if self._uindex[name]["cell"] != CELL_TYPE_C[cell]:
                 self._uindex[name]["cell"] = CELL_TYPE_C[cell]
@@ -313,7 +328,22 @@ class FoundBells(Spreadsheet):
                     % {"n": name, "t": CELL_TYPE_N}
                 )
             return
-        indices = {}
+        if assumption:
+            try:
+                cryb = self._xrd.extra_data.get("crypbells")
+                if cryb is None:
+                    return
+                hwave = self._xrd.lambda1 / 2.0
+                ipd = sorted(
+                    hwave / cryb.reshape(len(cryb) // 4, 4)[:, 0], reverse=True
+                )
+                indices = indices_from_card(
+                    ipd, cards[assumption - 1]["reflexes"]
+                )
+            except KeyError:
+                indices = {}
+        else:
+            indices = {}
         self._uindex[name] = {"cell": CELL_TYPE_C[cell], "indices": indices}
         self.value.insert_column(
             self.value.columns, name, lambda x=indices: HklCell(x)

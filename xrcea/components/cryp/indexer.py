@@ -20,8 +20,9 @@ from numpy import array
 from .cellparams import FitIndices
 
 
-def find_indices(locations, ini_p, cs, max_index, min_peaks, max_results,
-                 result):
+def find_indices(
+    locations, ini_p, cs, max_index, min_peaks, max_results, result
+):
     """Wrapper for Miller's indices searcher"""
     locations = array(locations)
 
@@ -48,3 +49,18 @@ def find_indices(locations, ini_p, cs, max_index, min_peaks, max_results,
         status["complete"] = True
 
     return progress
+
+
+def indices_from_card(locations, reflexes):
+    """get indices from card reflexes"""
+    indices = dict()
+    refd = array([r[0] for r in reflexes])
+    loc = array(locations)
+    for r, ipd in enumerate(locations):
+        closest = ((refd - ipd) ** 2).argmin()
+        if ((loc - refd[closest]) ** 2).argmin() == r:
+            try:
+                indices[r] = reflexes[closest][2]
+            except IndexError:
+                pass
+    return indices
