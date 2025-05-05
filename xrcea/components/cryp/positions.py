@@ -330,9 +330,7 @@ class FoundBells(Spreadsheet):
             return
         if assumption:
             try:
-                cryb = self._xrd.extra_data.get("crypbells")
-                if cryb is None:
-                    return
+                cryb = self._xrd.extra_data["crypbells"]
                 hwave = self._xrd.lambda1 / 2.0
                 ipd = sorted(
                     hwave / cryb.reshape(len(cryb) // 4, 4)[:, 0], reverse=True

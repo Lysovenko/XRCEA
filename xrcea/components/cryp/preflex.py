@@ -217,6 +217,7 @@ class CompCards(Tabular):
             CompCard(self._cards[cno], self._locator)
             for cno in sorted(self._cards, key=int)
         )
+        self.refresh()
 
     def get(self, row: int, col: int) -> Optional[Union[str, PosCell]]:
         nr = 0
@@ -273,6 +274,7 @@ class CompCards(Tabular):
                 if replace:
                     self._cards.clear()
                 self._cards.update(cards)
+        self.from_origin()
 
 
 class AssumedCards(Spreadsheet):
@@ -364,8 +366,6 @@ class AssumedCards(Spreadsheet):
         )
         if fname:
             self._tab.import_cards(fname, replace)
-            self._tab.from_origin()
-            self.show()
 
 
 def show_assumed(idat):
