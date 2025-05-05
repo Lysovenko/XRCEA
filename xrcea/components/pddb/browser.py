@@ -18,7 +18,6 @@
 
 from typing import Dict
 import locale
-from gettext import gettext as _
 from xrcea.core.idata import XrayData
 from xrcea.core.vi import Page, Button, print_error
 from xrcea.core.vi.value import Value

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-25 13:09+0300\n"
+"POT-Creation-Date: 2025-05-05 17:10+0300\n"
 "PO-Revision-Date: 2023-09-25 13:18+0300\n"
 "Last-Translator: Serhii <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,15 +28,15 @@ msgstr "Визначити зсув площини"
 msgid "Initial simplex params"
 msgstr "Параметри вихідного симплекса"
 
-#: ../../components/bbg/polynomial.py:31
+#: ../../components/bbg/polynomial.py:32
 msgid "Range:"
 msgstr "Порядок:"
 
-#: ../../components/bbg/polynomial.py:32
+#: ../../components/bbg/polynomial.py:33
 msgid "Radius:"
 msgstr "Радіус:"
 
-#: ../../components/bbg/polynomial.py:33 ../../components/cryp/__init__.py:195
+#: ../../components/bbg/polynomial.py:35 ../../components/cryp/__init__.py:188
 msgid "Mode:"
 msgstr "Режим:"
 
@@ -44,138 +44,152 @@ msgstr "Режим:"
 msgid "Initial shift:"
 msgstr "Початковий зсув:"
 
-#: ../../components/cryp/__init__.py:42
+#: ../../components/cryp/__init__.py:44
 msgid "Gauss"
 msgstr "Гаус"
 
-#: ../../components/cryp/__init__.py:43
+#: ../../components/cryp/__init__.py:45
 msgid "Lorentz"
 msgstr "Лоренц"
 
-#: ../../components/cryp/__init__.py:44
+#: ../../components/cryp/__init__.py:46
 msgid "Pseudo Voit"
 msgstr "Псевдо Войт"
 
-#: ../../components/cryp/__init__.py:45
+#: ../../components/cryp/__init__.py:47
 msgid "Gauss in radianes"
 msgstr "Гаусіана в радіанах"
 
-#: ../../components/cryp/__init__.py:46
+#: ../../components/cryp/__init__.py:48
 msgid "Lorentz in radianes"
 msgstr "Лоренціана в радіанах"
 
-#: ../../components/cryp/__init__.py:47
+#: ../../components/cryp/__init__.py:49
 msgid "Pseudo Voit in radianes"
 msgstr "Псевдо Войт в радіанах"
 
-#: ../../components/cryp/__init__.py:55 ../../core/idata.py:46
-#: ../../core/idata.py:49
+#: ../../components/cryp/__init__.py:57 ../../core/idata.py:47
+#: ../../core/idata.py:50
 msgid "Diffractogram"
 msgstr "Дифрактограма"
 
-#: ../../components/cryp/__init__.py:57
+#: ../../components/cryp/__init__.py:59
 msgid "Find background..."
 msgstr "Знайти фон..."
 
-#: ../../components/cryp/__init__.py:58
+#: ../../components/cryp/__init__.py:60
 msgid "Calc. refl. shapes..."
 msgstr "Знайти профілі рефлексів"
 
-#: ../../components/cryp/__init__.py:59
+#: ../../components/cryp/__init__.py:61
 msgid "Show found refl. shapes"
 msgstr "Показати знайдені профілі рефлексів"
 
-#: ../../components/cryp/__init__.py:60
+#: ../../components/cryp/__init__.py:62
 msgid "Predefined reflexes..."
 msgstr "Передвизначені рефлекси..."
 
-#: ../../components/cryp/__init__.py:103
+#: ../../components/cryp/__init__.py:63
+#, fuzzy
+msgid "Make assumptions..."
+msgstr "Зберегти опис..."
+
+#: ../../components/cryp/__init__.py:111
 msgid "Calculate background"
 msgstr "Розрахувати фон"
 
-#: ../../components/cryp/__init__.py:105
+#: ../../components/cryp/__init__.py:113
 msgid "Sigma multiplier:"
 msgstr "Сигма множник:"
 
-#: ../../components/cryp/__init__.py:106
+#: ../../components/cryp/__init__.py:114
 msgid "Polynomial's degree:"
 msgstr "Порядок поліному:"
 
-#: ../../components/cryp/__init__.py:125 ../../components/cryp/reflex.py:285
-#: ../../core/idata.py:351
+#: ../../components/cryp/__init__.py:133 ../../components/cryp/assume.py:77
+#: ../../components/cryp/reflex.py:294 ../../core/idata.py:352
 msgid "Unknown"
 msgstr "Невідомо"
 
-#: ../../components/cryp/__init__.py:134 ../../components/cryp/__init__.py:143
-#: ../../components/cryp/reflex.py:287
+#: ../../components/cryp/__init__.py:142 ../../components/cryp/__init__.py:151
+#: ../../components/cryp/assume.py:84 ../../components/cryp/reflex.py:299
 msgid "Relative units"
 msgstr "Відносні одиниці"
 
-#: ../../components/cryp/__init__.py:137
+#: ../../components/cryp/__init__.py:145
 msgid "Background"
 msgstr "Фон"
 
-#: ../../components/cryp/__init__.py:146
+#: ../../components/cryp/__init__.py:154
 msgid "Stripped"
 msgstr "Без фону"
 
-#: ../../components/cryp/__init__.py:158
+#: ../../components/cryp/__init__.py:167
 msgid "Peaks description"
 msgstr "Опис рефлексів"
 
-#: ../../components/cryp/__init__.py:177
-msgid "It is no background calculated."
-msgstr "Не пораховано фон."
-
-#: ../../components/cryp/__init__.py:187
+#: ../../components/cryp/__init__.py:180
 #, python-format
 msgid "Min. %s:"
 msgstr "Мін. %s:"
 
-#: ../../components/cryp/__init__.py:188
+#: ../../components/cryp/__init__.py:181
 #, python-format
 msgid "Const. %s"
 msgstr "Стала %s"
 
-#: ../../components/cryp/__init__.py:189
+#: ../../components/cryp/__init__.py:182
 msgid "Max. bells:"
 msgstr "Макс. піків:"
 
-#: ../../components/cryp/__init__.py:190
+#: ../../components/cryp/__init__.py:183
 msgid "Shape function:"
 msgstr "Функція профілю:"
 
-#: ../../components/cryp/__init__.py:191
+#: ../../components/cryp/__init__.py:184
 msgid "Ignore points:"
 msgstr "Ігнорувати точок:"
 
-#: ../../components/cryp/__init__.py:192
+#: ../../components/cryp/__init__.py:185
 msgid "Believe factor:"
 msgstr "Довірчий коефіцієнт:"
 
-#: ../../components/cryp/__init__.py:196
+#: ../../components/cryp/__init__.py:189
 msgid "Without any user assumption"
 msgstr "Без користувацьких припущень"
 
-#: ../../components/cryp/__init__.py:196
+#: ../../components/cryp/__init__.py:189
 msgid "By predefined reflexes"
 msgstr "За передвизначеними рефлексами"
 
-#: ../../components/cryp/__init__.py:200
+#: ../../components/cryp/__init__.py:193
 msgid "Shapes of reflexes"
 msgstr "Профілі рефлексів"
 
-#: ../../components/cryp/__init__.py:226
+#: ../../components/cryp/__init__.py:208
+msgid "It is no background calculated."
+msgstr "Не пораховано фон."
+
+#: ../../components/cryp/__init__.py:242
 msgid "Calculating shapes of the reflexes..."
 msgstr "Розраховую профілі рефлексів..."
 
-#: ../../components/cryp/__init__.py:266
-msgid "Reflexes description"
-msgstr "Опис рефлексів"
+#: ../../components/cryp/assume.py:32
+msgid "Assumption"
+msgstr "Припущення"
 
-#: ../../components/cryp/__init__.py:268
-msgid "Mode"
-msgstr "Режим"
+#: ../../components/cryp/assume.py:48
+msgid " (Assumptions)"
+msgstr " (Припущення)"
+
+#: ../../components/cryp/assume.py:50 ../../core/vi/plot.py:40
+#: ../../core/vi/plot.py:42 ../../core/vi/plot.py:44 ../../core/vi/plot.py:87
+msgid "Plot"
+msgstr "Графік"
+
+#: ../../components/cryp/assume.py:117
+msgid "Assumed"
+msgstr "Припускається"
 
 #: ../../components/cryp/broadening.py:161
 msgid "size "
@@ -186,8 +200,8 @@ msgid "strain "
 msgstr "напруження "
 
 #: ../../components/cryp/broadening.py:228
-#: ../../components/cryp/cellparams.py:431 ../../components/cryp/preflex.py:96
-#: ../../components/pddb/browser.py:56 ../../core/project.py:118
+#: ../../components/cryp/cellparams.py:595 ../../components/cryp/preflex.py:108
+#: ../../components/pddb/browser.py:64 ../../core/project.py:118
 #: ../../core/project.py:119 ../../core/project.py:171
 msgid "Name"
 msgstr "Назва"
@@ -202,7 +216,7 @@ msgstr "Напруження"
 
 #: ../../components/cryp/broadening.py:231 ../../components/cryp/fviewer.py:104
 #: ../../components/cryp/fviewer.py:129 ../../components/cryp/fviewer.py:194
-#: ../../components/cryp/positions.py:329
+#: ../../components/cryp/positions.py:357
 msgid "Instrumental broadening"
 msgstr "Інструментальне розширення"
 
@@ -280,7 +294,7 @@ msgid "Points:"
 msgstr "Точок:"
 
 #: ../../components/cryp/fviewer.py:70 ../../components/cryp/fviewer.py:145
-#: ../../components/cryp/positions.py:302 ../../core/idata.py:529
+#: ../../components/cryp/positions.py:314 ../../core/idata.py:530
 msgid "Name:"
 msgstr "Назва:"
 
@@ -334,7 +348,7 @@ msgstr "оптимізації найменшими квадратами"
 msgid "Approximation line parameters"
 msgstr "Параметри апроксимаційної прямої"
 
-#: ../../components/cryp/indexer.py:29
+#: ../../components/cryp/indexer.py:30
 msgid "Trying to find Miller's indices..."
 msgstr "Намагаюсь знайти індекси Міллера..."
 
@@ -386,132 +400,168 @@ msgstr "Додати користувацькі індекси..."
 msgid "Set instrumental broadening..."
 msgstr "Встановити інструментальне розширення..."
 
-#: ../../components/cryp/positions.py:161
+#: ../../components/cryp/positions.py:162
 msgid "Launch visual analyser"
 msgstr "Запустити візуальний аналізатор"
 
-#: ../../components/cryp/positions.py:166
+#: ../../components/cryp/positions.py:168
 msgid "Calculate Cell parameters"
 msgstr "Розрахувати параметри комірки"
 
-#: ../../components/cryp/positions.py:171
+#: ../../components/cryp/positions.py:173
 msgid "Clear automatic indexation"
 msgstr "Очистити автоматичне індексування"
 
-#: ../../components/cryp/positions.py:177 ../../components/cryp/preflex.py:247
+#: ../../components/cryp/positions.py:179 ../../components/cryp/preflex.py:304
 #, python-format
 msgid "Units to display %s:"
 msgstr "Одиниці для відображення %s:"
 
-#: ../../components/cryp/positions.py:192
+#: ../../components/cryp/positions.py:194
 msgid "Copy all"
 msgstr "Скопіювати все"
 
-#: ../../components/cryp/positions.py:237
+#: ../../components/cryp/positions.py:239
 msgid "Params for search indices"
 msgstr "Параметри для пошуку індексів"
 
-#: ../../components/cryp/positions.py:239
+#: ../../components/cryp/positions.py:241
 msgid "Minimum peaks:"
 msgstr "Мінімум піків:"
 
-#: ../../components/cryp/positions.py:240
+#: ../../components/cryp/positions.py:242
 msgid "Max index:"
 msgstr "Макс. індекс:"
 
-#: ../../components/cryp/positions.py:241
+#: ../../components/cryp/positions.py:243
 msgid "Max results:"
 msgstr "Макс. результатів:"
 
-#: ../../components/cryp/positions.py:248
-#: ../../components/cryp/positions.py:302
+#: ../../components/cryp/positions.py:250
+#: ../../components/cryp/positions.py:315
 msgid "Cell:"
 msgstr "Комірка:"
 
-#: ../../components/cryp/positions.py:260
+#: ../../components/cryp/positions.py:262
 msgid "Number of peaks should be greater than number of free members"
 msgstr "Кількість піків має бути більшою за кількість вільних членів"
 
-#: ../../components/cryp/positions.py:301
+#: ../../components/cryp/positions.py:303
+msgid "None"
+msgstr "Немає"
+
+#: ../../components/cryp/positions.py:312
 msgid "New index column"
 msgstr "Нова колонка з індексами"
 
-#: ../../components/cryp/positions.py:312
+#: ../../components/cryp/positions.py:316
+msgid "Assumed:"
+msgstr "Припущення:"
+
+#: ../../components/cryp/positions.py:327
 #, python-format
 msgid "Index with name `%(n)s' of type %(t)s already exists"
 msgstr "Індекси з іменем %(n)s та типом %(t)s вже існують"
 
-#: ../../components/cryp/positions.py:330
+#: ../../components/cryp/positions.py:358
 msgid "Broadening:"
 msgstr "Розширення:"
 
-#: ../../components/cryp/positions.py:330
+#: ../../components/cryp/positions.py:358
 msgid "Drop:"
 msgstr "Скинути:"
 
-#: ../../components/cryp/positions.py:342
+#: ../../components/cryp/positions.py:370
 msgid "Do remove automatically calculated Miller indices?"
 msgstr "Дійсно видалити автоматично знайдені індекси Міллера?"
 
-#: ../../components/cryp/preflex.py:23
+#: ../../components/cryp/preflex.py:27
 msgid "Edit"
 msgstr "Редагувати"
 
-#: ../../components/cryp/preflex.py:96 ../../components/pddb/browser.py:56
+#: ../../components/cryp/preflex.py:108 ../../components/pddb/browser.py:64
 msgid "Number"
 msgstr "№"
 
-#: ../../components/cryp/preflex.py:96 ../../components/pddb/browser.py:56
+#: ../../components/cryp/preflex.py:108 ../../components/pddb/browser.py:64
 msgid "Formula"
 msgstr "Формула"
 
-#: ../../components/cryp/preflex.py:102
+#: ../../components/cryp/preflex.py:115
 msgid "Spacegroup"
 msgstr "Просторова група"
 
-#: ../../components/cryp/preflex.py:183
+#: ../../components/cryp/preflex.py:204
 msgid "Parameter"
 msgstr "Параметр"
 
-#: ../../components/cryp/preflex.py:183 ../../core/project.py:118
+#: ../../components/cryp/preflex.py:204 ../../core/project.py:118
 msgid "Value"
 msgstr "Значення"
 
-#: ../../components/cryp/preflex.py:235
+#: ../../components/cryp/preflex.py:271
+msgid "Import cards"
+msgstr "Імпортувати картки"
+
+#: ../../components/cryp/preflex.py:284
 msgid " (assumed cards)"
 msgstr " (картки, які припускаються)"
 
-#: ../../components/cryp/preflex.py:237
+#: ../../components/cryp/preflex.py:286
 msgid "Shift by..."
 msgstr "Зсунути на..."
 
-#: ../../components/cryp/preflex.py:239
+#: ../../components/cryp/preflex.py:288
 msgid "Resize by..."
 msgstr "Змінити розмір в..."
 
-#: ../../components/cryp/preflex.py:257
+#: ../../components/cryp/preflex.py:290
+msgid "Export..."
+msgstr "Експортувати..."
+
+#: ../../components/cryp/preflex.py:291
+msgid "Import..."
+msgstr "Імпортувати..."
+
+#: ../../components/cryp/preflex.py:293
+msgid "Replace with imported..."
+msgstr "Замінити імпортованим..."
+
+#: ../../components/cryp/preflex.py:323
 msgid "No cells selected."
 msgstr "Жодної комірки не обрано."
 
-#: ../../components/cryp/preflex.py:260
+#: ../../components/cryp/preflex.py:327
 msgid "Shift selected cells"
 msgstr "Змістити значення обраних комірок"
 
-#: ../../components/cryp/preflex.py:261
+#: ../../components/cryp/preflex.py:327
 msgid "Shift by:"
 msgstr "Посунути на:"
 
-#: ../../components/cryp/preflex.py:270
+#: ../../components/cryp/preflex.py:338
 msgid "No cards selected."
 msgstr "Жодної картики не обрано."
 
-#: ../../components/cryp/preflex.py:273
+#: ../../components/cryp/preflex.py:342
 msgid "Resize selected cards"
 msgstr "Змінити розмір обраних карток"
 
-#: ../../components/cryp/preflex.py:274
+#: ../../components/cryp/preflex.py:342
 msgid "Resize by:"
 msgstr "Змінити розмір в:"
+
+#: ../../components/cryp/preflex.py:351
+msgid "Export table"
+msgstr "Експортувати таблицю"
+
+#: ../../components/cryp/preflex.py:351 ../../components/cryp/preflex.py:364
+msgid "JSON dump"
+msgstr "Дамп JSON"
+
+#: ../../components/cryp/preflex.py:364
+msgid "Import table"
+msgstr "Імпортувати таблицю"
 
 #: ../../components/cryp/vcellparams.py:31
 msgid " (cell params)"
@@ -605,99 +655,99 @@ msgstr "Налаштування браузера БД"
 msgid "Database file:"
 msgstr "Файл бази даних:"
 
-#: ../../components/pddb/browser.py:29
+#: ../../components/pddb/browser.py:32
 msgid "Blue"
 msgstr "Синій"
 
-#: ../../components/pddb/browser.py:30
+#: ../../components/pddb/browser.py:33
 msgid "Orange"
 msgstr "Помаранчевий"
 
-#: ../../components/pddb/browser.py:31
+#: ../../components/pddb/browser.py:34
 msgid "Green"
 msgstr "Зелений"
 
-#: ../../components/pddb/browser.py:32
+#: ../../components/pddb/browser.py:35
 msgid "Red"
 msgstr "Червоний"
 
-#: ../../components/pddb/browser.py:33
+#: ../../components/pddb/browser.py:36
 msgid "Purple"
 msgstr "Пурпуровий"
 
-#: ../../components/pddb/browser.py:34
+#: ../../components/pddb/browser.py:37
 msgid "Brown"
 msgstr "Коричневий"
 
-#: ../../components/pddb/browser.py:35
+#: ../../components/pddb/browser.py:38
 msgid "Pink"
 msgstr "Рожевий"
 
-#: ../../components/pddb/browser.py:36
+#: ../../components/pddb/browser.py:39
 msgid "Gray"
 msgstr "Сірий"
 
-#: ../../components/pddb/browser.py:37
+#: ../../components/pddb/browser.py:40
 msgid "Olive"
 msgstr "Оливковий"
 
-#: ../../components/pddb/browser.py:38
+#: ../../components/pddb/browser.py:41
 msgid "Cyan"
 msgstr "Блакитний"
 
-#: ../../components/pddb/browser.py:54
+#: ../../components/pddb/browser.py:62
 msgid "Database browser"
 msgstr "Браузер баз даних"
 
-#: ../../components/pddb/browser.py:56
+#: ../../components/pddb/browser.py:64
 msgid "On plot"
 msgstr "На графіку"
 
-#: ../../components/pddb/browser.py:59
+#: ../../components/pddb/browser.py:68
 msgid "Search:"
 msgstr "Пошук:"
 
-#: ../../components/pddb/browser.py:62
+#: ../../components/pddb/browser.py:72
 msgid "Order by number"
 msgstr "Впорядкувати за номером"
 
-#: ../../components/pddb/browser.py:63
+#: ../../components/pddb/browser.py:73
 msgid "Order by name"
 msgstr "Впорядкувати за ім'ям"
 
-#: ../../components/pddb/browser.py:64
+#: ../../components/pddb/browser.py:74
 msgid "Order by relevance"
 msgstr "Впорядкувати за відповідністю"
 
-#: ../../components/pddb/browser.py:66
+#: ../../components/pddb/browser.py:76
 msgid "Clear deleted"
 msgstr "Очистити видалені"
 
-#: ../../components/pddb/browser.py:67
+#: ../../components/pddb/browser.py:77
 msgid "Clear non marked"
 msgstr "Очистити не позначені"
 
-#: ../../components/pddb/browser.py:68
+#: ../../components/pddb/browser.py:78
 msgid "Show on plot as..."
 msgstr "Показати на графіку як..."
 
-#: ../../components/pddb/browser.py:69
+#: ../../components/pddb/browser.py:79
 msgid "Mark the card"
 msgstr "Позначити цю картку"
 
-#: ../../components/pddb/browser.py:70 ../../core/project.py:123
+#: ../../components/pddb/browser.py:80 ../../core/project.py:123
 msgid "Delete"
 msgstr "Видалити"
 
-#: ../../components/pddb/browser.py:71
+#: ../../components/pddb/browser.py:81
 msgid "Show reflexes in data units"
 msgstr "Показати рефлекси в одиницях експерименту"
 
-#: ../../components/pddb/browser.py:72
+#: ../../components/pddb/browser.py:82
 msgid "Print GNUPlot labels"
 msgstr "Показати як інструкції GNUPlot"
 
-#: ../../components/pddb/browser.py:142 ../../components/pddb/browser.py:278
+#: ../../components/pddb/browser.py:162 ../../components/pddb/browser.py:336
 msgid ""
 "No plot assumed to compare.\n"
 "Set your sample params."
@@ -705,15 +755,15 @@ msgstr ""
 "Не визначено графік для порівнння.\n"
 "Задайте параметри вашого зразка."
 
-#: ../../components/pddb/browser.py:155
+#: ../../components/pddb/browser.py:179
 msgid "Query error"
 msgstr "Помилка запиту"
 
-#: ../../components/pddb/browser.py:179
+#: ../../components/pddb/browser.py:217
 msgid " (Deleted)"
 msgstr " (Вилучено)"
 
-#: ../../components/pddb/browser.py:180
+#: ../../components/pddb/browser.py:220
 #, python-format
 msgid ""
 "\n"
@@ -730,56 +780,56 @@ msgstr ""
 "<tr><td>Формула:</td><td>%(fml)s</td></tr>\n"
 "<tr><td>Якість:</td><td>%(qlt)s</td></tr>\n"
 
-#: ../../components/pddb/browser.py:192
+#: ../../components/pddb/browser.py:238
 msgid "Cell parameters:"
 msgstr "параметри комірки:"
 
-#: ../../components/pddb/browser.py:200
+#: ../../components/pddb/browser.py:246
 msgid "Space group:"
 msgstr "Просторова група:"
 
-#: ../../components/pddb/browser.py:224
+#: ../../components/pddb/browser.py:274
 msgid "<h5>Comment</h5>"
 msgstr "<h5>Коментар</h5>"
 
-#: ../../components/pddb/browser.py:227
+#: ../../components/pddb/browser.py:277
 msgid "Color: "
 msgstr "Колір:"
 
-#: ../../components/pddb/browser.py:229
+#: ../../components/pddb/browser.py:279
 msgid "<h5>Bibliography</h5>\n"
 msgstr "<h5>Бібліографія</h5>\n"
 
-#: ../../components/pddb/browser.py:293
+#: ../../components/pddb/browser.py:355
 msgid "No colors left."
 msgstr "Не залишилось більше кольорів."
 
-#: ../../components/pddb/browser.py:295
+#: ../../components/pddb/browser.py:357
 msgid "Color:"
 msgstr "Колір:"
 
-#: ../../components/pddb/browser.py:295
+#: ../../components/pddb/browser.py:357
 msgid "Remove"
 msgstr "Прибрати"
 
-#: ../../components/pddb/browser.py:298
+#: ../../components/pddb/browser.py:360
 #, python-format
 msgid "Select %s color"
 msgstr "Оберіть колір %s"
 
-#: ../../components/pddb/browser.py:360
+#: ../../components/pddb/browser.py:426
 msgid "Can't define relevance if the background is not calculated"
 msgstr "Не можу визначити відповідність якщо не розраховано фон"
 
-#: ../../components/pddb/browser.py:366
+#: ../../components/pddb/browser.py:434
 msgid "Calculating relevance..."
 msgstr "Розраховую відповідність..."
 
-#: ../../components/pddb/browser.py:409 ../../components/pddb/opddb.py:341
+#: ../../components/pddb/browser.py:480 ../../components/pddb/opddb.py:371
 msgid "DB opening error"
 msgstr "Помилка відкривання БД"
 
-#: ../../components/pddb/browser.py:410 ../../components/pddb/opddb.py:342
+#: ../../components/pddb/browser.py:481 ../../components/pddb/opddb.py:372
 #, python-format
 msgid "Failed to open DB file: %s"
 msgstr "Збій відкривання файла БД: %s"
@@ -864,64 +914,64 @@ msgstr "Зміст"
 msgid "Diffractograms"
 msgstr "Дифрактограми"
 
-#: ../../core/idata.py:30
+#: ../../core/idata.py:30 ../../core/idata.py:31
 msgid "Generic diffractograms"
 msgstr "Звичайті дифрактограми"
 
-#: ../../core/idata.py:46
+#: ../../core/idata.py:47
 msgid "Properties..."
 msgstr "Властивості..."
 
-#: ../../core/idata.py:358
+#: ../../core/idata.py:359
 msgid "pps"
 msgstr "імп./сек."
 
-#: ../../core/idata.py:449
+#: ../../core/idata.py:450
 msgid "Experimental data"
 msgstr "Експериментальні дані"
 
-#: ../../core/idata.py:502
+#: ../../core/idata.py:503
 msgid "Monochromed"
 msgstr "Монохромоване"
 
-#: ../../core/idata.py:503
+#: ../../core/idata.py:504
 #, python-format
 msgid "With %s-filter"
 msgstr "З %s-фільтром"
 
-#: ../../core/idata.py:504
+#: ../../core/idata.py:505
 msgid "No filtering"
 msgstr "Нефільтроване"
 
-#: ../../core/idata.py:509
+#: ../../core/idata.py:510
 msgid "Powder"
 msgstr "Порошок"
 
-#: ../../core/idata.py:509
+#: ../../core/idata.py:510
 msgid "Liquid"
 msgstr "Рідина"
 
-#: ../../core/idata.py:530
+#: ../../core/idata.py:531
 msgid "Sample:"
 msgstr "Зразок:"
 
-#: ../../core/idata.py:531
+#: ../../core/idata.py:532
 msgid "Anticatode:"
 msgstr "Антикатод:"
 
-#: ../../core/idata.py:532
+#: ../../core/idata.py:533
 msgid "Radiation:"
 msgstr "Випромінення:"
 
-#: ../../core/idata.py:533
+#: ../../core/idata.py:534
 msgid "X axis:"
 msgstr "Вісь X:"
 
-#: ../../core/idata.py:534
+#: ../../core/idata.py:535
 msgid "Comment:"
 msgstr "Коментар:"
 
-#: ../../core/idata.py:541
+#: ../../core/idata.py:542
 msgid "Sample description"
 msgstr "Опис зразка"
 
@@ -988,11 +1038,6 @@ msgstr "Вибрати модулі"
 msgid "Select required components"
 msgstr "Обрати потрібні модулі"
 
-#: ../../core/vi/plot.py:40 ../../core/vi/plot.py:42 ../../core/vi/plot.py:44
-#: ../../core/vi/plot.py:87
-msgid "Plot"
-msgstr "Графік"
-
 #: ../../core/vi/plot.py:40
 msgid "Export DAT"
 msgstr "Експортувати DAT"
@@ -1009,3 +1054,9 @@ msgstr "Файли DAT"
 #, python-format
 msgid "Unable to write %s"
 msgstr "Не можу записати %s"
+
+#~ msgid "Reflexes description"
+#~ msgstr "Опис рефлексів"
+
+#~ msgid "Mode"
+#~ msgstr "Режим"

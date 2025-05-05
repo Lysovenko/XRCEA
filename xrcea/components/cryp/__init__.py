@@ -18,7 +18,6 @@ Crystalline peak
 """
 
 from locale import format_string as lformat
-from gettext import gettext as _
 import numpy as np
 from xrcea.core.application import APPLICATION as APP
 from xrcea.core.idata import XrayData

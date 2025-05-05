@@ -17,7 +17,6 @@
 About predefined reflexes
 """
 import json
-from gettext import gettext as _
 from locale import atof, format_string
 from math import asin, pi, sin
 from typing import Any, Optional, Union
