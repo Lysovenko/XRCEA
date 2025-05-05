@@ -117,7 +117,7 @@ class Tabular:
         colnames=None,  # type: Optional[List[String]]
         coltypes=None,  # type: Optional[List[Any]]
     ):
-        if rows is not None and cols is not None:
+        if rows is not None:
             self._data = [[None] * len(colnames)] * rows
         else:
             self._data = []
@@ -188,7 +188,7 @@ class Tabular:
     ):
         if row is not None and len(row) != self.columns:
             raise RuntimeError(
-                f"length of row is not appropriate "
+                "length of row is not appropriate "
                 "({len(row)} vs {self.columns})"
             )
         if row is not None:

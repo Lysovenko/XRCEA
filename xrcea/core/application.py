@@ -20,7 +20,7 @@ from os.path import join, dirname, realpath, splitext, normcase, isfile
 from .compman import CompMan
 from .settings import Settings
 from .vi.menu import DMenu
-from .vi import input_dialog, print_error
+from .vi import print_error
 from .project import (
     Project, show_project, save_project_as, save_project, add_object,
     get_objects, get_name, PreventExit, rename_project, open_project)
@@ -113,7 +113,6 @@ def icon_file(name):
 def _help():
     from webbrowser import open_new
     from os.path import abspath, isfile
-    from .vi import print_error
     from locale import getlocale
     lang = {"uk": "ukr", "uk_UA": "ukr"}.get(getlocale()[0], "eng")
     fname = abspath(join(dirname(dirname(

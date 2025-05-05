@@ -17,14 +17,15 @@
 """
 
 
-from .plot import Plot
-from .lister import Lister
-from .page import Page
-from .spreadsheet import Spreadsheet
+from .plot import Plot as Plot
+from .lister import Lister as Lister
+from .page import Page as Page
+from .spreadsheet import Spreadsheet as Spreadsheet
 
 
 def _actual():
     from ..application import get_actual_interface
+
     return get_actual_interface()
 
 

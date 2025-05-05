@@ -28,8 +28,6 @@ from os.path import (
 )
 from weakref import ref
 
-from typing import Dict
-
 
 class CompMan:
     def __init__(self, app):

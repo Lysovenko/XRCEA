@@ -17,7 +17,6 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(*(os.pardir,) * 3,
                                                 "components")))
 sys.path.insert(0, os.path.abspath(os.path.join(*(os.pardir,) * 3)))
-from xrcea.core import VERSION as version, RELEASE as release
 __builtins__["_"] = str
 
 

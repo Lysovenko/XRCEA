@@ -19,7 +19,6 @@ from json import loads, JSONDecodeError
 from itertools import product
 import numpy as np
 from xrcea.core.vi import Page
-from xrcea.core.application import APPLICATION as APP
 from .cellparams import (
     d_hkl_orhomb,
     d_hkl_hex,

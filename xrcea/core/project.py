@@ -19,7 +19,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 from time import time
 from os.path import splitext, isfile
 from json import loads, dumps
-from .vi import (Lister, input_dialog, print_error, ask_open_filename,
+from .vi import (Lister, input_dialog, ask_open_filename,
                  ask_save_filename, ask_question)
 from .vi.value import Value
 
