@@ -71,10 +71,9 @@ class DescriptionWindow(Page):
     def __init__(self):
         title = _("Description ") + APP.get_name()
         super().__init__(title, None)
-        tts = html_from_description(get_description(), True)
-        print(tts)
-        self.set_text(tts)
+        tts = html_from_description(get_description())
         self.show()
+        self.set_text(tts)
 
 
 def show_description():

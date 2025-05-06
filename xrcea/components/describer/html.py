@@ -108,16 +108,15 @@ DESCITEMS = {
 }
 
 
-def html_from_description(desc: Description, reduced=False):
+def html_from_description(desc: Description):
     html = Element("html")
     head = SubElement(html, "head")
     SubElement(head, "title").text = desc.title
-    if not reduced:
-        SubElement(head, "style").text = (
-            "td {border: 1px solid;\n"
-            "padding: .4ex .7ex;}\n"
-            "table {border-collapse: collapse;}"
-        )
+    SubElement(head, "style").text = (
+        "td {border: 1px solid;\n"
+        "padding: .4ex .7ex;}\n"
+        "table {border-collapse: collapse;}"
+    )
     doc = SubElement(html, "body")
     for elem in desc:
         if isinstance(elem, DescItem):
