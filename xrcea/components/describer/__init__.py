@@ -13,18 +13,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-"""
-"""
+""" """
 
 from xrcea.core.application import APPLICATION as APP
-from xrcea.core.vi import input_dialog, ask_save_filename
+from xrcea.core.vi import ask_save_filename, Page
 from xrcea.core.description import Description, Title, Paragraph
-from os.path import splitext, isfile
+from os.path import splitext
+from .html import write_html, html_from_description
 
 
 def introduce():
-    APP.menu.append_item(APP.prj_path, _("Save description..."),
-                         save_description, None)
+    APP.menu.append_item(
+        APP.prj_path, _("Save description..."), save_description, None
+    )
+    APP.menu.append_item(
+        APP.prj_path, _("Show description..."), show_description, None
+    )
 
 
 def get_description():
@@ -45,13 +49,33 @@ def get_description():
 
 def save_description():
     fname = ask_save_filename(
-        _("Save description"), "",
-        [("*.html", _("HTML files")), ("*.txt", _("Plain text")),
-         ("*.tex", _("TeX files"))])
+        _("Save description"),
+        "",
+        [
+            ("*.html", _("HTML files")),
+            ("*.txt", _("Plain text")),
+            ("*.tex", _("TeX files")),
+        ],
+    )
     if fname:
         if splitext(fname)[1] not in (".html", ".tex", ".txt"):
             fname += ".html"
         ext = splitext(fname)[1]
         if ext == ".html":
-            from .html import write_html
             write_html(get_description(), fname)
+
+
+class DescriptionWindow(Page):
+    """Describer"""
+
+    def __init__(self):
+        title = _("Description ") + APP.get_name()
+        super().__init__(title, None)
+        tts = html_from_description(get_description(), True)
+        print(tts)
+        self.set_text(tts)
+        self.show()
+
+
+def show_description():
+    DescriptionWindow()

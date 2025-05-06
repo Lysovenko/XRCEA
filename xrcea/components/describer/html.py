@@ -97,19 +97,28 @@ def _treat_superscript(osup: SuperScript):
     return hsup
 
 
-DESCITEMS = {Paragraph: _treat_paragraph, Title: _treat_title,
-             Cell: _treat_cell, Row: _treat_row, Table: _treat_table,
-             SubScript: _treat_subscript, SuperScript: _treat_superscript}
+DESCITEMS = {
+    Paragraph: _treat_paragraph,
+    Title: _treat_title,
+    Cell: _treat_cell,
+    Row: _treat_row,
+    Table: _treat_table,
+    SubScript: _treat_subscript,
+    SuperScript: _treat_superscript,
+}
 
 
-def _html_from_description(desc: Description):
-    html = Element('html')
+def html_from_description(desc: Description, reduced=False):
+    html = Element("html")
     head = SubElement(html, "head")
     SubElement(head, "title").text = desc.title
-    SubElement(head, "style").text = "td {border: 1px solid;\n"\
-        "padding: .4ex .7ex;}\n"\
-        "table {border-collapse: collapse;}"
-    doc = SubElement(html, 'body')
+    if not reduced:
+        SubElement(head, "style").text = (
+            "td {border: 1px solid;\n"
+            "padding: .4ex .7ex;}\n"
+            "table {border-collapse: collapse;}"
+        )
+    doc = SubElement(html, "body")
     for elem in desc:
         if isinstance(elem, DescItem):
             doc.append(DESCITEMS[type(elem)](elem))
@@ -119,4 +128,4 @@ def _html_from_description(desc: Description):
 def write_html(descr, filename):
     """Write description as HTML"""
     with open(filename, "w") as file:
-        file.write(_html_from_description(descr))
+        file.write(html_from_description(descr))
