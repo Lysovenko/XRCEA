@@ -22,23 +22,122 @@ from os.path import isfile
 import numpy as np
 import locale as loc
 import re
+
 ELNUMS = {
-    "D": 1, "H": 1, "T": 1, "He": 2, "Li": 3, "Be": 4, "B": 5, "C": 6, "N": 7,
-    "O": 8, "F": 9, "Ne": 10, "Na": 11, "Mg": 12, "Al": 13, "Si": 14, "P": 15,
-    "S": 16, "Cl": 17, "Ar": 18, "K": 19, "Ca": 20, "Sc": 21, "Ti": 22,
-    "V": 23, "Cr": 24, "Mn": 25, "Fe": 26, "Co": 27, "Ni": 28, "Cu": 29,
-    "Zn": 30, "Ga": 31, "Ge": 32, "As": 33, "Se": 34, "Br": 35, "Kr": 36,
-    "Rb": 37, "Sr": 38, "Y": 39, "Zr": 40, "Nb": 41, "Mo": 42, "Tc": 43,
-    "Ru": 44, "Rh": 45, "Pd": 46, "Ag": 47, "Cd": 48, "In": 49, "Sn": 50,
-    "Sb": 51, "Te": 52, "I": 53, "Xe": 54, "Cs": 55, "Ba": 56, "La": 57,
-    "Ce": 58, "Pr": 59, "Nd": 60, "Pm": 61, "Sm": 62, "Eu": 63, "Gd": 64,
-    "Tb": 65, "Dy": 66, "Ho": 67, "Er": 68, "Tm": 69, "Yb": 70, "Lu": 71,
-    "Hf": 72, "Ta": 73, "W": 74, "Re": 75, "Os": 76, "Ir": 77, "Pt": 78,
-    "Au": 79, "Hg": 80, "Tl": 81, "Pb": 82, "Bi": 83, "Po": 84, "At": 85,
-    "Rn": 86, "Fr": 87, "Ra": 88, "Ac": 89, "Th": 90, "Pa": 91, "U": 92,
-    "Np": 93, "Pu": 94, "Am": 95, "Cm": 96, "Bk": 97, "Cf": 98, "Es": 99,
-    "Fm": 100, "Md": 101, "No": 102, "Lr": 103, "Rf": 104, "Db": 105,
-    "Sg": 106, "Bh": 107, "Hs": 108, "Mt": 109, "Ds": 110, "Ln": 111}
+    "D": 1,
+    "H": 1,
+    "T": 1,
+    "He": 2,
+    "Li": 3,
+    "Be": 4,
+    "B": 5,
+    "C": 6,
+    "N": 7,
+    "O": 8,
+    "F": 9,
+    "Ne": 10,
+    "Na": 11,
+    "Mg": 12,
+    "Al": 13,
+    "Si": 14,
+    "P": 15,
+    "S": 16,
+    "Cl": 17,
+    "Ar": 18,
+    "K": 19,
+    "Ca": 20,
+    "Sc": 21,
+    "Ti": 22,
+    "V": 23,
+    "Cr": 24,
+    "Mn": 25,
+    "Fe": 26,
+    "Co": 27,
+    "Ni": 28,
+    "Cu": 29,
+    "Zn": 30,
+    "Ga": 31,
+    "Ge": 32,
+    "As": 33,
+    "Se": 34,
+    "Br": 35,
+    "Kr": 36,
+    "Rb": 37,
+    "Sr": 38,
+    "Y": 39,
+    "Zr": 40,
+    "Nb": 41,
+    "Mo": 42,
+    "Tc": 43,
+    "Ru": 44,
+    "Rh": 45,
+    "Pd": 46,
+    "Ag": 47,
+    "Cd": 48,
+    "In": 49,
+    "Sn": 50,
+    "Sb": 51,
+    "Te": 52,
+    "I": 53,
+    "Xe": 54,
+    "Cs": 55,
+    "Ba": 56,
+    "La": 57,
+    "Ce": 58,
+    "Pr": 59,
+    "Nd": 60,
+    "Pm": 61,
+    "Sm": 62,
+    "Eu": 63,
+    "Gd": 64,
+    "Tb": 65,
+    "Dy": 66,
+    "Ho": 67,
+    "Er": 68,
+    "Tm": 69,
+    "Yb": 70,
+    "Lu": 71,
+    "Hf": 72,
+    "Ta": 73,
+    "W": 74,
+    "Re": 75,
+    "Os": 76,
+    "Ir": 77,
+    "Pt": 78,
+    "Au": 79,
+    "Hg": 80,
+    "Tl": 81,
+    "Pb": 82,
+    "Bi": 83,
+    "Po": 84,
+    "At": 85,
+    "Rn": 86,
+    "Fr": 87,
+    "Ra": 88,
+    "Ac": 89,
+    "Th": 90,
+    "Pa": 91,
+    "U": 92,
+    "Np": 93,
+    "Pu": 94,
+    "Am": 95,
+    "Cm": 96,
+    "Bk": 97,
+    "Cf": 98,
+    "Es": 99,
+    "Fm": 100,
+    "Md": 101,
+    "No": 102,
+    "Lr": 103,
+    "Rf": 104,
+    "Db": 105,
+    "Sg": 106,
+    "Bh": 107,
+    "Hs": 108,
+    "Mt": 109,
+    "Ds": 110,
+    "Ln": 111,
+}
 
 
 def formula_markup(fstr, wiki=False):
@@ -50,14 +149,17 @@ def formula_markup(fstr, wiki=False):
     :returns: formula
     :rtype: string
     """
-    formula = fstr.replace("!", u"\u00d7")
-    res = u""
+    formula = fstr.replace("!", "\u00d7")
+    res = ""
     for item in formula.split():
-        if item in ['(', ')', u'\u00d7', ','] or\
-                item[0].isdigit() or item.startswith(u"\u00d7"):
+        if (
+            item in ["(", ")", "\u00d7", ","]
+            or item[0].isdigit()
+            or item.startswith("\u00d7")
+        ):
             res += item
             continue
-        if item.startswith(')'):
+        if item.startswith(")"):
             res += ")<sub>%s</sub>" % item[1:]
             continue
         epos = 0
@@ -70,7 +172,7 @@ def formula_markup(fstr, wiki=False):
                 res += "%s<sub>%s</sub>" % (item[:epos], item[epos:])
             else:
                 res += item
-    res = res.replace(u"\u00d7", u" \u00d7 ")
+    res = res.replace("\u00d7", " \u00d7 ")
     if wiki:
         res = res.replace("<sub>", "_{")
         res = res.replace("</sub>", "}")
@@ -86,7 +188,7 @@ def switch_number(number):
     :rtype: string
     """
     if type(number) is int:
-        unum = u"%.6d" % number
+        unum = "%.6d" % number
         return unum[0:2] + "-" + unum[2:]
     else:
         return int(number.replace("-", ""))
@@ -98,6 +200,7 @@ class Database:
     :param path: Path to database.
     :type path: string
     """
+
     def __init__(self, path):
         self.connection = None
         self.connectable = False
@@ -130,7 +233,7 @@ class Database:
             close = False
         cursor = connection.cursor()
         cursor.execute(command)
-        assert(not commit)
+        assert not commit
         result = cursor.fetchall()
         if close:
             connection.close()
@@ -154,17 +257,17 @@ class Database:
         :type req: string
         :returns: List of cards.
         """
-        reqs = map(type(req).strip, req.split('&'))
+        reqs = map(type(req).strip, req.split("&"))
         selects = []
         for req in reqs:
-            if ';' in req:
+            if ";" in req:
                 try:
                     res = self.select_bruto(req)
                 except KeyError:
                     raise ValueError("Bad request")
                 selects.append(res)
                 continue
-            if req.startswith(':'):
+            if req.startswith(":"):
                 try:
                     res = self.select_reflex(req)
                 except Exception:
@@ -200,7 +303,6 @@ class Database:
         :type req: string
         :returns: list of cards
         """
-        pos = 0
         regexp = re.compile(r"([A-Za-z]+)\s*(\d*)\s*")
         lst = regexp.findall(req)
         dct = dict(lst)
@@ -252,7 +354,9 @@ class Database:
             scon = "CASE %s ELSE 0 END" % mcon
         elif can:
             scon = "CASE WHEN enum IN (%s) THEN 0 %s ELSE -1 END" % (
-                ",".join(map(str, can)), mcon)
+                ",".join(map(str, can)),
+                mcon,
+            )
         else:
             scon = "CASE %s ELSE -1 END" % mcon
         return minstr % (scon, msum)
@@ -266,8 +370,8 @@ class Database:
         :returns: list of cards
         """
         try:
-            floats = [float(x.replace(',', '.')) for x in req[1:].split()]
-            floats.extend((0., 100.)[len(floats) - 2:])
+            floats = [float(x.replace(",", ".")) for x in req[1:].split()]
+            floats.extend((0.0, 100.0)[len(floats) - 2 :])
             d1, d2, h1, h2 = floats[:4]
         except Exception:
             raise ValueError("Bad values")
@@ -279,15 +383,19 @@ class Database:
         hkl = ", h, k, l" if hkl else ""
         return self.execute(
             "SELECT d, intens%s FROM reflexes WHERE cid=%d "
-            "ORDER BY d" % (hkl, cid), False)
+            "ORDER BY d" % (hkl, cid),
+            False,
+        )
 
     def quality(self, cid):
         return self.execute(
-            "SELECT quality FROM about WHERE cid=%d" % cid, False)[0][0]
+            "SELECT quality FROM about WHERE cid=%d" % cid, False
+        )[0][0]
 
     def spacegroup(self, cid):
         return self.execute(
-            "SELECT sgroup FROM about WHERE cid=%d" % cid, False)[0][0]
+            "SELECT sgroup FROM about WHERE cid=%d" % cid, False
+        )[0][0]
 
     def get_di(self, cid, xtype="q", wavel=(), between=None):
         reflexes = self.reflexes(cid)
@@ -295,10 +403,10 @@ class Database:
             return [], []
         dis = np.array(reflexes, "f").transpose()
         intens = dis[1]
-        if intens.max() == 999.:
-            for i in (intens == 999.).nonzero():
-                intens[i] += 1.
-            intens /= 10.
+        if intens.max() == 999.0:
+            for i in (intens == 999.0).nonzero():
+                intens[i] += 1.0
+            intens /= 10.0
         if not isinstance(wavel, (tuple, list)):
             wavel = (wavel,)
             single = True
@@ -307,13 +415,13 @@ class Database:
         abscisas = []
         for wave in wavel:
             if xtype == "sin(theta)":
-                abscisas.append(wave / 2. / dis[0])
+                abscisas.append(wave / 2.0 / dis[0])
             elif xtype == "theta":
-                abscisas.append(np.arcsin(wave / 2. / dis[0]) / np.pi * 180.)
+                abscisas.append(np.arcsin(wave / 2.0 / dis[0]) / np.pi * 180.0)
             elif xtype == "2theta":
-                abscisas.append(np.arcsin(wave / 2. / dis[0]) / np.pi * 360.)
+                abscisas.append(np.arcsin(wave / 2.0 / dis[0]) / np.pi * 360.0)
         if xtype == "q":
-            abscisas.append((2. * np.pi) / dis[0])
+            abscisas.append((2.0 * np.pi) / dis[0])
         elif not abscisas:
             abscisas.append(dis[0])
         if between:
@@ -333,7 +441,8 @@ class Database:
 
     def comment(self, cid):
         cmt = self.execute(
-            "SELECT comment FROM about WHERE cid=%d" % cid, False)
+            "SELECT comment FROM about WHERE cid=%d" % cid, False
+        )
         if not cmt:
             return
         cmt = cmt[0][0]
@@ -341,14 +450,14 @@ class Database:
             return
         dcoduns = {"BF": "b", "IT": "i"}
         for cod, val in loads(cmt):
-            if '\\' in val:
+            if "\\" in val:
                 coduns = []
                 spos = 0
-                epos = val.find('\\')
-                rval = u""
+                epos = val.find("\\")
+                rval = ""
                 while epos >= 0:
                     rval += val[spos:epos]
-                    bilcode = val[epos + 1:epos + 3]
+                    bilcode = val[epos + 1 : epos + 3]
                     if bilcode.isupper() and bilcode.isalpha():
                         if bilcode == "RG":
                             for codun in coduns:
@@ -378,14 +487,19 @@ class Database:
         return self.execute("SELECT name FROM about WHERE cid=%d" % cid)[0][0]
 
     def cell_params(self, cid):
-        return self.execute("SELECT param, value FROM cellparams "
-                            "WHERE cid=%d ORDER BY param" % cid, False)
+        return self.execute(
+            "SELECT param, value FROM cellparams "
+            "WHERE cid=%d ORDER BY param" % cid,
+            False,
+        )
 
     def citations(self, cid):
         return self.execute(
             "SELECT source, vol, page, year, authors FROM citations LEFT JOIN "
             "sources ON citations.sid=sources.sid WHERE cid=%d "
-            "ORDER BY year DESC" % cid, False)
+            "ORDER BY year DESC" % cid,
+            False,
+        )
 
 
 class Wiki_card:
@@ -400,21 +514,35 @@ class Wiki_card:
         db, cid, xtype, wavels = self.ctp
         pos = db.get_di(cid, xtype, wavels[0])[0]
         refl = db.reflexes(cid, True)
-        xt = {'\\theta': u"\u03b8", 'A^{-1}': u"\u212b^{-1}",
-              'sin(\\theta)': u"sin(\u03b8)", 'A': u"\u212b",
-              '2\\theta': u"2\u03b8"}[xtype]
+        xt = {
+            "\\theta": "\u03b8",
+            "A^{-1}": "\u212b^{-1}",
+            "sin(\\theta)": "sin(\u03b8)",
+            "A": "\u212b",
+            "2\\theta": "2\u03b8",
+        }[xtype]
         uformula = db.formula_markup(cid, True)
-        table = ["=== %s ===\n" % db.name(cid),
-                 "%s: %s\n" % (switch_number(cid), uformula),
-                 "{|", "! x (%s)" % xt,
-                 u"! d (\u212b)", "! I"]
+        table = [
+            "=== %s ===\n" % db.name(cid),
+            "%s: %s\n" % (switch_number(cid), uformula),
+            "{|",
+            "! x (%s)" % xt,
+            "! d (\u212b)",
+            "! I",
+        ]
         hkl_col = any([i[2] is not None for i in refl]) > 2
         if hkl_col:
             table.append("! hkl")
         for p, r in zip(pos, refl):
             table.append("|-")
-            table.append("\n".join(["| %s" % loc.format_string("%g", i)
-                                    for i in ((p,) + r[:2])]))
+            table.append(
+                "\n".join(
+                    [
+                        "| %s" % loc.format_string("%g", i)
+                        for i in ((p,) + r[:2])
+                    ]
+                )
+            )
             if r[2] is not None:
                 table.append("| %d %d %d" % r[2:])
         table.append("|}")
@@ -422,7 +550,7 @@ class Wiki_card:
             for wavel in wavels:
                 pos = db.get_di(cid, xtype, wavel)[0]
                 self.gnuplot_tail(table, pos, refl, hkl_col, uformula)
-        return u"\n".join(table)
+        return "\n".join(table)
 
     def gnuplot_tail(self, table, pos, refl, hkl_col, uformula):
         table.append("----")
@@ -438,13 +566,13 @@ class Wiki_card:
             y0 = y[xp1] + (p - x[xp1]) * (y[xp] - y[xp1]) / (xv - x[xp1])
             plotpos.append((p, y0) + r[2:])
         for p in plotpos:
-            table.append("set arrow from %g, %g rto 0, ll nohead\n"
-                         % p[:2])
+            table.append("set arrow from %g, %g rto 0, ll nohead\n" % p[:2])
             name = uformula
             if len(p) > 2:
                 try:
                     name += " (%d %d %d)" % p[2:]
                 except Exception:
                     pass
-            table.append("set label \"%s\" at %g, %g + ll rotate\n"
-                         % ((name,) + p[:2]))
+            table.append(
+                'set label "%s" at %g, %g + ll rotate\n' % ((name,) + p[:2])
+            )

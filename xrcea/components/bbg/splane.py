@@ -28,12 +28,13 @@ def detect_plane_shift(xrd, vis):
     aps = APP.settings
     params = vis.input_dialog(
         _("Initial simplex params"),
-        [(_("Initial shift:"), aps.get("ini_shift", 1e-3, "BBG"))])
+        [(_("Initial shift:"), aps.get("ini_shift", 1e-3, "BBG"))],
+    )
     if params is None:
         return
-    ishift, = params
+    (ishift,) = params
     aps.set("ini_shift", ishift, "BBG")
-    simplex = array([[0.], [ishift]])
+    simplex = array([[0.0], [ishift]])
     indset = xrd.extra_data.get("UserIndexes")
     res = {}
     calculs = APP.runtime_data.get("cryp", {}).get("cell_calc", {})
@@ -42,27 +43,30 @@ def detect_plane_shift(xrd, vis):
         try:
             calc = calculs[indset[name]["cell"]]
             callb = ShiftPlane(xrd, calc, inds)
-            no_fix = callb([0.])
+            no_fix = callb([0.0])
             if no_fix is None:
                 continue
             xopt = fmin(callb, simplex[0], initial_simplex=simplex)
-            res[name] = ("%s <b>%g => %g</b>"
-                         "<div>%s</div><div>%s</div>") % (
-                callb.to_markup(xopt), no_fix, callb(xopt),
-                callb.mark_params([0]), callb.mark_params(xopt))
+            res[name] = ("%s <b>%g => %g</b><div>%s</div><div>%s</div>") % (
+                callb.to_markup(xopt),
+                no_fix,
+                callb(xopt),
+                callb.mark_params([0]),
+                callb.mark_params(xopt),
+            )
         except KeyError:
             print(f"TODO: calculator for {indset[name]['cell']}")
             pass
-    vis.set_text("<html><body>%s</body></html>" %
-                 "<br/>".join("%s: %s" % i for i in res.items()))
+    vis.set_text(
+        "<html><body>%s</body></html>"
+        % "<br/>".join("%s: %s" % i for i in res.items())
+    )
 
 
 class ShiftPlane:
     def __init__(self, xrd, calc, inds):
         cryb = xrd.extra_data.get("crypbells")
-        hwave = xrd.lambda1 / 2.
-        ipd = sorted(hwave / cryb.reshape(len(cryb) // 4, 4)[:, 0],
-                     reverse=True)
+        hwave = xrd.lambda1 / 2.0
         self.calc = calc
         self.hwave = hwave
         self.crybp = cryb.reshape(len(cryb) // 4, 4)[:, 0]
@@ -71,7 +75,8 @@ class ShiftPlane:
     def __call__(self, corvec, full=False):
         h = corvec[0]
         crybp = self.crybp / sqrt(
-            1. - 2. * h * sqrt(1 - self.crybp ** 2) + h ** 2)
+            1.0 - 2.0 * h * sqrt(1 - self.crybp**2) + h**2
+        )
         ipd = sorted(self.hwave / crybp, reverse=True)
         inds = self.inds
         dinds = array([[d] + inds[i] for i, d in enumerate(ipd) if i in inds])
@@ -82,8 +87,8 @@ class ShiftPlane:
 
     def to_markup(self, corvec):
         """Convert correction vector to text"""
-        m, = corvec
-        if m < 0.:
+        (m,) = corvec
+        if m < 0.0:
             sign = "-"
         else:
             sign = ""
@@ -96,13 +101,23 @@ class ShiftPlane:
 
     def mark_params(self, corvec):
         res = self(corvec, True)
-        pnr = ["a", "b", "c", "\u03b1", "\u03b2", "\u03b3",
-               "\u03c7<sup>2</sup>",
-               "\u03c3<sup>2</sup><sub>a</sub>",
-               "\u03c3<sup>2</sup><sub>b</sub>",
-               "\u03c3<sup>2</sup><sub>c</sub>",
-               "\u03c3<sup>2</sup><sub>\u03b1</sub>",
-               "\u03c3<sup>2</sup><sub>\u03b2</sub>",
-               "\u03c3<sup>2</sup><sub>\u03b3</sub>"]
-        return "; ".join("%s= %s" % (n, format_string("%g", v))
-                         for n, v in zip(pnr, res) if v is not None)
+        pnr = [
+            "a",
+            "b",
+            "c",
+            "\u03b1",
+            "\u03b2",
+            "\u03b3",
+            "\u03c7<sup>2</sup>",
+            "\u03c3<sup>2</sup><sub>a</sub>",
+            "\u03c3<sup>2</sup><sub>b</sub>",
+            "\u03c3<sup>2</sup><sub>c</sub>",
+            "\u03c3<sup>2</sup><sub>\u03b1</sub>",
+            "\u03c3<sup>2</sup><sub>\u03b2</sub>",
+            "\u03c3<sup>2</sup><sub>\u03b3</sub>",
+        ]
+        return "; ".join(
+            "%s= %s" % (n, format_string("%g", v))
+            for n, v in zip(pnr, res)
+            if v is not None
+        )

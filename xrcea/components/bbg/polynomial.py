@@ -64,7 +64,7 @@ def detect_polynome(xrd, vis):
                 continue
             xopt = fmin(callb, simplex[0], initial_simplex=simplex)
             res[name] = (
-                "%s <div><b>%g => %g</b></div>" "<div>%s</div><div>%s</div>"
+                "%s <div><b>%g => %g</b></div><div>%s</div><div>%s</div>"
             ) % (
                 callb.to_markup(xopt),
                 no_fix,
@@ -85,9 +85,6 @@ class FitPolynomial:
     def __init__(self, xrd, calc, inds, way):
         cryb = xrd.extra_data.get("crypbells")
         hwave = xrd.lambda1 / 2.0
-        ipd = sorted(
-            hwave / cryb.reshape(len(cryb) // 4, 4)[:, 0], reverse=True
-        )
         self.calc = calc
         self.hwave = hwave
         self.crybp = cryb.reshape(len(cryb) // 4, 4)[:, 0]

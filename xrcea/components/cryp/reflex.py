@@ -13,8 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-"""
-"""
+""" """
 
 import numpy as np
 from scipy.optimize import fmin, curve_fit  # type: ignore
@@ -24,9 +23,9 @@ _SH_FUNCTIONS = {
     "Lorentz": lambda the_x, x0, h, w: h / (1.0 + (the_x - x0) ** 2 / w),
     "Voit": lambda the_x, x0, h, w: h / (1.0 + (the_x - x0) ** 2 / w) ** 2,
     "GaussRad": lambda the_x, x0, h, w: h
-    * np.exp(-(((np.arcsin(the_x) - np.arcsin(x0))) ** 2) / w),
+    * np.exp(-((np.arcsin(the_x) - np.arcsin(x0)) ** 2) / w),
     "LorentzRad": lambda the_x, x0, h, w: h
-    / (1.0 + ((np.arcsin(the_x) - np.arcsin(x0))) ** 2 / w),
+    / (1.0 + (np.arcsin(the_x) - np.arcsin(x0)) ** 2 / w),
     "VoitRad": lambda the_x, x0, h, w: h
     / (1.0 + (np.arcsin(the_x) - np.arcsin(x0)) ** 2 / w) ** 2,
 }
@@ -173,7 +172,6 @@ class ReflexDedect:
         """my new not so good algorithm"""
         self.sh_type = sh_type
         self.sh_func = _SH_FUNCTIONS[sh_type]
-        wmin = 2.0 * sigmin**2
         y_ar = self.y_ar
         x_ar = self.x_ar
         area = np.trapz(y_ar, x_ar)

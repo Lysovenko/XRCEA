@@ -18,7 +18,17 @@ Convert description to HTML
 """
 
 from xml.etree.ElementTree import tostring, Element, SubElement
-from xrcea.core.description import *
+from xrcea.core.description import (
+    Paragraph,
+    DescItem,
+    Table,
+    Row,
+    Cell,
+    Title,
+    SubScript,
+    SuperScript,
+    Description,
+)
 
 
 def _treat_paragraph(opar: Paragraph):

@@ -29,6 +29,7 @@ from numpy import (
     unique,
     newaxis,
     logical_and,
+    radians,
 )
 from numpy.linalg import solve, LinAlgError
 from scipy.optimize import fmin
@@ -357,9 +358,7 @@ def d_hkl_orhomb(a, b, c, hkl):
 def d_hkl_hex(a, c, hkl):
     """Calculate d_hkl for Hexagonal unit cell"""
     h, k, el = hkl
-    d2 = (
-        4.0 / 3.0 / a**2 * (h**2 + h * k + k**2) + 1.0 / c**2 * el**2
-    )
+    d2 = 4.0 / 3.0 / a**2 * (h**2 + h * k + k**2) + 1.0 / c**2 * el**2
     return sqrt(1.0 / d2)
 
 
@@ -411,10 +410,7 @@ def chi2n(d1a, d2a, poss):
     iset = unique(inds)
     ave = aver(poss.transpose()[inds])
     return (
-        aver(dev)
-        * var(dev) ** 2
-        * ((len(d1a) - len(iset)) ** 2 + 1)
-        * ave**2
+        aver(dev) * var(dev) ** 2 * ((len(d1a) - len(iset)) ** 2 + 1) * ave**2
     )
 
 
@@ -498,7 +494,7 @@ class FitIndices:
 
         opt = fmin(
             vec,
-            [iniparams[0], iniparams[1], iniparams[2], deg2rad(iniparams[4])],
+            [iniparams[0], iniparams[1], iniparams[2], radians(iniparams[4])],
             disp=0,
         )
         dres = d_hkl_monoclinic(*opt, poss_hkl)
@@ -512,7 +508,7 @@ class FitIndices:
             dfit = d_hkl_rhombohedral(*abc, poss_hkl)
             return chi2n(dlist, dfit, poss_hkl)
 
-        opt = fmin(vec, [iniparams[0], deg2rad(iniparams[3])], disp=0)
+        opt = fmin(vec, [iniparams[0], radians(iniparams[3])], disp=0)
         dres = d_hkl_rhombohedral(*opt, poss_hkl)
         dhkl = self.dhkl(dres, dlist)
         return calc_rhombohedral(dhkl), dhkl[1:]

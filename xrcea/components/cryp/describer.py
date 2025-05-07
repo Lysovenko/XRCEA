@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-"""
-"""
+""" """
+
 from xrcea.core.idata import XrayData
-from xrcea.core.description import *
+from xrcea.core.description import Title, Paragraph, Table, Row, Cell
 from math import asin, pi, sqrt, log
 from .broadening import BroadAn
 from .cellparams import CellParams
