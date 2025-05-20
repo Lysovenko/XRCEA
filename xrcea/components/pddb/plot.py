@@ -81,6 +81,11 @@ def extend_plt(plt, xrd, pddb, cur=None):
     wavels = tuple(i[0] for i in wavis)
     for card, clr in ((int(i), j) for i, j in colors.items()):
         dis = pddb.get_di(card, units, wavels, (xmin, xmax))
+        mils = [
+            "" if r[2] is None else "(%d%4d%4d)" % tuple(r[2:])
+            for r in pddb.reflexes(card, True)
+        ]
+        annot = any(mils)
         for (x, y), lstl, (w, i) in zip(
             dis, ("solid", "dashed", "dashdot"), wavis
         ):
@@ -91,5 +96,8 @@ def extend_plt(plt, xrd, pddb, cur=None):
                 )
             eplt["x1"] = x
             eplt["y2"] = y * i
+            if annot:
+                annot = False
+                eplt["annotations"] = mils
             plt["plots"].append(eplt)
     return plt
