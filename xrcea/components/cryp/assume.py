@@ -44,6 +44,14 @@ class StructAssume(Page):
             "rhombohedral": self.di_rhombohedral,
             "monoclinic": self.di_monoclinic,
         }
+        self._extinctions = {
+            "P": self.condition_p,
+            "I": self.condition_i,
+            "A": self.condition_a,
+            "B": self.condition_b,
+            "C": self.condition_c,
+            "F": self.condition_f,
+        }
         super().__init__(str(xrd.name) + _(" (Assumptions)"), None)
         self.menu.append_item(
             (_assumption,), _("Plot") + "\tCtrl+P", self.calc_plot, None
@@ -158,56 +166,80 @@ class StructAssume(Page):
         return res
 
     def calc_reflexes(self, record):
-        return sorted(self._calculs[record["t"]](record))
+        mills = list(
+            product(*((tuple(range(record.get("max", 4) + 1)),) * 3))
+        )[1:]
+        if "ext" in record:
+            mills = filter(self._extinctions.get(record["ext"]), mills)
+            mills = list(mills)
+        return sorted(self._calculs[record["t"]](record, mills))
 
     @staticmethod
-    def di_orhomb(rec):
-        hkl_ = list(product(*((tuple(range(rec.get("max", 4) + 1)),) * 3)))[1:]
+    def condition_p(hkl):
+        return True
+
+    @staticmethod
+    def condition_i(hkl):
+        return sum(hkl) % 2 == 0
+
+    @staticmethod
+    def condition_a(hkl):
+        return (hkl[1] + hkl[2]) % 2 == 0
+
+    @staticmethod
+    def condition_b(hkl):
+        return (hkl[0] + hkl[2]) % 2 == 0
+
+    @staticmethod
+    def condition_c(hkl):
+        return (hkl[1] + hkl[0]) % 2 == 0
+
+    @staticmethod
+    def condition_f(hkl):
+        return (hkl[0] % 2) == (hkl[1] % 2) == (hkl[2] % 2)
+
+    @staticmethod
+    def di_orhomb(rec, mills):
         a = rec["a"]
         b = rec["b"]
         c = rec["c"]
-        dset = set(d_hkl_orhomb(a, b, c, hkl) for hkl in hkl_)
+        dset = set(d_hkl_orhomb(a, b, c, hkl) for hkl in mills)
         return [(d, 100) for d in dset]
 
     @staticmethod
-    def di_hex(rec):
-        hkl_ = list(product(*((tuple(range(rec.get("max", 4) + 1)),) * 3)))[1:]
+    def di_hex(rec, mills):
         a = rec["a"]
         c = rec["c"]
-        dset = set(d_hkl_hex(a, c, hkl) for hkl in hkl_)
+        dset = set(d_hkl_hex(a, c, hkl) for hkl in mills)
         return [(d, 100) for d in dset]
 
     @staticmethod
-    def di_tetra(rec):
+    def di_tetra(rec, mills):
         a = rec["a"]
         c = rec["c"]
-        hkl_ = list(product(*((tuple(range(rec.get("max", 4) + 1)),) * 3)))[1:]
-        dset = set(d_hkl_tetra(a, c, hkl) for hkl in hkl_)
+        dset = set(d_hkl_tetra(a, c, hkl) for hkl in mills)
         return [(d, 100) for d in dset]
 
     @staticmethod
-    def di_cubic(rec):
+    def di_cubic(rec, mills):
         a = rec["a"]
-        hkl_ = list(product(*((tuple(range(rec.get("max", 4) + 1)),) * 3)))[1:]
-        dset = set(d_hkl_cubic(a, hkl) for hkl in hkl_)
+        dset = set(d_hkl_cubic(a, hkl) for hkl in mills)
         return [(d, 100) for d in dset]
 
     @staticmethod
-    def di_rhombohedral(rec):
+    def di_rhombohedral(rec, mills):
         a = rec["a"]
         alp = rec["alp"]
-        hkl_ = list(product(*((tuple(range(rec.get("max", 4) + 1)),) * 3)))[1:]
-        dset = set(d_hkl_rhombohedral(a, alp, hkl) for hkl in hkl_)
+        dset = set(d_hkl_rhombohedral(a, alp, hkl) for hkl in mills)
         return [(d, 100) for d in dset]
 
     @staticmethod
-    def di_monoclinic(rec):
+    def di_monoclinic(rec, mills):
         a = rec["a"]
         b = rec["b"]
         c = rec["c"]
         bet = rec["bet"]
-        hkl_ = list(product(*((tuple(range(rec.get("max", 4) + 1)),) * 3)))[1:]
-        dset = set(d_hkl_monoclinic(a, b, c, bet, hkl) for hkl in hkl_)
+        dset = set(d_hkl_monoclinic(a, b, c, bet, hkl) for hkl in mills)
         return [(d, 100) for d in dset]
 
 
