@@ -44,6 +44,14 @@ class StructAssume(Page):
             "rhombohedral": self.di_rhombohedral,
             "monoclinic": self.di_monoclinic,
         }
+        self._milgens = {
+            "orhomb": self.mills,
+            "hex": self.mills_hk,
+            "tetra": self.mills_hk,
+            "cubic": self.mills_hkl,
+            "rhombohedral": self.mills,
+            "monoclinic": self.mills,
+        }
         self._extinctions = {
             "P": self.condition_p,
             "I": self.condition_i,
@@ -108,6 +116,8 @@ class StructAssume(Page):
             dis = self.plt_di(rec, units, wavels, (xmin, xmax))
             if dis is None:
                 continue
+            dis, mils = dis
+            annotations = ["(%d%3d%3d)" % i for i in mils]
             for (x, y), lstl, (w, i) in zip(
                 dis, ("solid", "dashed", "dashdot"), wavis
             ):
@@ -120,6 +130,9 @@ class StructAssume(Page):
                     eplt["legend"] = rec.get("t", "nothing")
                 eplt["x1"] = x
                 eplt["y2"] = y * i
+                if annotations:
+                    eplt["annotations"] = annotations
+                    annotations = None
                 plt["plots"].append(eplt)
         plot_name = _("Assumed")
         plot.add_plot(plot_name, plt)
@@ -132,7 +145,8 @@ class StructAssume(Page):
             return
         if not reflexes:
             return
-        dis = np.array(reflexes, "f").transpose()
+        mils = [i[2] for i in reflexes]
+        dis = np.array([i[:2] for i in reflexes], "f").transpose()
         intens = dis[1]
         if not isinstance(wavel, (tuple, list)):
             wavel = (wavel,)
@@ -152,27 +166,50 @@ class StructAssume(Page):
             abscisas.append((2.0 * np.pi) / dis[0])
         elif not abscisas:
             abscisas.append(dis[0])
+        milshrink = True
         if between:
             res = []
             for x in abscisas:
                 b = x >= min(between)
                 b &= x <= max(between)
                 res.append((x[b], intens[b]))
+                if milshrink:
+                    milshrink = False
+                    mils = [j for i, j in enumerate(mils) if b[i]]
         else:
             res = [(x, intens) for x in abscisas]
         np.seterr(**restore)
         if single:
-            return res[0]
-        return res
+            return res[0], mils
+        return res, mils
 
     def calc_reflexes(self, record):
-        mills = list(
-            product(*((tuple(range(record.get("max", 4) + 1)),) * 3))
-        )[1:]
+        mills = self._milgens[record["t"]](record.get("max", 4))
         if "ext" in record:
             mills = filter(self._extinctions.get(record["ext"]), mills)
             mills = list(mills)
         return sorted(self._calculs[record["t"]](record, mills))
+
+    @staticmethod
+    def mills_hkl(max):
+        for h in range(1, max + 1):
+            for k in range(h + 1):
+                for el in range(k + 1):
+                    yield (h, k, el)
+
+    @staticmethod
+    def mills_hk(max):
+        for h in range(max + 1):
+            for k in range(h + 1):
+                for el in range(0 if h else 1, max + 1):
+                    yield (h, k, el)
+
+    @staticmethod
+    def mills(max):
+        itr = product(*((tuple(range(max + 1)),) * 3))
+        next(itr)
+        for i in itr:
+            yield i
 
     @staticmethod
     def condition_p(hkl):
@@ -203,35 +240,30 @@ class StructAssume(Page):
         a = rec["a"]
         b = rec["b"]
         c = rec["c"]
-        dset = set(d_hkl_orhomb(a, b, c, hkl) for hkl in mills)
-        return [(d, 100) for d in dset]
+        return [(d_hkl_orhomb(a, b, c, hkl), 100, hkl) for hkl in mills]
 
     @staticmethod
     def di_hex(rec, mills):
         a = rec["a"]
         c = rec["c"]
-        dset = set(d_hkl_hex(a, c, hkl) for hkl in mills)
-        return [(d, 100) for d in dset]
+        return [(d_hkl_hex(a, c, hkl), 100, hkl) for hkl in mills]
 
     @staticmethod
     def di_tetra(rec, mills):
         a = rec["a"]
         c = rec["c"]
-        dset = set(d_hkl_tetra(a, c, hkl) for hkl in mills)
-        return [(d, 100) for d in dset]
+        return [(d_hkl_tetra(a, c, hkl), 100, hkl) for hkl in mills]
 
     @staticmethod
     def di_cubic(rec, mills):
         a = rec["a"]
-        dset = set(d_hkl_cubic(a, hkl) for hkl in mills)
-        return [(d, 100) for d in dset]
+        return [(d_hkl_cubic(a, hkl), 100, hkl) for hkl in mills]
 
     @staticmethod
     def di_rhombohedral(rec, mills):
         a = rec["a"]
         alp = rec["alp"]
-        dset = set(d_hkl_rhombohedral(a, alp, hkl) for hkl in mills)
-        return [(d, 100) for d in dset]
+        return [(d_hkl_rhombohedral(a, alp, hkl), 100, hkl) for hkl in mills]
 
     @staticmethod
     def di_monoclinic(rec, mills):
@@ -239,8 +271,9 @@ class StructAssume(Page):
         b = rec["b"]
         c = rec["c"]
         bet = rec["bet"]
-        dset = set(d_hkl_monoclinic(a, b, c, bet, hkl) for hkl in mills)
-        return [(d, 100) for d in dset]
+        return [
+            (d_hkl_monoclinic(a, b, c, bet, hkl), 100, hkl) for hkl in mills
+        ]
 
 
 def show_struct_assumptions(xrd):
