@@ -15,7 +15,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Make structural assumptions"""
 
-from json import loads, JSONDecodeError
+from json import loads, dumps, JSONDecodeError
 from itertools import product
 import numpy as np
 from xrcea.core.vi import Page
@@ -66,7 +66,15 @@ class StructAssume(Page):
         )
         self.add_shortcut("Ctrl+p", self.calc_plot)
         self.show()
-        self.set_text('[{"t": "cubic", "a": 1}]', True)
+        self.set_text(
+            dumps(
+                self._xrd.extra_data.setdefault(
+                    "Assumptions", [{"t": "cubic", "a": 1}]
+                ),
+                indent=4,
+            ),
+            True,
+        )
 
     def calc_plot(self):
         xrd = self._xrd
@@ -85,6 +93,7 @@ class StructAssume(Page):
         elif not isinstance(assobj, list):
             print("Wrong request")
             return
+        self._xrd.extra_data["Assumptions"] = assobj
         x_label = {
             "theta": "$\\theta$",
             "2theta": "$2\\theta$",
