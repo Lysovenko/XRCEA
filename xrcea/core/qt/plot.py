@@ -111,7 +111,7 @@ class Canvas(FigureCanvas):
                     0,
                     plot.get("y1", plot.get("y2")),
                     color=color,
-                    **extras
+                    **extras,
                 )
             else:
                 a2p.plot(
@@ -119,7 +119,7 @@ class Canvas(FigureCanvas):
                     plot.get("y1", plot.get("y2")),
                     ltype,
                     color=color,
-                    **extras
+                    **extras,
                 )
             if "legend" in plot:
                 a2p.legend()
@@ -131,7 +131,7 @@ class Canvas(FigureCanvas):
                     except IndexError:
                         continue
                     if isinstance(note, str):
-                        a2p.annotate(note, (x, y))
+                        a2p.annotate(note, (x, y), rotation=45)
             for lim in ("xlim", "ylim"):
                 try:
                     getattr(a2p, "set_" + lim)(plot[lim])
