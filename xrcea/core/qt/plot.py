@@ -131,7 +131,7 @@ class Canvas(FigureCanvas):
                     except IndexError:
                         continue
                     if isinstance(note, str):
-                        a2p.annotate(note, (x, y), rotation=45)
+                        a2p.annotate(note, (x, y), rotation=45, color=color)
             for lim in ("xlim", "ylim"):
                 try:
                     getattr(a2p, "set_" + lim)(plot[lim])
