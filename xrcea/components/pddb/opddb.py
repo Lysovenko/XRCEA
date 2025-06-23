@@ -201,11 +201,12 @@ class ObjDB:
             return self._database.citations(cid)
 
     def get_di(self, cid, xtype="q", wavel=(), between=None):
-        reflexes = self.reflexes(cid)
+        reflexes = self.reflexes(cid, True)
         if not reflexes:
             return [], []
         dis = np.array(reflexes, "f").transpose()
         intens = dis[1]
+        mills = dis[2:]
         if intens.max() == 999.0:
             for i in (intens == 999.0).nonzero():
                 intens[i] += 1.0
@@ -233,9 +234,18 @@ class ObjDB:
             for x in abscisas:
                 b = x >= min(between)
                 b &= x <= max(between)
-                res.append((x[b], intens[b]))
+                res.append(
+                    (
+                        x[b],
+                        intens[b],
+                        [
+                            () if np.isnan(i[0]) else tuple(map(int, i))
+                            for i in mills.transpose()[b]
+                        ],
+                    )
+                )
         else:
-            res = [(x, intens) for x in abscisas]
+            res = [(x, intens, mills.transpose()) for x in abscisas]
         np.seterr(**restore)
         if single:
             return res[0]
@@ -282,8 +292,8 @@ class ObjDB:
                 % (pos, intens, hkl)
             )
         xt = {
-            "2theta": "2\u03b8, \u00B0",
-            "theta": "\u03b8, \u00B0",
+            "2theta": "2\u03b8, \u00b0",
+            "theta": "\u03b8, \u00b0",
             "q": "q, \u212b^{-1}",
             None: "d, \u212b",
         }[xtype]
