@@ -38,7 +38,9 @@ from xrcea.core.description import SubScript, SuperScript, Table, Row, Cell
 
 
 def get_dhkl(ipd, inds):
-    dinds = array([[d] + inds[i] for i, d in enumerate(ipd) if i in inds])
+    dinds = array(
+        [[d] + list(inds[i]) for i, d in enumerate(ipd) if i in inds]
+    )
     return dinds.transpose()
 
 
