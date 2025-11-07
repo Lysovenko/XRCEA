@@ -16,6 +16,7 @@
 """ """
 
 from zipfile import ZipFile
+import xml.etree.ElementTree as etree
 from xrcea.core.application import APPLICATION as APP
 from xrcea.core.idata import XrayData
 
@@ -46,4 +47,24 @@ def rasx_obj(fname):
             y_data.append(y)
         obj["x_data"] = x_data
         obj["y_data"] = y_data
+        tree = etree.fromstring(
+            zf.read("Data0/MesurementConditions0.xml").decode()
+        )
+        gen = tree.find("GeneralInformation")
+        name = gen.find("SampleName").text
+        if not name:
+            name = fname
+        obj["name"] = name
+        obj["comment"] = gen.find("Comment").text
+        hwc = tree.find("HWConfigurations")
+        xrg = hwc.find("XrayGenerator")
+        obj["lambda1"] = float(xrg.find("WavelengthKalpha1").text)
+        obj["lambda2"] = float(xrg.find("WavelengthKalpha2").text)
+        obj["lambda3"] = float(xrg.find("WavelengthKbeta").text)
+        scan = tree.find("ScanInformation")
+        axis = scan.find("AxisName").text
+        if axis == "TwoThetaTheta":
+            obj["x_units"] = "2theta"
+        if axis == "TwoTheta":
+            obj["x_units"] = "theta"
     return obj
