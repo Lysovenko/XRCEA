@@ -17,7 +17,9 @@
 
 from xrcea.core.application import APPLICATION as APP
 from .rigaku import open_rasx
+from .xrdml import open_xrdml
 
 
 def introduce():
-    APP.register_opener(".rasx", open_rasx, _("Diffractograms"))
+    APP.register_opener(".rasx", open_rasx, _("Rigaku Diffractograms"))
+    APP.register_opener(".xrdml", open_xrdml, _("PANalytical Diffractograms"))
