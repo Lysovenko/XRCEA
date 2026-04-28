@@ -17,7 +17,11 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import os
-from PyQt5.QtWidgets import QMessageBox, QFileDialog
+
+try:
+    from PyQt6.QtWidgets import QFileDialog, QMessageBox
+except ImportError:
+    from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
 
 def print_information(title, info):
@@ -32,21 +36,37 @@ def print_error(title, info):
 
 def ask_question(title, question):
     parent = None
-    return QMessageBox.question(
-        parent, title, question,
-        QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes
+    return (
+        QMessageBox.question(
+            parent, title, question, QMessageBox.Yes | QMessageBox.No
+        )
+        == QMessageBox.Yes
+    )
 
 
 def ask_open_filename(title, filename, masks):
     fltr = ";;".join("{1} ({0})".format(*md) for md in masks)
-    options = QFileDialog.Options()
+
+    # 1. Handle the Enum naming difference
+    if hasattr(QFileDialog, "Option"):
+        # PyQt6 path
+        options = QFileDialog.Option(0)  # Initialize empty flag set
+        native_flag = QFileDialog.Option.DontUseNativeDialog
+    else:
+        # PyQt5 path
+        options = QFileDialog.Options()
+        native_flag = QFileDialog.DontUseNativeDialog
+
+    # 2. Add the flag for Linux/Posix
     if os.name == "posix":
-        options |= QFileDialog.DontUseNativeDialog
+        options |= native_flag
+
+    # 3. Call the dialog
     fname, _h = QFileDialog.getOpenFileName(
-        None, title, filename, fltr, options=options)
-    if fname:
-        return fname
-    return None
+        None, title, filename, fltr, options=options
+    )
+
+    return fname if fname else None
 
 
 def ask_save_filename(title, filename, masks):
@@ -55,7 +75,8 @@ def ask_save_filename(title, filename, masks):
     if os.name == "posix":
         options |= QFileDialog.DontUseNativeDialog
     fname, _h = QFileDialog.getSaveFileName(
-        None, title, filename, fltr, options=options)
+        None, title, filename, fltr, options=options
+    )
     if fname:
         return fname
     return None

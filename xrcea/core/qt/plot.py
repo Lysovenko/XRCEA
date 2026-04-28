@@ -33,15 +33,25 @@
 # }
 """Display plots"""
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QSizePolicy
+try:
+    from PyQt6.QtCore import Qt
+    from PyQt6.QtGui import QIcon
+    from PyQt6.QtWidgets import QSizePolicy
+except ImportError:
+    from PyQt5.QtCore import Qt
+    from PyQt5.QtGui import QIcon
+    from PyQt5.QtWidgets import QSizePolicy
 from matplotlib.backends.backend_qt5agg import (  # pylint: disable=E0611
     FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar,
 )
 from matplotlib.figure import Figure
 from .core import qMainWindow, APPLICATION as APP
+
+try:
+    EXPAND = QSizePolicy.Policy.Expanding
+except AttributeError:
+    EXPAND = QSizePolicy.Expanding
 
 
 class Canvas(FigureCanvas):
@@ -56,7 +66,7 @@ class Canvas(FigureCanvas):
         self.axes1.set_ylabel("Intensity")
         super().__init__(fig)
         self.setParent(parent)
-        super().setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        super().setSizePolicy(EXPAND, EXPAND)
         super().updateGeometry()
 
     def get_limits(self):
@@ -145,7 +155,10 @@ class PlotWindow(qMainWindow):
 
     def __init__(self, vi_obj):
         super().__init__(vi_obj)
-        self.setAttribute(Qt.WA_DeleteOnClose)
+        try:
+            self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        except AttributeError:
+            self.setAttribute(Qt.WA_DeleteOnClose)
         self.canvas = Canvas(self)
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.addToolBar(self.toolbar)

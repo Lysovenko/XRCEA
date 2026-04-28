@@ -15,13 +15,53 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-from PyQt5.QtCore import Qt, QModelIndex, QAbstractTableModel
-from PyQt5.QtWidgets import QListWidget, QTreeView, QAbstractItemView, QMenu
-from PyQt5.QtGui import QColor
+try:
+    from PyQt6.QtCore import Qt, QModelIndex, QAbstractTableModel
+    from PyQt6.QtWidgets import (
+        QListWidget,
+        QTreeView,
+        QAbstractItemView,
+        QMenu,
+    )
+    from PyQt6.QtGui import QColor
+except ImportError:
+    from PyQt5.QtCore import Qt, QModelIndex, QAbstractTableModel
+    from PyQt5.QtWidgets import (
+        QListWidget,
+        QTreeView,
+        QAbstractItemView,
+        QMenu,
+    )
+    from PyQt5.QtGui import QColor
 
-COLORS = {"red": Qt.red, "blue": Qt.blue, "gray": Qt.gray,
-          "light gray": Qt.lightGray,
-          "white": Qt.white, "dark blue": Qt.darkBlue, "green": Qt.green}
+try:
+    COLORS = {
+        "red": Qt.GlobalColor.red,
+        "blue": Qt.GlobalColor.blue,
+        "gray": Qt.GlobalColor.gray,
+        "light gray": Qt.GlobalColor.lightGray,
+        "white": Qt.GlobalColor.white,
+        "dark blue": Qt.GlobalColor.darkBlue,
+        "green": Qt.GlobalColor.green,
+    }
+except AttributeError:
+    COLORS = {
+        "red": Qt.red,
+        "blue": Qt.blue,
+        "gray": Qt.gray,
+        "light gray": Qt.lightGray,
+        "white": Qt.white,
+        "dark blue": Qt.darkBlue,
+        "green": Qt.green,
+    }
+
+try:
+    ROWS = QAbstractItemView.SelectionBehavior.SelectRows
+    ITEMS = QAbstractItemView.SelectionBehavior.SelectItems
+except AttributeError:
+    ROWS = QAbstractItemView.SelectRows
+    ITEMS = QAbstractItemView.SelectItems
+from .table import FG, BG, HORIZ, DISP
 
 
 class CheckedList(QListWidget):
@@ -31,8 +71,14 @@ class CheckedList(QListWidget):
         self.addItems(i[1] for i in value)
         for i, (_uid, _name, sel) in enumerate(value):
             item = self.item(i)
-            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-            check = Qt.Checked if sel else Qt.Unchecked
+            try:
+                item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                check = (
+                    Qt.CheckState.Checked if sel else Qt.CheckState.Unchecked
+                )
+            except AttributeError:
+                item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+                check = Qt.Checked if sel else Qt.Unchecked
             item.setCheckState(check)
             item.setWhatsThis(str(i))
         self.itemChanged.connect(self.clk)
@@ -47,7 +93,10 @@ class CheckedList(QListWidget):
         except TypeError:
             return
         uid, name, sel = self.value.pop(i)
-        sel = item.checkState() == Qt.Checked
+        try:
+            sel = item.checkState() == Qt.CheckState.Checked
+        except AttributeError:
+            sel = item.checkState() == Qt.Checked
         self.value.insert(i, (uid, name, sel))
         if sel:
             item.setBackground(QColor("#ffffb2"))
@@ -60,7 +109,7 @@ class VisualListModel(QAbstractTableModel):
         super().__init__(parent)
         self.colnames = colnames
         for i, name in enumerate(colnames):
-            self.setHeaderData(i, Qt.Horizontal, name)
+            self.setHeaderData(i, HORIZ, name)
         self.value = value
         value.set_updater(self.updater)
         self.styles = styles
@@ -69,14 +118,14 @@ class VisualListModel(QAbstractTableModel):
         self.layoutChanged.emit()
 
     def headerData(self, section, orientation, role):
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+        if orientation == HORIZ and role == DISP:
             return self.colnames[section]
         return None
 
     def data(self, index, role):
-        if role == Qt.DisplayRole:
+        if role == DISP:
             return self.value.get()[index.row()][index.column()]
-        if role in (Qt.BackgroundRole, Qt.ForegroundRole):
+        if role in (FG, BG):
             tup = self.value.get()[index.row()]
             try:
                 style = tup[self.columnCount()]
@@ -88,9 +137,9 @@ class VisualListModel(QAbstractTableModel):
                 style = {style}
             for s in style:
                 fg, bg = self.styles.get(s, (None, None))
-                if fg is not None and role == Qt.ForegroundRole:
+                if fg is not None and role == FG:
                     return QColor(fg)
-                if bg is not None and role == Qt.BackgroundRole:
+                if bg is not None and role == BG:
                     return QColor(bg)
         return None
 
@@ -101,9 +150,14 @@ class VisualListModel(QAbstractTableModel):
         return len(self.colnames)
 
     def flags(self, index):
-        if not index.isValid():
-            return Qt.NoItemFlags
-        return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+        try:
+            if not index.isValid():
+                return Qt.ItemFlag.NoItemFlags
+            return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
+        except AttributeError:
+            if not index.isValid():
+                return Qt.NoItemFlags
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
     def index(self, row, column, parent=None):
         if not self.hasIndex(row, column, parent) or parent.isValid():
@@ -120,7 +174,8 @@ class VisualList(QTreeView):
         self.setAlternatingRowColors(True)
         self.ncols = len(colnames)
         self.model = model = VisualListModel(
-            colnames, value, self.styles, self)
+            colnames, value, self.styles, self
+        )
         self.setModel(model)
         self.activated.connect(self.on_activated)
         self.choicer = None
@@ -128,11 +183,15 @@ class VisualList(QTreeView):
         self.separate_items = False
 
     def on_activated(self, model_index):
-        if self.choicer is not None and model_index.isValid() \
-           and self.value is not None:
+        if (
+            self.choicer is not None
+            and model_index.isValid()
+            and self.value is not None
+        ):
             if self.separate_items:
-                self.choicer(self.value.get()[model_index.row()],
-                             model_index.column())
+                self.choicer(
+                    self.value.get()[model_index.row()], model_index.column()
+                )
             else:
                 self.choicer(self.value.get()[model_index.row()])
 
@@ -149,13 +208,13 @@ class VisualList(QTreeView):
                 if bg is not None:
                     cell.setBackground(QColor(bg))
             except Exception:
-                print('bad colors:', fg, bg)
+                print("bad colors:", fg, bg)
 
     def set_choicer(self, choicer, separate_items=False):
         if separate_items:
-            self.setSelectionBehavior(QAbstractItemView.SelectItems)
+            self.setSelectionBehavior(ITEMS)
         else:
-            self.setSelectionBehavior(QAbstractItemView.SelectRows)
+            self.setSelectionBehavior(ROWS)
         self.choicer = choicer
         self.separate_items = separate_items
 
@@ -167,17 +226,28 @@ class VisualList(QTreeView):
             model_index = self.selectedIndexes()[0]
         except IndexError:
             return
-        if self.context_menu is None or not model_index.isValid() \
-           or self.value is None:
+        if (
+            self.context_menu is None
+            or not model_index.isValid()
+            or self.value is None
+        ):
             return
         cmenu = QMenu(self)
         actlist = []
         # TODO: add ability to make context menu with subitems
         for name, function in self.context_menu:
-            actlist.append((
-                cmenu.addSeparator() if name is None else
-                cmenu.addAction(name), function))
-        do_action = cmenu.exec_(self.mapToGlobal(event.pos()))
+            actlist.append(
+                (
+                    cmenu.addSeparator()
+                    if name is None
+                    else cmenu.addAction(name),
+                    function,
+                )
+            )
+        try:
+            do_action = cmenu.exec(self.mapToGlobal(event.pos()))
+        except AttributeError:
+            do_action = cmenu.exec_(self.mapToGlobal(event.pos()))
         for action, function in actlist:
             if do_action == action:
                 try:

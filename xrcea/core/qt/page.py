@@ -16,27 +16,45 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Draw an Page (list and text area)"""
 
+try:
+    from PyQt6.QtWidgets import (
+        QFormLayout,
+        QWidget,
+        QVBoxLayout,
+        QTextBrowser,
+        QSplitter,
+        QPushButton,
+    )
+    from PyQt6.QtCore import Qt
+    from PyQt6.QtGui import QKeySequence, QIcon, QShortcut
+except ImportError:
+    from PyQt5.QtWidgets import (
+        QFormLayout,
+        QWidget,
+        QVBoxLayout,
+        QTextBrowser,
+        QSplitter,
+        QPushButton,
+        QShortcut,
+    )
+    from PyQt5.QtCore import Qt
+    from PyQt5.QtGui import QKeySequence, QIcon
 
-from PyQt5.QtWidgets import (
-    QFormLayout,
-    QWidget,
-    QVBoxLayout,
-    QTextBrowser,
-    QSplitter,
-    QPushButton,
-    QShortcut,
-)
-from PyQt5.QtCore import Qt, QTextCodec
-from PyQt5.QtGui import QKeySequence, QIcon
 from .lists import VisualList
 from .core import clearLayout, qMainWindow
 from .idialog import get_widget_value, get_widget_from_value
+
+try:
+    ESC = Qt.Key.Key_Escape
+except AttributeError:
+    ESC = Qt.Key_Escape
 
 
 class Page(qMainWindow):
     def __init__(self, vi_obj):
         super().__init__(vi_obj)
-        self.splitter = QSplitter(self)
+        self.splitter = QSplitter()
+        self.splitter.setParent(self)
         self.setCentralWidget(self.splitter)
         self.styles = {}
         self.values = None
@@ -64,7 +82,10 @@ class Page(qMainWindow):
             self.splitter.addWidget(vl)
         else:
             self.vislist = None
-        self.splitter.setOrientation(Qt.Vertical)
+        try:
+            self.splitter.setOrientation(Qt.Orientation.Vertical)
+        except AttributeError:
+            self.splitter.setOrientation(Qt.Vertical)
         self.splitter.setStretchFactor(0, 0)
         self.splitter.setStretchFactor(1, 1)
 
@@ -86,8 +107,7 @@ class Page(qMainWindow):
         if isinstance(data, str):
             unistr = data
         else:
-            codec = QTextCodec.codecForHtml(data)
-            unistr = codec.toUnicode(data)
+            unistr = data.decode()
         if Qt.mightBeRichText(unistr):
             self.textEdit.setHtml(unistr)
         else:
@@ -134,7 +154,7 @@ class Page(qMainWindow):
         return tuple(get_widget_value(e) for e in self.form_edas)
 
     def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Escape:
+        if e.key() == ESC:
             self.parent.close()
 
     def closeEvent(self, event=None):
@@ -153,7 +173,12 @@ class Page(qMainWindow):
 
 def show_page(vi_obj):
     if vi_obj.gui_functions:
-        vi_obj.gui_functions["%Window%"].raise_()
+        window = vi_obj.gui_functions["%Window%"]
+        window.show()
+        window.raise_()
+        window.activateWindow()
+        if window.isMinimized():
+            window.showNormal()
         return
     page = Page(vi_obj)
     vi_obj.gui_functions["%Window%"] = page

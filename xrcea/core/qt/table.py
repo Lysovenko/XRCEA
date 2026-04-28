@@ -14,13 +14,30 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-from PyQt5.QtCore import Qt, QModelIndex, QAbstractTableModel
-from PyQt5.QtWidgets import QTableView, QAbstractItemView, QMenu
-from PyQt5.QtGui import QColor
-
-COLORS = {"red": Qt.red, "blue": Qt.blue, "gray": Qt.gray,
-          "light gray": Qt.lightGray,
-          "white": Qt.white, "dark blue": Qt.darkBlue, "green": Qt.green}
+try:
+    from PyQt6.QtCore import Qt, QModelIndex, QAbstractTableModel
+    from PyQt6.QtWidgets import QTableView, QAbstractItemView, QMenu
+    from PyQt6.QtGui import QColor
+except ImportError:
+    from PyQt5.QtCore import Qt, QModelIndex, QAbstractTableModel
+    from PyQt5.QtWidgets import QTableView, QAbstractItemView, QMenu
+    from PyQt5.QtGui import QColor
+try:
+    DISP = Qt.ItemDataRole.DisplayRole
+    EDIT = Qt.ItemDataRole.EditRole
+    HORIZ = Qt.Orientation.Horizontal
+    VERT = Qt.Orientation.Vertical
+    BG = Qt.ItemDataRole.BackgroundRole
+    FG = Qt.ItemDataRole.ForegroundRole
+    DEL = Qt.Key.Key_Delete
+except AttributeError:
+    DISP = Qt.DisplayRole
+    EDIT = Qt.EditRole
+    HORIZ = Qt.Horizontal
+    VERT = Qt.Vertical
+    BG = Qt.BackgroundRole
+    FG = Qt.ForegroundRole
+    DEL = Qt.Key_Delete
 
 
 class VisualTableModel(QAbstractTableModel):
@@ -32,20 +49,20 @@ class VisualTableModel(QAbstractTableModel):
     def updater(self):
         self.layoutChanged.emit()
 
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+    def headerData(self, section, orientation, role=DISP):
+        if orientation == HORIZ and role == DISP:
             return self.value.colname(section)
-        if orientation == Qt.Vertical and role == Qt.DisplayRole:
+        if orientation == VERT and role == DISP:
             return section + 1
         return None
 
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+    def data(self, index, role=DISP):
+        if role == DISP:
             v = self.value.get(index.row(), index.column())
             if v is None:
                 return None
             return str(v)
-        if role == Qt.EditRole:
+        if role == EDIT:
             v = self.value.get(index.row(), index.column())
             if v is None:
                 return None
@@ -53,19 +70,19 @@ class VisualTableModel(QAbstractTableModel):
                 return v.edit
             except AttributeError:
                 return str(v)
-        if role in (Qt.BackgroundRole, Qt.ForegroundRole):
+        if role in (BG, FG):
             tc = self.value.get(index.row(), index.column())
             try:
-                if role == Qt.ForegroundRole and tc.foreground is not None:
+                if role == FG and tc.foreground is not None:
                     return QColor(tc.foreground)
-                if role == Qt.BackgroundRole and tc.background is not None:
+                if role == BG and tc.background is not None:
                     return QColor(tc.background)
             except AttributeError:
                 return None
         return None
 
-    def setData(self, index, data, role=Qt.DisplayRole):
-        if role == Qt.EditRole:
+    def setData(self, index, data, role=DISP):
+        if role == EDIT:
             self.value.set(index.row(), index.column(), data)
             return True
         return print(role, index.row(), index.column(), data)
@@ -78,10 +95,27 @@ class VisualTableModel(QAbstractTableModel):
 
     def flags(self, index):
         if not index.isValid():
-            return Qt.NoItemFlags
+            try:
+                return Qt.ItemFlag.NoItemFlags
+            except AttributeError:
+                return Qt.NoItemFlags
         tc = self.value.get(index.row(), index.column())
-        editable = Qt.ItemIsEditable if getattr(tc, "editable", True) else 0
-        return Qt.ItemIsEnabled | Qt.ItemIsSelectable | editable
+        try:
+            editable = (
+                Qt.ItemFlag.ItemIsEditable
+                if getattr(tc, "editable", True)
+                else 0
+            )
+            return (
+                Qt.ItemFlag.ItemIsEnabled
+                | Qt.ItemFlag.ItemIsSelectable
+                | editable
+            )
+        except AttributeError:
+            editable = (
+                Qt.ItemIsEditable if getattr(tc, "editable", True) else 0
+            )
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | editable
 
     def index(self, row, column, parent=None):
         if not self.hasIndex(row, column, parent) or parent.isValid():
@@ -103,10 +137,11 @@ class VisualTable(QTableView):
         self.separate_items = False
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Delete:
+        if event.key() == DEL:
             try:
-                self._del_pressed([(i.row(), i.column())
-                                   for i in self.selectedIndexes()])
+                self._del_pressed(
+                    [(i.row(), i.column()) for i in self.selectedIndexes()]
+                )
             except AttributeError:
                 pass
             else:
@@ -114,11 +149,15 @@ class VisualTable(QTableView):
         super().keyPressEvent(event)
 
     def on_activated(self, model_index):
-        if self.choicer is not None and model_index.isValid() \
-           and self.value is not None:
+        if (
+            self.choicer is not None
+            and model_index.isValid()
+            and self.value is not None
+        ):
             if self.separate_items:
-                self.choicer(self.value.get()[model_index.row()],
-                             model_index.column())
+                self.choicer(
+                    self.value.get()[model_index.row()], model_index.column()
+                )
             else:
                 self.choicer(self.value.get()[model_index.row()])
 
@@ -156,20 +195,27 @@ class VisualTable(QTableView):
             model_index = self.selectedIndexes()[0]
         except IndexError:
             return
-        if self.context_menu is None or not model_index.isValid() \
-           or self.value is None:
+        if (
+            self.context_menu is None
+            or not model_index.isValid()
+            or self.value is None
+        ):
             return
         cmenu = QMenu(self)
         actlist = []
         # TODO: add ability to make context menu with subitems
         for name, function in self.context_menu:
             actlist.append((cmenu.addAction(name), function))
-        do_action = cmenu.exec_(self.mapToGlobal(event.pos()))
+        try:
+            do_action = cmenu.exec(self.mapToGlobal(event.pos()))
+        except AttributeError:
+            do_action = cmenu.exec_(self.mapToGlobal(event.pos()))
         for action, function in actlist:
             if do_action == action:
                 try:
-                    val = self.value.get(model_index.row(),
-                                         model_index.column())
+                    val = self.value.get(
+                        model_index.row(), model_index.column()
+                    )
                 except IndexError:
                     val = None
                 function(val, model_index.row(), model_index.column())

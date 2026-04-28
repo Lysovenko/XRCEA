@@ -15,16 +15,33 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Draw progress dialog"""
 
-
-from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import (
-    QVBoxLayout, QDialog, QDialogButtonBox, QLabel, QProgressBar)
+try:
+    from PyQt6.QtCore import QTimer
+    from PyQt6.QtWidgets import (
+        QVBoxLayout,
+        QDialog,
+        QDialogButtonBox,
+        QLabel,
+        QProgressBar,
+    )
+except ImportError:
+    from PyQt5.QtCore import QTimer
+    from PyQt5.QtWidgets import (
+        QVBoxLayout,
+        QDialog,
+        QDialogButtonBox,
+        QLabel,
+        QProgressBar,
+    )
 
 
 class Progress(QDialog):
-    def __init__(self, title, status,
-                 parent=None  # type: Any
-                 ):
+    def __init__(
+        self,
+        title,
+        status,
+        parent=None,  # type: Any
+    ):
         super().__init__(parent)
         self.setWindowTitle(title)
         buttonBox = QDialogButtonBox(QDialogButtonBox.Cancel)
@@ -51,7 +68,7 @@ class Progress(QDialog):
         if self._starter is not None:
             self._starter()
             self._starter = None
-        cur_pr = int(self._status.get("part", 0.) * 1000)
+        cur_pr = int(self._status.get("part", 0.0) * 1000)
         if self.prev_pr != cur_pr:
             self.progressBar.setValue(cur_pr)
             self.prev_pr = cur_pr

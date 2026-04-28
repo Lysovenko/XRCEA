@@ -17,9 +17,14 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from ..application import APPLICATION
-from PyQt5.QtCore import QSignalMapper
-from PyQt5.QtWidgets import QAction
-from PyQt5.QtGui import QIcon
+
+try:
+    from PyQt6.QtGui import QAction, QIcon
+    from PyQt6.QtCore import QSignalMapper
+except ImportError:
+    from PyQt5.QtCore import QSignalMapper
+    from PyQt5.QtWidgets import QAction
+    from PyQt5.QtGui import QIcon
 
 
 class SDIMenu:
@@ -28,7 +33,7 @@ class SDIMenu:
         self.menu_bar = frame.menuBar()
         self.frame = frame
         # MDI_area.subWindowActivated.connect(self.update_menu)
-        self.window_mapper = QSignalMapper(self.frame)
+        # self.window_mapper = QSignalMapper(self.frame)
         # self.window_mapper.mapped[QWidget].connect(self.set_active_subwindow)
         # self.create_window_actions()
         self.main_menu_set = set()
@@ -42,8 +47,9 @@ class SDIMenu:
             menubar.clear()
             for i in items:
                 smenu = menubar.addMenu(i[0])
-                smenu.aboutToShow.connect(lambda p=(i[0],), s=smenu:
-                                          self.show_path(p, s))
+                smenu.aboutToShow.connect(
+                    lambda p=(i[0],), s=smenu: self.show_path(p, s)
+                )
 
     def show_path(self, path, smenu):
         smenu.clear()
@@ -53,13 +59,15 @@ class SDIMenu:
             if isinstance(item.function, dict):
                 new_item = smenu.addMenu(name)
                 new_item.aboutToShow.connect(
-                    lambda p=path + (name,), s=new_item:
-                    self.show_path(p, s)
+                    lambda p=path + (name,), s=new_item: self.show_path(p, s)
                 )
             elif item.function is None:
                 smenu.addSeparator()
             else:
-                new_item = QAction(name, self.frame)
+                try:
+                    new_item = smenu.addAction(name)
+                except Exception:
+                    new_item = QAction(name, self.frame)
                 new_item.triggered.connect(lambda x, f=item.function: f())
                 if item.icon is not None:
                     new_item.setIcon(QIcon(item.icon))

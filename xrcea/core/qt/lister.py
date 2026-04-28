@@ -16,10 +16,26 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Show listings"""
 
-from PyQt5.QtWidgets import (QFormLayout, QGroupBox, QVBoxLayout, QSplitter,
-                             QPushButton)
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QIcon
+try:
+    from PyQt6.QtWidgets import (
+        QFormLayout,
+        QGroupBox,
+        QVBoxLayout,
+        QSplitter,
+        QPushButton,
+    )
+    from PyQt6.QtCore import Qt, QTimer
+    from PyQt6.QtGui import QIcon
+except ImportError:
+    from PyQt5.QtWidgets import (
+        QFormLayout,
+        QGroupBox,
+        QVBoxLayout,
+        QSplitter,
+        QPushButton,
+    )
+    from PyQt5.QtCore import Qt, QTimer
+    from PyQt5.QtGui import QIcon
 from .lists import VisualList
 from .core import clearLayout, qMainWindow
 from .idialog import get_widget_value, get_widget_from_value
@@ -50,13 +66,16 @@ class Lister(qMainWindow):
             gr_boxes[-1].setLayout(layout)
         for grb in gr_boxes:
             self.splitter.addWidget(grb)
-        self.splitter.setOrientation(Qt.Vertical)
+        try:
+            self.splitter.setOrientation(Qt.Orientation.Vertical)
+        except AttributeError:
+            self.splitter.setOrientation(Qt.Vertical)
 
     def set_choicer(self, choicer, separate_items=False, holder=None):
-        """ Set choicer function which is called when list
+        """Set choicer function which is called when list
         item is activated.
         choicer gets appropriate list item if separate_items is True ---
-        second parameter of choicer is number of column """
+        second parameter of choicer is number of column"""
         if holder is not None:
             self.lists[holder].set_choicer(choicer, separate_items)
         else:
@@ -93,10 +112,12 @@ class Lister(qMainWindow):
                 call = n
                 n = QPushButton(n.name)
                 n.clicked.connect(
-                    lambda x, y=ew, c=call: c(get_widget_value(y)))
+                    lambda x, y=ew, c=call: c(get_widget_value(y))
+                )
                 if hasattr(ew, "returnPressed"):
                     ew.returnPressed.connect(
-                        lambda y=ew, c=call: c(get_widget_value(y)))
+                        lambda y=ew, c=call: c(get_widget_value(y))
+                    )
             if ew is None:
                 layout.addRow(n)
             else:

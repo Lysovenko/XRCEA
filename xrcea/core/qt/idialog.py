@@ -17,14 +17,45 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import os
-from PyQt5.QtWidgets import (
-    QVBoxLayout, QDialog, QDialogButtonBox, QLabel, QComboBox, QFileDialog,
-    QFormLayout, QLineEdit, QCheckBox, QMessageBox)
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QValidator
+
+try:
+    from PyQt6.QtWidgets import (
+        QVBoxLayout,
+        QDialog,
+        QDialogButtonBox,
+        QLabel,
+        QComboBox,
+        QFileDialog,
+        QFormLayout,
+        QLineEdit,
+        QCheckBox,
+        QMessageBox,
+    )
+    from PyQt6.QtCore import Qt
+    from PyQt6.QtGui import QValidator
+except ImportError:
+    from PyQt5.QtWidgets import (
+        QVBoxLayout,
+        QDialog,
+        QDialogButtonBox,
+        QLabel,
+        QComboBox,
+        QFileDialog,
+        QFormLayout,
+        QLineEdit,
+        QCheckBox,
+        QMessageBox,
+    )
+    from PyQt5.QtCore import Qt
+    from PyQt5.QtGui import QValidator
 from .text import LineEdit
 from .progress import Progress
 from ..vi.value import Value
+
+try:
+    MODAL = Qt.WindowModality.ApplicationModal
+except AttributeError:
+    MODAL = Qt.WindowModality.ApplicationModal
 
 
 class MyValidator(QValidator):
@@ -76,7 +107,8 @@ class InputDialog(QDialog):
         self.title = title
         self.parent = parent
         buttonBox = QDialogButtonBox(
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        )
         buttonBox.rejected.connect(self.reject)
         buttonBox.accepted.connect(self.accept)
         mainLayout = QVBoxLayout()
@@ -92,21 +124,24 @@ class InputDialog(QDialog):
             type_f = type(f)
             if type_f in {bool, tuple, Value}:
                 if callable(o):
+
                     def fun(*args, opt=o):
                         self.do_actions(opt(*args))
+
                     o = fun
                 ew = get_widget_from_value(f, o)
             else:
                 ew = QLineEdit()
                 ew.setValidator(MyValidator(type_f, ew))
-                if type_f.__name__ == 'Password':
+                if type_f.__name__ == "Password":
                     ew.setEchoMode(QLineEdit.Password)
                 if isinstance(f, dict):
                     if "Filename" in f:
                         ew.setText(str(f["Filename"]))
                         ew.setReadOnly(True)
                         ew.selectionChanged.connect(
-                            lambda y=ew, z=f: self.open_filename(y, z))
+                            lambda y=ew, z=f: self.open_filename(y, z)
+                        )
                 else:
                     ew.setText(str(f))
             layout.addRow(QLabel(n), ew)
@@ -165,36 +200,52 @@ class InputDialog(QDialog):
         if os.name == "posix":
             options |= QFileDialog.DontUseNativeDialog
         fname, h = QFileDialog.getOpenFileName(
-            self.parent, self.title, fname, fltr, options=options)
+            self.parent, self.title, fname, fltr, options=options
+        )
         if fname:
             editable.setText(fname)
 
 
 def input_dialog(title, question, fields, parent=None):
     dlg = InputDialog(title, question, fields, parent)
-    dlg.setWindowModality(Qt.ApplicationModal)
-    if dlg.exec_():
+    dlg.setWindowModality(MODAL)
+    try:
+        dlg.exec = dlg.exec_
+    except AttributeError:
+        pass
+    if dlg.exec():
         return dlg.result
     return None
 
 
 class DialogsMixin:
     """Call dialogs with extrawidgets as parent"""
+
     def input_dialog(self, question, fields):
         return input_dialog(self.vi_obj.name, question, fields, self)
 
     def print_information(self, info):
-        return QMessageBox.information(
-            self, self.vi_obj.name, info) == QMessageBox.Ok
+        return (
+            QMessageBox.information(self, self.vi_obj.name, info)
+            == QMessageBox.Ok
+        )
 
     def print_error(self, info):
-        return QMessageBox.critical(
-            self, self.vi_obj.name, info) == QMessageBox.Ok
+        return (
+            QMessageBox.critical(self, self.vi_obj.name, info)
+            == QMessageBox.Ok
+        )
 
     def ask_question(self, question):
-        return QMessageBox.question(
-            self, self.vi_obj.name, question,
-            QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes
+        return (
+            QMessageBox.question(
+                self,
+                self.vi_obj.name,
+                question,
+                QMessageBox.Yes | QMessageBox.No,
+            )
+            == QMessageBox.Yes
+        )
 
     def ask_save_filename(self, filename, masks):
         fltr = ";;".join("{1} ({0})".format(*md) for md in masks)
@@ -202,7 +253,8 @@ class DialogsMixin:
         if os.name == "posix":
             options |= QFileDialog.DontUseNativeDialog
         fname, h = QFileDialog.getSaveFileName(
-            self, self.vi_obj.name, filename, fltr, options=options)
+            self, self.vi_obj.name, filename, fltr, options=options
+        )
         if fname:
             return fname
 
@@ -212,18 +264,28 @@ class DialogsMixin:
         if os.name == "posix":
             options |= QFileDialog.DontUseNativeDialog
         fname, h = QFileDialog.getOpenFileName(
-            self, self.vi_obj.name, filename, fltr, options=options)
+            self, self.vi_obj.name, filename, fltr, options=options
+        )
         if fname:
             return fname
 
     def bg_process(self, status):
         dlg = Progress(self.vi_obj.name, status, self)
-        dlg.setWindowModality(Qt.ApplicationModal)
-        dlg.exec_()
+        dlg.setWindowModality(MODAL)
+        try:
+            dlg.exec()
+        except AttributeError:
+            dlg.exec_()
 
     def register_dialogs(self):
         guf = self.vi_obj.gui_functions
-        for fun in ("input_dialog", "print_information", "print_error",
-                    "ask_question", "ask_save_filename", "ask_open_filename",
-                    "bg_process"):
+        for fun in (
+            "input_dialog",
+            "print_information",
+            "print_error",
+            "ask_question",
+            "ask_save_filename",
+            "ask_open_filename",
+            "bg_process",
+        ):
             guf[fun] = getattr(self, fun)

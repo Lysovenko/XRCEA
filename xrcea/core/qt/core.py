@@ -19,12 +19,18 @@
 import sys
 from threading import Lock
 from time import time
+
+try:
+    from PyQt6.QtWidgets import QMainWindow, QMessageBox, QApplication
+    from PyQt6.QtCore import QTimer
+except ImportError:
+    from PyQt5.QtCore import QTimer
+    from PyQt5.QtWidgets import QMainWindow, QMessageBox, QApplication
 from ..application import APPLICATION
-from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QMainWindow, QMessageBox, QApplication
 from ..vi import Plot, Lister, Page, Spreadsheet
 from .idialog import DialogsMixin
 from .menu import SDIMenu
+
 _WINDOWS = 0
 _DIALOGS = []
 _TASKS = []
@@ -68,7 +74,10 @@ def main():
         t_dialogs = QTimer()
         t_dialogs.start(250)
         t_dialogs.timeout.connect(_check_dialogs)
-        outcode = app.exec_()
+        try:
+            outcode = app.exec()
+        except AttributeError:
+            outcode = app.exec_()
     APPLICATION.compman.terminate(True)
     APPLICATION.settings.save()
     sys.exit(outcode)
@@ -77,15 +86,19 @@ def main():
 def show_vi(vi_obj):
     if isinstance(vi_obj, Plot):
         from .plot import show_plot_window
+
         show_plot_window(vi_obj)
     if isinstance(vi_obj, Lister):
         from .lister import show_lister
+
         show_lister(vi_obj)
     if isinstance(vi_obj, Page):
         from .page import show_page
+
         show_page(vi_obj)
     if isinstance(vi_obj, Spreadsheet):
         from .spreadsheet import show_spreadsheet
+
         show_spreadsheet(vi_obj)
 
 
@@ -134,11 +147,15 @@ class qMainWindow(QMainWindow, DialogsMixin):
 
     def closeEvent(self, event, can_accept=True):
         if _WINDOWS == 1 and APPLICATION.prevent_exit:
-            if QMessageBox.warning(
-                    self, "XRCEA", _("%s\nExit anyway?")
-                    % APPLICATION.prevent_exit,
-                    QMessageBox.Yes | QMessageBox.No
-            ) == QMessageBox.No:
+            if (
+                QMessageBox.warning(
+                    self,
+                    "XRCEA",
+                    _("%s\nExit anyway?") % APPLICATION.prevent_exit,
+                    QMessageBox.Yes | QMessageBox.No,
+                )
+                == QMessageBox.No
+            ):
                 event.ignore()
                 return True
         if can_accept:

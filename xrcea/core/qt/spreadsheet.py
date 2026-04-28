@@ -16,10 +16,26 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Show spreadsheets"""
 
-from PyQt5.QtWidgets import (QFormLayout, QWidget, QVBoxLayout, QSplitter,
-                             QPushButton)
-from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QIcon
+try:
+    from PyQt6.QtWidgets import (
+        QFormLayout,
+        QWidget,
+        QVBoxLayout,
+        QSplitter,
+        QPushButton,
+    )
+    from PyQt6.QtCore import QTimer
+    from PyQt6.QtGui import QIcon
+except ImportError:
+    from PyQt5.QtWidgets import (
+        QFormLayout,
+        QWidget,
+        QVBoxLayout,
+        QSplitter,
+        QPushButton,
+    )
+    from PyQt5.QtCore import QTimer
+    from PyQt5.QtGui import QIcon
 from .table import VisualTable
 from .core import clearLayout, qMainWindow
 from .idialog import get_widget_value, get_widget_from_value
@@ -84,10 +100,12 @@ class Spreadsheet(qMainWindow):
                 call = n
                 n = QPushButton(n.name)
                 n.clicked.connect(
-                    lambda x, y=ew, c=call: c(get_widget_value(y)))
+                    lambda x, y=ew, c=call: c(get_widget_value(y))
+                )
                 if hasattr(ew, "returnPressed"):
                     ew.returnPressed.connect(
-                        lambda y=ew, c=call: c(get_widget_value(y)))
+                        lambda y=ew, c=call: c(get_widget_value(y))
+                    )
             if ew is None:
                 layout.addRow(n)
             else:
@@ -120,8 +138,9 @@ def show_spreadsheet(vi_obj):
     if vi_obj.icon is not None:
         sheet.set_icon(vi_obj.icon)
     vi_obj.gui_functions["add_timer"] = sheet.add_timer
-    vi_obj.gui_functions[
-        "set_spreadsheet_context_menu"] = sheet.set_context_menu
+    vi_obj.gui_functions["set_spreadsheet_context_menu"] = (
+        sheet.set_context_menu
+    )
     vi_obj.gui_functions["set_form"] = sheet.update_form
     vi_obj.gui_functions["get_form_values"] = sheet.get_form_vals
     vi_obj.gui_functions["get_selected_cells"] = sheet.get_selected_cells
