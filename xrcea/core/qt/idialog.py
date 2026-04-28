@@ -54,8 +54,16 @@ from ..vi.value import Value
 
 try:
     MODAL = Qt.WindowModality.ApplicationModal
+    OK = QDialogButtonBox.StandardButton.Ok
+    CANCEL = QDialogButtonBox.StandardButton.Cancel
+    ACCEPT = QValidator.State.Acceptable
+    INVALID = QValidator.State.Invalid
 except AttributeError:
     MODAL = Qt.WindowModality.ApplicationModal
+    OK = QDialogButtonBox.Ok
+    CANCEL = QDialogButtonBox.Cancel
+    ACCEPT = QValidator.Acceptable
+    INVALID = QValidator.Invalid
 
 
 class MyValidator(QValidator):
@@ -67,8 +75,8 @@ class MyValidator(QValidator):
         try:
             self.vt(str(inp))
         except ValueError:
-            return QValidator.Invalid, inp, pos
-        return QValidator.Acceptable, inp, pos
+            return INVALID, inp, pos
+        return ACCEPT, inp, pos
 
 
 def get_widget_value(widget):
@@ -106,9 +114,7 @@ class InputDialog(QDialog):
         self.setWindowTitle(title)
         self.title = title
         self.parent = parent
-        buttonBox = QDialogButtonBox(
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
-        )
+        buttonBox = QDialogButtonBox(OK | CANCEL)
         buttonBox.rejected.connect(self.reject)
         buttonBox.accepted.connect(self.accept)
         mainLayout = QVBoxLayout()
