@@ -22,26 +22,22 @@ try:
     from PyQt6.QtWidgets import QFileDialog, QMessageBox
 except ImportError:
     from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from .idialog import MNO, MOK, MYES
 
 
 def print_information(title, info):
     parent = None
-    return QMessageBox.information(parent, title, info) == QMessageBox.Ok
+    return QMessageBox.information(parent, title, info) == MOK
 
 
 def print_error(title, info):
     parent = None
-    return QMessageBox.critical(parent, title, info) == QMessageBox.Ok
+    return QMessageBox.critical(parent, title, info) == MOK
 
 
 def ask_question(title, question):
     parent = None
-    return (
-        QMessageBox.question(
-            parent, title, question, QMessageBox.Yes | QMessageBox.No
-        )
-        == QMessageBox.Yes
-    )
+    return QMessageBox.question(parent, title, question, MYES | MNO) == MYES
 
 
 def ask_open_filename(title, filename, masks):

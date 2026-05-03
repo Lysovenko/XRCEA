@@ -15,13 +15,28 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Operate with project file"""
 
-from zipfile import ZipFile, ZIP_DEFLATED
+from json import JSONEncoder, dumps, loads
+from os.path import isfile, splitext
 from time import time
-from os.path import splitext, isfile
-from json import loads, dumps
-from .vi import (Lister, input_dialog, ask_open_filename,
-                 ask_save_filename, ask_question)
+from zipfile import ZIP_DEFLATED, ZipFile
+
+import numpy as np
+
+from .vi import (
+    Lister,
+    ask_open_filename,
+    ask_question,
+    ask_save_filename,
+    input_dialog,
+)
 from .vi.value import Value
+
+
+class NumpyEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super().default(obj)
 
 
 class Project:
@@ -44,7 +59,9 @@ class Project:
     def save(self, filename):
         with ZipFile(filename, "w", compression=ZIP_DEFLATED) as zipf:
             for i, c in enumerate(self._components):
-                zipf.writestr("item%d" % i, dumps(c.get_obj()))
+                zipf.writestr(
+                    "item%d" % i, dumps(c.get_obj(), cls=NumpyEncoder)
+                )
             zipf.writestr("about", dumps(self._about))
             self._content_modified = False
             try:
@@ -57,8 +74,7 @@ class Project:
             for i in filter(lambda x: x.startswith("item"), zipf.namelist()):
                 obj = loads(zipf.read(i))
                 try:
-                    self.add_component(
-                        self.__TREATERS[obj["objtype"]](obj))
+                    self.add_component(self.__TREATERS[obj["objtype"]](obj))
                 except (KeyError, TypeError):
                     pass
             self._about.update(loads(zipf.read("about")))
@@ -110,14 +126,20 @@ class vi_Project(Lister):
         self.abouts = abouts = Value(list)
         abouts.update([i + (None,) for i in project.abouts()])
         self.components = components = Value(list)
-        components.update([(c.type, c.name, None, c)
-                          for c in project.components()])
+        components.update(
+            [(c.type, c.name, None, c) for c in project.components()]
+        )
         styles = {}
         self.__currently_alive = None
-        super().__init__(project.name(),
-                         [(_("Project description"), (_("Name"), _("Value"))),
-                          (_("Components"), (_("Type"), _("Name")))],
-                         [abouts, components], styles)
+        super().__init__(
+            project.name(),
+            [
+                (_("Project description"), (_("Name"), _("Value"))),
+                (_("Components"), (_("Type"), _("Name"))),
+            ],
+            [abouts, components],
+            styles,
+        )
         self.show()
         self.set_choicer(self.click_component, False, 1)
         self.set_list_context_menu([(_("Delete"), self.del_component)], 1)
@@ -148,12 +170,14 @@ class vi_Project(Lister):
         self.project.remove_component(component)
 
     def update_components(self):
-        self.components.update([(c.type, c.name, None, c)
-                                for c in self.project.components()])
+        self.components.update(
+            [(c.type, c.name, None, c) for c in self.project.components()]
+        )
 
     def update(self):
-        self.name = ("* " if self.project.is_modified() else "") + \
-            self.project.name()
+        self.name = (
+            "* " if self.project.is_modified() else ""
+        ) + self.project.name()
         self.abouts.update([i + (None,) for i in self.project.abouts()])
         self.update_components()
 
@@ -166,11 +190,13 @@ _CURRENT_FILE = ""
 
 
 def rename_project():
-    pars = input_dialog(_("Rename project"),
-                        _("New project name"),
-                        [(_("Name"), _CURRENT_PROJECT.name())])
+    pars = input_dialog(
+        _("Rename project"),
+        _("New project name"),
+        [(_("Name"), _CURRENT_PROJECT.name())],
+    )
     if pars:
-        name, = pars
+        (name,) = pars
         _CURRENT_PROJECT.name(name)
     if _CURRENT_PROJECT.UI:
         _CURRENT_PROJECT.UI.update()
@@ -193,8 +219,8 @@ def save_project_as():
     if _CURRENT_PROJECT is None:
         return
     fname = ask_save_filename(
-        _("Save project"), _CURRENT_FILE,
-        [("*.xrp", _("XRCEA project"))])
+        _("Save project"), _CURRENT_FILE, [("*.xrp", _("XRCEA project"))]
+    )
     if fname:
         if splitext(fname)[1] != ".xrp":
             fname += ".xrp"
@@ -213,14 +239,19 @@ def open_project(fname=None):
     global _CURRENT_FILE
     previous = _CURRENT_PROJECT
     if previous is not None and previous.is_modified():
-        if ask_question(_("Save project"),
-                        _("""The %s project was changed.
-Do you wish to save it before opening new?""" % previous.name())):
+        if ask_question(
+            _("Save project"),
+            _(
+                """The %s project was changed.
+Do you wish to save it before opening new?"""
+                % previous.name()
+            ),
+        ):
             save_project()
     if fname is None:
         fname = ask_open_filename(
-            _("Open XRCEA project"), "",
-            [("*.xrp", _("XRCEA project"))])
+            _("Open XRCEA project"), "", [("*.xrp", _("XRCEA project"))]
+        )
     if fname is None:
         return
     _CURRENT_PROJECT = Project(fname)
@@ -260,6 +291,8 @@ class PreventExit:
 
     def __str__(self):
         if self:
-            return _("The \"%s\" project contains unsaved changes.") % \
-                _CURRENT_PROJECT.name()
+            return (
+                _('The "%s" project contains unsaved changes.')
+                % _CURRENT_PROJECT.name()
+            )
         return ""

@@ -15,10 +15,12 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Input data"""
 
-from typing import Dict, Union
-import numpy as np
+from json import JSONDecodeError, loads
 from os.path import basename, splitext
-from json import loads, JSONDecodeError
+from typing import Dict, Union
+
+import numpy as np
+
 from .application import APPLICATION as APP
 from .vi import Plot, input_dialog
 
@@ -35,6 +37,27 @@ def _diff_props(xrd):
     ans = ask_about_sample(xrd.get_description())
     if isinstance(ans, dict):
         xrd.set_description(ans)
+
+
+class MultiXrCurve:
+    objtype = "multi_xrd"
+    type = _("Multiple diffractograms")
+
+    def __init__(self):
+        self._curves = []
+
+    def add(self, xrd):
+        self._curves.append(xrd)
+
+    def curves(self):
+        self._curves.sort(key=lambda x: x.psi)
+        return self._curves
+
+    def get_obj(self):
+        """Convets X-ray data into object."""
+        mxrd = {"objtype": self.objtype}
+        mxrd["xrds"] = [i.get_obj() for i in self._curves]
+        return mxrd
 
 
 class XrayData:
@@ -95,6 +118,7 @@ class XrayData:
             "I2",
             "I3",
             "density",
+            "psi",
         ):
             try:
                 setattr(self, i, float(dct[i]))
@@ -377,6 +401,7 @@ class XrayData:
                 "name",
                 "x_units",
                 "comment",
+                "psi",
             )
         )
         return {k: v for k, v in items if v is not None}
@@ -423,6 +448,7 @@ class XrayData:
             "name",
             "x_units",
             "comment",
+            "psi",
         ):
             try:
                 setattr(self, i, xrd[i])

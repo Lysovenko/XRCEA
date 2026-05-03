@@ -19,38 +19,38 @@
 import os
 
 try:
-    from PyQt6.QtWidgets import (
-        QVBoxLayout,
-        QDialog,
-        QDialogButtonBox,
-        QLabel,
-        QComboBox,
-        QFileDialog,
-        QFormLayout,
-        QLineEdit,
-        QCheckBox,
-        QMessageBox,
-    )
     from PyQt6.QtCore import Qt
     from PyQt6.QtGui import QValidator
-except ImportError:
-    from PyQt5.QtWidgets import (
-        QVBoxLayout,
+    from PyQt6.QtWidgets import (
+        QCheckBox,
+        QComboBox,
         QDialog,
         QDialogButtonBox,
-        QLabel,
-        QComboBox,
         QFileDialog,
         QFormLayout,
+        QLabel,
         QLineEdit,
-        QCheckBox,
         QMessageBox,
+        QVBoxLayout,
     )
+except ImportError:
     from PyQt5.QtCore import Qt
     from PyQt5.QtGui import QValidator
-from .text import LineEdit
-from .progress import Progress
+    from PyQt5.QtWidgets import (
+        QCheckBox,
+        QComboBox,
+        QDialog,
+        QDialogButtonBox,
+        QFileDialog,
+        QFormLayout,
+        QLabel,
+        QLineEdit,
+        QMessageBox,
+        QVBoxLayout,
+    )
 from ..vi.value import Value
+from .progress import Progress
+from .text import LineEdit
 
 try:
     MODAL = Qt.WindowModality.ApplicationModal
@@ -58,12 +58,18 @@ try:
     CANCEL = QDialogButtonBox.StandardButton.Cancel
     ACCEPT = QValidator.State.Acceptable
     INVALID = QValidator.State.Invalid
+    MOK = QMessageBox.StandardButton.Ok
+    MYES = QMessageBox.StandardButton.Yes
+    MNO = QMessageBox.StandardButton.No
 except AttributeError:
     MODAL = Qt.WindowModality.ApplicationModal
     OK = QDialogButtonBox.Ok
     CANCEL = QDialogButtonBox.Cancel
     ACCEPT = QValidator.Acceptable
     INVALID = QValidator.Invalid
+    MOK = QMessageBox.Ok
+    MYES = QMessageBox.Yes
+    MNO = QMessageBox.No
 
 
 class MyValidator(QValidator):
@@ -231,16 +237,10 @@ class DialogsMixin:
         return input_dialog(self.vi_obj.name, question, fields, self)
 
     def print_information(self, info):
-        return (
-            QMessageBox.information(self, self.vi_obj.name, info)
-            == QMessageBox.Ok
-        )
+        return QMessageBox.information(self, self.vi_obj.name, info) == MOK
 
     def print_error(self, info):
-        return (
-            QMessageBox.critical(self, self.vi_obj.name, info)
-            == QMessageBox.Ok
-        )
+        return QMessageBox.critical(self, self.vi_obj.name, info) == MOK
 
     def ask_question(self, question):
         return (
@@ -248,9 +248,9 @@ class DialogsMixin:
                 self,
                 self.vi_obj.name,
                 question,
-                QMessageBox.Yes | QMessageBox.No,
+                MYES | MNO,
             )
-            == QMessageBox.Yes
+            == MYES
         )
 
     def ask_save_filename(self, filename, masks):

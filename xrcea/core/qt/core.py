@@ -16,19 +16,22 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
+import os
 import sys
 from threading import Lock
 from time import time
 
 try:
-    from PyQt6.QtWidgets import QMainWindow, QMessageBox, QApplication
     from PyQt6.QtCore import QTimer
+    from PyQt6.QtGui import QIcon
+    from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox
 except ImportError:
     from PyQt5.QtCore import QTimer
-    from PyQt5.QtWidgets import QMainWindow, QMessageBox, QApplication
+    from PyQt5.QtGui import QIcon
+    from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 from ..application import APPLICATION
-from ..vi import Plot, Lister, Page, Spreadsheet
-from .idialog import DialogsMixin
+from ..vi import Lister, Page, Plot, Spreadsheet
+from .idialog import MNO, MYES, DialogsMixin
 from .menu import SDIMenu
 
 _WINDOWS = 0
@@ -66,6 +69,9 @@ def _check_dialogs():
 def main():
     app = QApplication(sys.argv)
     app.setApplicationName("XRCEA")
+    app.setDesktopFileName("XRCEA")
+    ipath = os.path.join(os.path.dirname(__file__), "icon.png")
+    app.setWindowIcon(QIcon(ipath))
     APPLICATION.compman.introduce()
     for e in APPLICATION.on_start:
         e()
@@ -138,6 +144,8 @@ class qMainWindow(QMainWindow, DialogsMixin):
     def __init__(self, vi_obj):
         super().__init__()
         self.setWindowTitle(vi_obj.name)
+        ipath = os.path.join(os.path.dirname(__file__), "icon.png")
+        self.setWindowIcon(QIcon(ipath))
         self.vi_obj = vi_obj
         self.menu = SDIMenu(self)
         global _WINDOWS
@@ -152,7 +160,7 @@ class qMainWindow(QMainWindow, DialogsMixin):
                     self,
                     "XRCEA",
                     _("%s\nExit anyway?") % APPLICATION.prevent_exit,
-                    QMessageBox.Yes | QMessageBox.No,
+                    MYES | MNO,
                 )
                 == QMessageBox.No
             ):
