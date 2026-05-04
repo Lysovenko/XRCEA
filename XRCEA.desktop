@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=XRCEA
+Comment=X-ray crystallography extensible analyzer
+Exec=xrcea
+# The filename of the icon installed in share/icons/hicolor/...
+Icon=icon
+Terminal=false
+Categories=Science;Physics;Qt;
+# This MUST match app.setDesktopFileName("XRCEA") in your code
+StartupWMClass=XRCEA

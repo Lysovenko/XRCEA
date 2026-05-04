@@ -3,3 +3,70 @@ line-length = 79
 [tool.ruff]
 builtins = ["_"]
 line-length = 79
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "XRCEA"
+dynamic = ["version"]
+authors = [
+  { name="Serhii Lysovenko", email="Lysovenko@users.noreply.github.com" },
+]
+description = "X-ray crystallography extensible analyzer"
+readme = "README.md"
+license = { text="GPLv3+" }
+requires-python = ">=3.6"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Environment :: X11 Applications :: Qt",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+    # You might want to change this to "PyQt6" or leave as "PyQt5" 
+    # depending on your preferred default.
+    "PyQt5", 
+]
+
+[project.urls]
+"Homepage" = "https://github.com/Lysovenko/XRCEA"
+"Bug Tracker" = "https://github.com/Lysovenko/XRCEA/issues"
+
+[project.scripts]
+xrcea = "xrcea.core.application:main"
+
+[tool.setuptools]
+packages = [
+    "xrcea",
+    "xrcea.core",
+    "xrcea.core.vi",
+    "xrcea.core.qt",
+    "xrcea.components.bbg",
+    "xrcea.components.describer",
+    "xrcea.components.cryp",
+    "xrcea.components.pddb",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "xrcea.core.VERSION"}
+
+[tool.setuptools.package-data]
+xrcea = [
+    "i18n/locale/*/*/*.mo",
+    "doc/*/html/*.*",
+    "doc/*/html/_static/*.*",
+    "components/*.comp",
+]
+
+[tool.setuptools.data-files]
+# This installs the desktop file and icon into system/user paths
+# so KDE Wayland can find them and show the icon!
+"share/applications" = ["XRCEA.desktop"]
+"share/icons/hicolor/256x256/apps" = ["icon.png"]
