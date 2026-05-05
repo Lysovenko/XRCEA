@@ -18,3 +18,4 @@ xrcea.pot
 .ropeproject/
 .mypy_cache/
 .pylintrc
+uv.lock
