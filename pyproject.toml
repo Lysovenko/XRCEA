@@ -69,4 +69,4 @@ xrcea = [
 # This installs the desktop file and icon into system/user paths
 # so KDE Wayland can find them and show the icon!
 "share/applications" = ["XRCEA.desktop"]
-"share/icons/hicolor/256x256/apps" = ["icon.png"]
+"share/icons/hicolor/256x256/apps" = ["xrcea.png"]

@@ -16,7 +16,6 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-import os
 import sys
 from threading import Lock
 from time import time
@@ -70,8 +69,7 @@ def main():
     app = QApplication(sys.argv)
     app.setApplicationName("XRCEA")
     app.setDesktopFileName("XRCEA")
-    ipath = os.path.join(os.path.dirname(__file__), "icon.png")
-    app.setWindowIcon(QIcon(ipath))
+    app.setWindowIcon(QIcon("xrcea"))
     APPLICATION.compman.introduce()
     for e in APPLICATION.on_start:
         e()
@@ -144,8 +142,7 @@ class qMainWindow(QMainWindow, DialogsMixin):
     def __init__(self, vi_obj):
         super().__init__()
         self.setWindowTitle(vi_obj.name)
-        ipath = os.path.join(os.path.dirname(__file__), "icon.png")
-        self.setWindowIcon(QIcon(ipath))
+        self.setWindowIcon(QIcon("xrcea"))
         self.vi_obj = vi_obj
         self.menu = SDIMenu(self)
         global _WINDOWS
