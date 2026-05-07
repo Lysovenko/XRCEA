@@ -15,56 +15,90 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """ """
 
-from zipfile import ZipFile
 import xml.etree.ElementTree as etree
+from zipfile import ZipFile
+
 from xrcea.core.application import APPLICATION as APP
 from xrcea.core.idata import XrayData
+from xrcea.core.multicurve import MultiXrCurve
 
 
 def open_rasx(fname):
     """Open Rigaku X-ray data file."""
-    xrd = XrayData(rasx_obj(fname))
+    objs = rasx_obj(fname)
+    if len(objs) == 1:
+        xrd = XrayData(objs[0])
+    elif len(objs) > 1:
+        mxrd = {"objtype": "multi_xrd"}
+        mxrd["xrds"] = objs
+        mxrd["name"] = fname
+        xrd = MultiXrCurve(mxrd)
+    else:
+        return
     if xrd:
         APP.add_object(xrd)
         xrd.display()
 
 
 def rasx_obj(fname):
-    obj = {"objtype": "xrd"}
+    objs = []
     with ZipFile(fname, "r") as zf:
-        sl = (
-            zf.read("Data0/Profile0.txt")
-            .decode(encoding="utf-8-sig")
-            .splitlines()
-        )
-        x_data = []
-        y_data = []
-        for line in sl:
-            x, y = line.split()[:2]
-            x = float(x)
-            y = int(y)
-            x_data.append(x)
-            y_data.append(y)
-        obj["x_data"] = x_data
-        obj["y_data"] = y_data
-        tree = etree.fromstring(
-            zf.read("Data0/MesurementConditions0.xml").decode()
-        )
-        gen = tree.find("GeneralInformation")
-        name = gen.find("SampleName").text
-        if not name:
-            name = fname
-        obj["name"] = name
-        obj["comment"] = gen.find("Comment").text
-        hwc = tree.find("HWConfigurations")
-        xrg = hwc.find("XrayGenerator")
-        obj["lambda1"] = float(xrg.find("WavelengthKalpha1").text)
-        obj["lambda2"] = float(xrg.find("WavelengthKalpha2").text)
-        obj["lambda3"] = float(xrg.find("WavelengthKbeta").text)
-        scan = tree.find("ScanInformation")
-        axis = scan.find("AxisName").text
-        if axis == "TwoThetaTheta":
-            obj["x_units"] = "2theta"
-        if axis == "TwoTheta":
-            obj["x_units"] = "theta"
+        nums = set()
+        for i in zf.infolist():
+            if i.filename.startswith("Data"):
+                nums.add(i.filename.split("/")[0][4:])
+        for num in nums:
+            objs.append(get_xrd(zf, num))
+    return objs
+
+
+def get_xrd(zf, num):
+    "Get xrd object forom zipfile"
+    obj = {"objtype": "xrd"}
+    sl = (
+        zf.read(f"Data{num}/Profile{num}.txt")
+        .decode(encoding="utf-8-sig")
+        .splitlines()
+    )
+    x_data = []
+    y_data = []
+    for line in sl:
+        x, y = line.split()[:2]
+        x = float(x)
+        y = int(y)
+        x_data.append(x)
+        y_data.append(y)
+    obj["x_data"] = x_data
+    obj["y_data"] = y_data
+    tree = etree.fromstring(
+        zf.read(f"Data{num}/MesurementConditions{num}.xml").decode()
+    )
+    gen = tree.find("GeneralInformation")
+    name = gen.find("SampleName").text
+    if not name:
+        name = str(num)
+    obj["name"] = name
+    obj["comment"] = gen.find("Comment").text
+    hwc = tree.find("HWConfigurations")
+    xrg = hwc.find("XrayGenerator")
+    obj["lambda1"] = float(xrg.find("WavelengthKalpha1").text)
+    obj["lambda2"] = float(xrg.find("WavelengthKalpha2").text)
+    obj["lambda3"] = float(xrg.find("WavelengthKbeta").text)
+    scan = tree.find("ScanInformation")
+    axis = scan.find("AxisName").text
+    if axis == "TwoThetaTheta":
+        obj["x_units"] = "2theta"
+    if axis == "TwoTheta":
+        obj["x_units"] = "theta"
+    rh = ras_head(tree)
+    obj["psi"] = float(rh.get("MEAS_STRESS_PSI_ANGLE", 0))
     return obj
+
+
+def ras_head(tree):
+    rh = tree.find("RASHeader")
+    res = {}
+    for p in rh.findall("Pair"):
+        k, v = [s.text for s in p.findall("string")]
+        res[k[1:]] = v
+    return res

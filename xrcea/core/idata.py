@@ -39,27 +39,6 @@ def _diff_props(xrd):
         xrd.set_description(ans)
 
 
-class MultiXrCurve:
-    objtype = "multi_xrd"
-    type = _("Multiple diffractograms")
-
-    def __init__(self):
-        self._curves = []
-
-    def add(self, xrd):
-        self._curves.append(xrd)
-
-    def curves(self):
-        self._curves.sort(key=lambda x: x.psi)
-        return self._curves
-
-    def get_obj(self):
-        """Convets X-ray data into object."""
-        mxrd = {"objtype": self.objtype}
-        mxrd["xrds"] = [i.get_obj() for i in self._curves]
-        return mxrd
-
-
 class XrayData:
     """
     :param fname: Path to file with X-ray diffraction data.
