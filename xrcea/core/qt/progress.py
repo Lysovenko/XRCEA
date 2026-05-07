@@ -18,20 +18,20 @@
 try:
     from PyQt6.QtCore import QTimer
     from PyQt6.QtWidgets import (
-        QVBoxLayout,
         QDialog,
         QDialogButtonBox,
         QLabel,
         QProgressBar,
+        QVBoxLayout,
     )
 except ImportError:
     from PyQt5.QtCore import QTimer
     from PyQt5.QtWidgets import (
-        QVBoxLayout,
         QDialog,
         QDialogButtonBox,
         QLabel,
         QProgressBar,
+        QVBoxLayout,
     )
 
 
@@ -42,9 +42,11 @@ class Progress(QDialog):
         status,
         parent=None,  # type: Any
     ):
+        from .idialog import CANCEL
+
         super().__init__(parent)
         self.setWindowTitle(title)
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Cancel)
+        buttonBox = QDialogButtonBox(CANCEL)
         buttonBox.rejected.connect(self.reject)
         self._status = status
         self.progressBar = QProgressBar()

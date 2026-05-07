@@ -69,7 +69,7 @@ def main():
     app = QApplication(sys.argv)
     app.setApplicationName("XRCEA")
     app.setDesktopFileName("XRCEA")
-    app.setWindowIcon(QIcon("xrcea"))
+    app.setWindowIcon(QIcon.fromTheme("xrcea"))
     APPLICATION.compman.introduce()
     for e in APPLICATION.on_start:
         e()
@@ -142,7 +142,7 @@ class qMainWindow(QMainWindow, DialogsMixin):
     def __init__(self, vi_obj):
         super().__init__()
         self.setWindowTitle(vi_obj.name)
-        self.setWindowIcon(QIcon("xrcea"))
+        self.setWindowIcon(QIcon.fromTheme("xrcea"))
         self.vi_obj = vi_obj
         self.menu = SDIMenu(self)
         global _WINDOWS
