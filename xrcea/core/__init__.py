@@ -22,8 +22,6 @@ from os.path import dirname, join, isdir, pardir
 from argparse import ArgumentParser
 from .application import APPLICATION
 from .project import open_later
-VERSION = "0.2.2"
-RELEASE = '0.2'
 
 
 def install_gt():

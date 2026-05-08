@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "XRCEA"
-dynamic = ["version"]
+version = "0.2.3"
 authors = [
   { name="Serhii Lysovenko", email="Lysovenko@users.noreply.github.com" },
 ]
@@ -52,10 +52,8 @@ packages = [
     "xrcea.components.describer",
     "xrcea.components.cryp",
     "xrcea.components.pddb",
+    "xrcea.components.iextra",
 ]
-
-[tool.setuptools.dynamic]
-version = {attr = "xrcea.core.VERSION"}
 
 [tool.setuptools.package-data]
 xrcea = [
