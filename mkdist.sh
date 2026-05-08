@@ -1,4 +1,5 @@
 #!/bin/bash
+export PYTHONPATH=$PWD
 for lang in eng ukr
 do
     make html -C xrcea/doc/$lang
@@ -18,5 +19,3 @@ do
 	msgfmt "$i" -o "$fnam"
     fi
 done
-cd -
-python3 setup.py sdist --formats="gztar"
