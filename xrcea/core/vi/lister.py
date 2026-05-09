@@ -16,19 +16,24 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Wrap a GUI listings"""
 
-
 from .menu import DMenu
 from .mixins import DialogsMixin
 
 
-class Lister (DialogsMixin):
-    def __init__(self, name, titles, lvalues, styles={},
-                 class_name=None, identifier=None):
+class Lister(DialogsMixin):
+    def __init__(
+        self,
+        name,
+        titles,
+        lvalues,
+        styles={},
+        class_name=None,
+        identifier=None,
+    ):
         self.gui_functions = {}
         self.name = name
         self.styles = styles
         self.lvalues = lvalues
-        self.choicer = None
         self.identifier = identifier
         self.close_lock = None
         self.currently_alive = False
@@ -36,6 +41,7 @@ class Lister (DialogsMixin):
         self.titles = titles
         self.class_name = class_name
         self.shortcuts = {}
+        self.choicers = []
         self.menu = DMenu()
 
     @property
@@ -50,18 +56,20 @@ class Lister (DialogsMixin):
 
     def show(self):
         from ..application import get_actual_interface
+
         get_actual_interface().show_vi(self)
 
     def set_choicer(self, choicer, separate_items=False, holder=None):
         try:
             self.gui_functions["set_choicer"](choicer, separate_items, holder)
         except KeyError:
-            raise RuntimeError("Show GUI before adding choicer")
+            self.choicers.append((choicer, separate_items, holder))
 
     def set_list_context_menu(self, list_context_menu, holder=None):
         if "set_list_context_menu" in self.gui_functions:
-            self.gui_functions["set_list_context_menu"](list_context_menu,
-                                                        holder)
+            self.gui_functions["set_list_context_menu"](
+                list_context_menu, holder
+            )
 
     def set_close_lock(self, close_lock):
         self.close_lock = close_lock

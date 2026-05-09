@@ -85,7 +85,7 @@ class XrayData:
             (self.x_data == other.x_data) == (self.y_data == other.y_data)
         ).all()
 
-    def set_description(self, dct):
+    def set_description(self, dct, emptify=True):
         self.__dict.clear()
         self.__dict.update(dct)
         for i in (
@@ -102,25 +102,26 @@ class XrayData:
             try:
                 setattr(self, i, float(dct[i]))
             except (ValueError, KeyError):
-                setattr(self, i, None)
+                if emptify:
+                    setattr(self, i, None)
         if "x_units" in dct:
             if dct["x_units"] in ["2theta", "theta", "q"]:
                 self.x_units = dct["x_units"]
-            else:
+            elif emptify:
                 self.x_units = None
         if "contains" in dct:
             try:
                 self.contains = loads(dct["contains"])
             except (KeyError, JSONDecodeError):
-                self.contains = None
+                if emptify:
+                    self.contains = None
         if "name" in dct:
             self.name = dct["name"]
         if "comment" in dct:
             comment = dct["comment"]
-            if isinstance(comment, list):
-                self.comment = "\n".join(comment)
-            else:
-                self.comment = comment
+            self.comment = (
+                "\n".join(comment) if isinstance(comment, list) else comment
+            )
 
     def _emit_changed(self):
         try:

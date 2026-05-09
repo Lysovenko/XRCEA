@@ -151,6 +151,8 @@ def show_lister(vi_obj):
     lister.draw_shape(vi_obj.titles, vi_obj.lvalues, vi_obj.styles)
     if vi_obj.icon is not None:
         lister.set_icon(vi_obj.icon)
+    for chcr in vi_obj.choicers:
+        lister.set_choicer(*chcr)
     vi_obj.gui_functions["set_choicer"] = lister.set_choicer
     vi_obj.gui_functions["add_timer"] = lister.add_timer
     vi_obj.gui_functions["set_list_context_menu"] = lister.set_context_menu

@@ -15,12 +15,33 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Multiple curves"""
 
-from .idata import XrayData
+from .idata import XrayData, ask_about_sample
 from .vi import Lister
 from .vi.value import Value
 
 
+def _mcurve_props(mcrv):
+    curves: list = mcrv.get_curves()
+    if not curves:
+        return
+    descr = curves[0].get_description()
+    try:
+        descr["name"] = mcrv.name
+    except AttributeError:
+        pass
+    ans = ask_about_sample(descr)
+    if isinstance(ans, dict):
+        mcrv.name = ans.pop("name", None)
+        for red in set(ans).difference(
+            {"lambda1", "lambda2", "lambda3", "I2", "I3"}
+        ):
+            ans.pop(red)
+        for xrd in curves:
+            xrd.set_description(ans, False)
+
+
 class MultiXrCurve:
+    actions = {(_("Diffr. set"), _("Properties...")): _mcurve_props}
     objtype = "multi_xrd"
     type = _("Multiple diffractograms")
 
@@ -53,7 +74,21 @@ class MultiXrCurve:
     def display(self):
         lst = self._uis.get("main")
         if not lst:
+            actions = type(self).actions
             self._uis["main"] = lst = ViMultiXrCurve(self)
+            for mi in sorted(actions.keys()):
+                args = actions[mi]
+                if isinstance(args, tuple):
+                    lst.menu.append_item(
+                        mi[:-1],
+                        mi[-1],
+                        lambda x=self, f=args[0]: f(x),
+                        *args[1:],
+                    )
+                else:
+                    lst.menu.append_item(
+                        mi[:-1], mi[-1], lambda x=self, f=args: f(x)
+                    )
         lst.show()
 
     def set_container(self, container):
@@ -77,7 +112,6 @@ class ViMultiXrCurve(Lister):
             [curves],
             styles,
         )
-        self.show()
         self.set_choicer(self.click_component, False, 0)
 
     def click_component(self, item):
