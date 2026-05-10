@@ -17,12 +17,14 @@
 
 from locale import format_string
 from math import asin, pi
-from xrcea.core.vi.spreadsheet import Spreadsheet
-from xrcea.core.vi.value import Tabular, TabCell, Value, lfloat
+
 from xrcea.core.vi import copy_to_clipboard
+from xrcea.core.vi.spreadsheet import Spreadsheet
+from xrcea.core.vi.value import TabCell, Tabular, Value, lfloat
+
+from .fviewer import show_func_view
 from .indexer import find_indices, indices_from_card
 from .vcellparams import show_cell_params
-from .fviewer import show_func_view
 
 _treat = _("Treat")
 CELL_TYPE_C, CELL_PARAMS, CELL_TYPE_N = zip(

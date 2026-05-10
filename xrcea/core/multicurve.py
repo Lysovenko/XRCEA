@@ -19,6 +19,8 @@ from .idata import XrayData, ask_about_sample
 from .vi import Lister
 from .vi.value import Value
 
+MCUR_MENU_NAME = _("Diffr. set")
+
 
 def _mcurve_props(mcrv):
     curves: list = mcrv.get_curves()
@@ -41,7 +43,7 @@ def _mcurve_props(mcrv):
 
 
 class MultiXrCurve:
-    actions = {(_("Diffr. set"), _("Properties...")): _mcurve_props}
+    actions = {(MCUR_MENU_NAME, _("Properties...")): _mcurve_props}
     objtype = "multi_xrd"
     type = _("Multiple diffractograms")
 

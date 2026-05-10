@@ -18,15 +18,19 @@ Crystalline peak
 """
 
 from locale import format_string as lformat
+
 import numpy as np
+
 from xrcea.core.application import APPLICATION as APP
 from xrcea.core.idata import XrayData
+from xrcea.core.multicurve import MCUR_MENU_NAME, MultiXrCurve
+
 from .assume import show_struct_assumptions
-from .reflex import calc_bg, refl_sects, ReflexDedect, Cryplots
-from .preflex import show_assumed
-from .positions import show_sheet
 from .cellparams import CALCULATORS
 from .describer import Describer
+from .positions import show_sheet
+from .preflex import show_assumed
+from .reflex import Cryplots, ReflexDedect, calc_bg, refl_sects
 
 _DEFAULTS = {
     "bg_sigmul": 2.0,
@@ -64,6 +68,10 @@ def introduce():
     ]
     for p, e in mitems:
         XrayData.actions[p] = e
+    mn = MCUR_MENU_NAME
+    mitems = [((mn, _("Find backgrounds...")), Mcall(_data, "calc_bg"))]
+    for p, e in mitems:
+        MultiXrCurve.actions[p] = e
     for i in _BELL_TYPES:
         XrayData.plotters["cryp" + i] = getattr(Cryplots, "p" + i)
     APP.settings.declare_section("Peaks")
@@ -103,11 +111,58 @@ class Mcall:
         self.data = xrd
         return self.__action()
 
+    @staticmethod
+    def _calc_xrd_bg(xrd: XrayData, sigmul: float, deg: float):
+        if xrd.x_units != "q":
+            x = np.sin(xrd.theta)
+            y = xrd.corr_intens
+        else:
+            x = xrd.qrange
+            y = xrd.y_data
+        xrd.extra_data["background"] = bgnd = calc_bg(x, y, deg, sigmul)[0]
+        xrd.extra_data["stripped"] = y - bgnd
+        x_label = {
+            "theta": "$\\theta$",
+            "2theta": "$2\\theta$",
+            "q": "q",
+            None: _("Unknown"),
+        }[xrd.x_units]
+        plt = {
+            "plots": [
+                {"x1": "x_data", "y1": "corr_intens", "color": "exp_dat"},
+                {"x1": "x_data", "y1": "background", "color": "crp_bg"},
+                {"x1": "x_data", "y1": "stripped", "color": "crp_strip"},
+            ],
+            "x1label": x_label,
+            "y1label": _("Relative units"),
+            "x1units": xrd.x_units,
+        }
+        try:
+            xrd.remember_plot(d_("Background"), plt)
+        except KeyError:
+            pass
+        plt = {
+            "plots": [{"x1": "x_data", "y1": "stripped", "color": "exp_dat"}],
+            "x1label": x_label,
+            "y1label": _("Relative units"),
+            "x1units": xrd.x_units,
+        }
+        plot_name = d_("Stripped")
+        try:
+            xrd.remember_plot(plot_name, plt)
+        except KeyError:
+            pass
+
     def calc_bg(self):
         "Calculate background"
         dat = self.data
-        plot = dat.UIs.get("main")
-        dlgr = plot.input_dialog(
+        if isinstance(dat, XrayData):
+            gui = dat.UIs.get("main")
+        elif isinstance(dat, MultiXrCurve):
+            gui = dat._uis.get("main")
+        else:
+            return
+        dlgr = gui.input_dialog(
             _("Calculate background"),
             [
                 (_("Sigma multiplier:"), self.idat["bg_sigmul"]),
@@ -116,44 +171,14 @@ class Mcall:
         )
         if dlgr is not None:
             sigmul, deg = dlgr
-            if self.data.x_units != "q":
-                x = np.sin(self.data.theta)
-                y = self.data.corr_intens
-            else:
-                x = self.data.qrange
-                y = self.data.y_data
             self.idat["bg_polrang"] = deg
             self.idat["bg_sigmul"] = sigmul
-            dat.extra_data["background"] = bgnd = calc_bg(x, y, deg, sigmul)[0]
-            dat.extra_data["stripped"] = y - bgnd
-            x_label = {
-                "theta": "$\\theta$",
-                "2theta": "$2\\theta$",
-                "q": "q",
-                None: _("Unknown"),
-            }[dat.x_units]
-            plt = {
-                "plots": [
-                    {"x1": "x_data", "y1": "corr_intens", "color": "exp_dat"},
-                    {"x1": "x_data", "y1": "background", "color": "crp_bg"},
-                    {"x1": "x_data", "y1": "stripped", "color": "crp_strip"},
-                ],
-                "x1label": x_label,
-                "y1label": _("Relative units"),
-                "x1units": dat.x_units,
-            }
-            dat.remember_plot(d_("Background"), plt)
-            plt = {
-                "plots": [
-                    {"x1": "x_data", "y1": "stripped", "color": "exp_dat"}
-                ],
-                "x1label": x_label,
-                "y1label": _("Relative units"),
-                "x1units": dat.x_units,
-            }
-            plot_name = d_("Stripped")
-            dat.remember_plot(plot_name, plt)
-            dat.show_plot(plot_name)
+            if isinstance(dat, XrayData):
+                self._calc_xrd_bg(dat, sigmul, deg)
+                dat.show_plot(d_("Background"))
+            elif isinstance(dat, MultiXrCurve):
+                for xrd in dat.get_curves():
+                    self._calc_xrd_bg(xrd, sigmul, deg)
 
     def calc_reflexes(self):
         "calculate reflexes"
