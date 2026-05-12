@@ -16,6 +16,7 @@
 """ """
 
 import xml.etree.ElementTree as etree
+from os.path import basename, splitext
 from zipfile import ZipFile
 
 from xrcea.core.application import APPLICATION as APP
@@ -28,10 +29,12 @@ def open_rasx(fname):
     objs = rasx_obj(fname)
     if len(objs) == 1:
         xrd = XrayData(objs[0])
+        if xrd.name == "0":
+            xrd.name = splitext(basename(fname))[0]
     elif len(objs) > 1:
         mxrd = {"objtype": "multi_xrd"}
         mxrd["xrds"] = objs
-        mxrd["name"] = fname
+        mxrd["name"] = splitext(basename(fname))[0]
         xrd = MultiXrCurve(mxrd)
     else:
         return
