@@ -67,9 +67,15 @@ def ask_open_filename(title, filename, masks):
 
 def ask_save_filename(title, filename, masks):
     fltr = ";;".join("{1} ({0})".format(*md) for md in masks)
-    options = QFileDialog.Options()
+    try:
+        options = QFileDialog.Option(0)
+    except AttributeError:
+        options = QFileDialog.Options()
     if os.name == "posix":
-        options |= QFileDialog.DontUseNativeDialog
+        try:
+            options |= QFileDialog.Option.DontUseNativeDialog
+        except AttributeError:
+            options |= QFileDialog.DontUseNativeDialog
     fname, _h = QFileDialog.getSaveFileName(
         None, title, filename, fltr, options=options
     )
