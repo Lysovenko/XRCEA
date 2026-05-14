@@ -30,6 +30,7 @@ from .cellparams import CALCULATORS
 from .describer import Describer
 from .positions import show_sheet
 from .preflex import show_assumed
+from .psipos import show_psi_sheet
 from .reflex import Cryplots, ReflexDedect, calc_bg, refl_sects
 
 _DEFAULTS = {
@@ -69,7 +70,10 @@ def introduce():
     for p, e in mitems:
         XrayData.actions[p] = e
     mn = MCUR_MENU_NAME
-    mitems = [((mn, _("Find backgrounds...")), Mcall(_data, "calc_bg"))]
+    mitems = [
+        ((mn, _("Find backgrounds...")), Mcall(_data, "calc_bg")),
+        ((mn, _("Show found refl. shapes")), Mcall(_data, "show_sheet")),
+    ]
     for p, e in mitems:
         MultiXrCurve.actions[p] = e
     for i in _BELL_TYPES:
@@ -196,7 +200,10 @@ class Mcall:
     def show_sheet(self):
         "Show table"
         dat = self.data
-        show_sheet(dat)
+        if isinstance(dat, XrayData):
+            show_sheet(dat)
+        elif isinstance(dat, MultiXrCurve):
+            show_psi_sheet(dat)
 
 
 def calc_refl_dialog(idata):
