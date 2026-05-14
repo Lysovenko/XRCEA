@@ -27,7 +27,10 @@ from .vi import Plot, input_dialog
 
 def introduce_input():
     """Introduce input"""
+    from .multicurve import MultiXrCurve
+
     APP.register_treater(XrayData)
+    APP.register_treater(MultiXrCurve)
     APP.register_opener(".xrd", open_xrd, _("Diffractograms"))
     APP.register_opener(".dat", open_xrd, _("Generic diffractograms"))
     APP.register_opener(".xy", open_xrd, _("Generic diffractograms"))

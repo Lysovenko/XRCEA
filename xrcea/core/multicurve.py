@@ -64,6 +64,7 @@ class MultiXrCurve:
         """Convets X-ray data into object."""
         mxrd = {"objtype": self.objtype}
         mxrd["xrds"] = [i.get_obj() for i in self._curves]
+        mxrd["name"] = self.name
         return mxrd
 
     def from_obj(self, mxrd):
