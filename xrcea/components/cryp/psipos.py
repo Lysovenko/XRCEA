@@ -15,6 +15,8 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Spreadsheet with peaks positions in Multicurve"""
 
+from xrcea.core.vi import Plot
+
 from .positions import (
     DisplayX0,
     IFloat,
@@ -30,6 +32,8 @@ _treat = _("Treat")
 class PsiBells(Spreadsheet):
     def __init__(self, mxrd):
         self._xrds = xrds = list(mxrd.get_curves())
+        self._uis = mxrd._uis
+        self._samp_name = mxrd.name
         self._uindex = [
             xrd.extra_data.setdefault("UserIndexes", {}) for xrd in xrds
         ]
@@ -50,6 +54,12 @@ class PsiBells(Spreadsheet):
                 )
             start += len(cryb)
         super().__init__(str(mxrd.name) + _(" (found reflexes)"), val)
+        self.menu.append_item(
+            (_treat,),
+            _("Show plot"),
+            self.show_func_view,
+            None,
+        )
         self.show()
         self.set_form(
             [
@@ -88,6 +98,14 @@ class PsiBells(Spreadsheet):
             display.units = units
         self.value.refresh()
 
+    def show_func_view(self):
+        p = self._uis.get("FuncView")
+        if p:
+            p.show()
+            return
+        self._uis["FuncView"] = PsiView(self._xrds, self._samp_name)
+        self._uis["FuncView"].show()
+
 
 def show_psi_sheet(mxrd):
     if any("crypbells" not in xrd.extra_data for xrd in mxrd.get_curves()):
@@ -97,3 +115,31 @@ def show_psi_sheet(mxrd):
         p.show()
         return
     mxrd._uis["FoundReflexes"] = PsiBells(mxrd)
+
+
+_calculate = _("Calculate")
+
+
+class PsiView(Plot):
+    def __init__(self, xrds, samp_name):
+        self._xrds = xrds
+        super().__init__(str(samp_name) + _(" Visual Analyser"))
+        self.menu.append_item(
+            (_calculate,),
+            _("Something"),
+            self.calc_something,
+            None,
+        )
+
+    def calc_something(self):
+        """Display something"""
+        plots = []
+        self.add_plot(
+            _("Correlation"),
+            {
+                "plots": plots,
+                "x1label": _("Instrumental broadening"),
+                "y1label": _("Correlation"),
+            },
+        )
+        self.draw(_("Correlation"))
