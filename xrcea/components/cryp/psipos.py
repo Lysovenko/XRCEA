@@ -15,6 +15,8 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Spreadsheet with peaks positions in Multicurve"""
 
+import numpy as np
+
 from xrcea.core.vi import Plot
 
 from .positions import (
@@ -104,6 +106,7 @@ class PsiBells(Spreadsheet):
             p.show()
             return
         self._uis["FuncView"] = PsiView(self._xrds, self._samp_name)
+        self._uis["FuncView"].crybs = self.crybs
         self._uis["FuncView"].show()
 
 
@@ -134,11 +137,20 @@ class PsiView(Plot):
     def calc_something(self):
         """Display something"""
         plots = []
+        x = np.array([x.psi for x in self._xrds])
+        x = np.sin(np.radians(x)) ** 2
+        y = np.array(
+            [
+                ic.lambda1 / 2.0 / cb[0][0]
+                for ic, cb in zip(self._xrds, self.crybs)
+            ]
+        )
+        plots.append({"x1": x, "y1": y, "legend": "Something"})
         self.add_plot(
             _("Correlation"),
             {
                 "plots": plots,
-                "x1label": _("Instrumental broadening"),
+                "x1label": _("$\\sin(\u03c8)^2$"),
                 "y1label": _("Correlation"),
             },
         )
