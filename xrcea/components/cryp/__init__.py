@@ -28,6 +28,7 @@ from xrcea.core.multicurve import MCUR_MENU_NAME, MultiXrCurve
 from .assume import show_struct_assumptions
 from .cellparams import CALCULATORS
 from .describer import Describer
+from .peakshape import PeaksShape
 from .positions import show_sheet
 from .preflex import show_assumed
 from .psipos import show_psi_sheet
@@ -190,9 +191,9 @@ class Mcall:
         rv = calculate_reflexes(dat)
         if rv is None:
             return
-        itms = rv["items"]
-        dat.extra_data["crypShape"] = rv["shape"]
-        dat.extra_data["crypbells"] = np.array(itms).flatten()
+        ps = PeaksShape(dat)
+        ps.bells = rv["items"]
+        ps.shape = rv["shape"]
         plot_name = d_("Peaks description")
         dat.remember_plot(plot_name, "cryp" + rv["shape"])
         dat.show_plot(plot_name)

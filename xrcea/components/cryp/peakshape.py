@@ -17,9 +17,11 @@
 
 import numpy as np
 
+from xrcea.core.idata import XrayData
+
 
 class PeaksShape:
-    def __init__(self, xrd):
+    def __init__(self, xrd: XrayData):
         self._xrd = xrd
 
     @property
@@ -28,14 +30,14 @@ class PeaksShape:
 
     @shape.setter
     def shape(self, shape):
-        shapes = (
+        shapes = {
             "Gauss",
             "Lorentz",
             "Voit",
             "GaussRad",
             "LorentzRad",
             "VoitRad",
-        )
+        }
         if shape not in shapes:
             raise ValueError(f"Unknown shape: {shape}")
         self._xrd.extra_data["crypShape"] = shape
@@ -50,3 +52,7 @@ class PeaksShape:
     @bells.setter
     def bells(self, bls):
         self._xrd.extra_data["crypbells"] = np.ravel(bls)
+
+    @property
+    def wavelength(self):
+        return self._xrd.lambda1
