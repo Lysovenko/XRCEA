@@ -19,6 +19,7 @@ import numpy as np
 
 from xrcea.core.vi import Plot
 
+from .peakshape import PeaksShape
 from .positions import (
     DisplayX0,
     IFloat,
@@ -125,7 +126,7 @@ _calculate = _("Calculate")
 
 class PsiView(Plot):
     def __init__(self, xrds, samp_name):
-        self._xrds = xrds
+        self._pss = [PeaksShape(xrd) for xrd in xrds]
         super().__init__(str(samp_name) + _(" Visual Analyser"))
         self.menu.append_item(
             (_calculate,),
@@ -137,14 +138,16 @@ class PsiView(Plot):
     def calc_something(self):
         """Display something"""
         plots = []
-        x = np.array([x.psi for x in self._xrds])
-        x = np.sin(np.radians(x)) ** 2
-        y = np.array(
-            [
-                ic.lambda1 / 2.0 / cb[0][0]
-                for ic, cb in zip(self._xrds, self.crybs)
-            ]
-        )
+        x = np.array([x.psi for x in self._pss])
+        sps2 = np.sin(np.radians(x)) ** 2
+        d = np.array([ps.d[0] for ps in self._pss])
+        md = d.mean()
+        x = np.linspace(0.01 * md, 1.5 * md, 2000)
+
+        def rd(d0):
+            return (d - d0) / d0
+
+        y = np.array([np.corrcoef(sps2, rd(i))[0, 1] for i in x])
         plots.append({"x1": x, "y1": y, "legend": "Something"})
         self.add_plot(
             _("Correlation"),

@@ -24,6 +24,9 @@ class PeaksShape:
     def __init__(self, xrd: XrayData):
         self._xrd = xrd
 
+    def __getattr__(self, name):
+        return getattr(self._xrd, name)
+
     @property
     def shape(self):
         return self._xrd.extra_data.get("crypShape")
@@ -56,3 +59,10 @@ class PeaksShape:
     @property
     def wavelength(self):
         return self._xrd.lambda1
+
+    @property
+    def d(self):
+        try:
+            return self.wavelength / 2.0 / self.bells[:, 0]
+        except TypeError:
+            raise AttributeError("No bells")
