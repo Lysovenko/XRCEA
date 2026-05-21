@@ -121,6 +121,17 @@ def show_psi_sheet(mxrd):
     mxrd._uis["FoundReflexes"] = PsiBells(mxrd)
 
 
+def show_psi_plots(mxrd):
+    if any("crypbells" not in xrd.extra_data for xrd in mxrd.get_curves()):
+        return
+    p = mxrd._uis.get("FuncView")
+    if p:
+        p.show()
+        return
+    mxrd._uis["FuncView"] = PsiView(mxrd.get_curves(), mxrd.name)
+    mxrd._uis["FuncView"].show()
+
+
 _calculate = _("Calculate")
 
 
@@ -141,13 +152,16 @@ class PsiView(Plot):
         x = np.array([x.psi for x in self._pss])
         sps2 = np.sin(np.radians(x)) ** 2
         d = np.array([ps.d[0] for ps in self._pss])
+
+        def chi2(d0):
+            y = (d - d0) / d0
+            a, b = np.polyfit(sps2, y, 1)
+            ya = a * sps2 + b
+            return np.sum((y - ya) ** 2) / (len(sps2) - 2)
+
         md = d.mean()
-        x = np.linspace(0.01 * md, 1.5 * md, 2000)
-
-        def rd(d0):
-            return (d - d0) / d0
-
-        y = np.array([np.corrcoef(sps2, rd(i))[0, 1] for i in x])
+        x = np.linspace(0.998, 1.002, 4000)
+        y = np.array([chi2(i * md) * i**2 for i in x])
         plots.append({"x1": x, "y1": y, "legend": "Something"})
         self.add_plot(
             _("Correlation"),

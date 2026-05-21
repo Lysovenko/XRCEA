@@ -31,7 +31,7 @@ from .describer import Describer
 from .peakshape import PeaksShape
 from .positions import show_sheet
 from .preflex import show_assumed
-from .psipos import show_psi_sheet
+from .psipos import show_psi_plots, show_psi_sheet
 from .reflex import Cryplots, ReflexDedect, calc_bg, refl_sects
 
 _DEFAULTS = {
@@ -74,6 +74,7 @@ def introduce():
     mitems = [
         ((mn, _("Find backgrounds...")), Mcall(_data, "calc_bg")),
         ((mn, _("Show found refl. shapes")), Mcall(_data, "show_sheet")),
+        ((mn, _("Show plots")), Mcall(_data, "show_plots")),
     ]
     for p, e in mitems:
         MultiXrCurve.actions[p] = e
@@ -205,6 +206,12 @@ class Mcall:
             show_sheet(dat)
         elif isinstance(dat, MultiXrCurve):
             show_psi_sheet(dat)
+
+    def show_plots(self):
+        "Show plots"
+        dat = self.data
+        if isinstance(dat, MultiXrCurve):
+            show_psi_plots(dat)
 
 
 def calc_refl_dialog(idata):
