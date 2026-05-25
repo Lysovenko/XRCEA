@@ -15,9 +15,11 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """ """
 
+from math import asin, log, pi, sqrt
+
+from xrcea.core.description import Cell, Paragraph, Row, Table, Title
 from xrcea.core.idata import XrayData
-from xrcea.core.description import Title, Paragraph, Table, Row, Cell
-from math import asin, pi, sqrt, log
+
 from .broadening import BroadAn
 from .cellparams import CellParams
 
@@ -53,6 +55,7 @@ class Describer:
             doc.write(Paragraph(_("Peak shape: %s") % shape))
         except KeyError:
             shape = None
+        uindex = self.xrd.extra_data.get("UserIndexes", dict())
         cryb = self.xrd.extra_data["crypbells"]
         cryb = sorted(map(tuple, cryb.reshape(len(cryb) // 4, 4)))
         tab = Table()
@@ -62,13 +65,23 @@ class Describer:
         transforms[0] = lambda x: 2.0 * asin(x) * 180.0 / pi
         transforms[2] = CALCS_FWHM.get(shape, lambda x: x)
         w = _("FWHM") if shape in CALCS_FWHM else "w"
-        for i in (_("#"), "x\u2080 (2\u03b8\u00b0)", "h", w, "s"):
-            heads.write(Cell(i))
+        inames = sorted(i for i in uindex if "indices" in uindex[i])
+        indices = [
+            {
+                int(k): "%d %d %d" % tuple(v)
+                for k, v in uindex[n]["indices"].items()
+            }
+            for n in inames
+        ]
+        for j in [_("#"), "x\u2080 (2\u03b8\u00b0)", "h", w, "s"] + inames:
+            heads.write(Cell(j))
         for i, t in enumerate(cryb, 1):
             r = Row()
             r.write(Cell(i))
-            for i, v in enumerate(t):
-                r.write(Cell(transforms[i](v), 5))
+            for j, v in enumerate(t):
+                r.write(Cell(transforms[j](v), 5))
+            for ind in indices:
+                r.write(Cell(ind.get(i - 1, ""), 5))
             tab.write(r)
         doc.write(tab)
         cp = CellParams(self.xrd)
