@@ -145,6 +145,12 @@ class PsiView(Plot):
             self.calc_something,
             None,
         )
+        self.menu.append_item(
+            (_calculate,),
+            _("Deformation"),
+            self.calc_deform,
+            None,
+        )
 
     def calc_something(self):
         """Display something"""
@@ -180,3 +186,32 @@ class PsiView(Plot):
             },
         )
         self.draw(_("Correlation"))
+
+    def calc_deform(self):
+        """Display Deformation"""
+        plots = []
+        x = np.array([x.psi for x in self._pss])
+        sps2 = np.sin(np.radians(x)) ** 2
+        d = np.array([ps.d[0] for ps in self._pss])
+        md = d.mean()
+        dlgr = self.input_dialog("d0", [("d:", md)])
+        if dlgr is None:
+            return
+        d0 = dlgr[0]
+        eps = (d - d0) / d0
+        a, b = np.polyfit(sps2, eps, 1)
+        x = sps2
+        y = a * x + b
+        plots.append({"x1": x, "y1": y, "legend": "Something"})
+        y = eps
+        plots.append({"x1": x, "y1": y, "legend": "Exp", "type": "o-"})
+        self.add_plot(
+            _("Deformation"),
+            {
+                "plots": plots,
+                "x1label": "$\\sin^2(\u03c8)$",
+                "y1label": r"$\epsilon_\psi$",
+                "Comment": f"md:\t{md}\na:{a}\nb:{b}",
+            },
+        )
+        self.draw(_("Deformation"))
