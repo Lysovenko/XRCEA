@@ -160,7 +160,14 @@ class PsiView(Plot):
             return np.sum((y - ya) ** 2) / (len(sps2) - 2)
 
         md = d.mean()
-        x = np.linspace(0.998, 1.002, 4000)
+        xpars = self.input_dialog(
+            "X parameters",
+            [("From:", 0.998), ("To:", 1.002), ("Points:", 400), ("d:", md)],
+        )
+        if xpars is None:
+            return
+        md = xpars[3]
+        x = np.linspace(*xpars[:3])
         y = np.array([chi2(i * md) * i**2 for i in x])
         plots.append({"x1": x, "y1": y, "legend": "Something"})
         self.add_plot(
@@ -169,6 +176,7 @@ class PsiView(Plot):
                 "plots": plots,
                 "x1label": _("$\\sin(\u03c8)^2$"),
                 "y1label": _("Correlation"),
+                "Comment": f"md:\t{md}",
             },
         )
         self.draw(_("Correlation"))
