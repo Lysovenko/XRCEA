@@ -15,17 +15,20 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Make structural assumptions"""
 
-from json import loads, dumps, JSONDecodeError
 from itertools import product
+from json import JSONDecodeError, dumps, loads
+
 import numpy as np
+
 from xrcea.core.vi import Page
+
 from .cellparams import (
-    d_hkl_orhomb,
-    d_hkl_hex,
-    d_hkl_tetra,
     d_hkl_cubic,
-    d_hkl_rhombohedral,
+    d_hkl_hex,
     d_hkl_monoclinic,
+    d_hkl_orhomb,
+    d_hkl_rhombohedral,
+    d_hkl_tetra,
 )
 
 _assumption = _("Assumption")
@@ -62,9 +65,9 @@ class StructAssume(Page):
         }
         super().__init__(str(xrd.name) + _(" (Assumptions)"), None)
         self.menu.append_item(
-            (_assumption,), _("Plot") + "\tCtrl+P", self.calc_plot, None
+            (_assumption,), _("Plot") + "\tCtrl+P", self.draw_plot, None
         )
-        self.add_shortcut("Ctrl+p", self.calc_plot)
+        self.add_shortcut("Ctrl+p", self.draw_plot)
         self.show()
         self.set_text(
             dumps(
@@ -76,7 +79,7 @@ class StructAssume(Page):
             True,
         )
 
-    def calc_plot(self):
+    def draw_plot(self):
         xrd = self._xrd
         try:
             plot = xrd.UIs["main"]
@@ -121,14 +124,22 @@ class StructAssume(Page):
             if wavel is not None and intens is not None
         ]
         wavels = tuple(i[0] for i in wavis)
+        comments = []
         for rec in assobj:
             dis = self.plt_di(rec, units, wavels, (xmin, xmax))
             if dis is None:
                 continue
-            dis, mils = dis
+            xy, mils, d_hkl = dis
             annotations = ["(%d%3d%3d)" % i for i in mils]
+            name = rec.get("name", rec.get("t", "nothing"))
+            comments.append(name)
+            comments.append(
+                "\n".join(
+                    "(%d%3d%3d)\t%g" % (m + (d,)) for m, d in zip(mils, d_hkl)
+                )
+            )
             for (x, y), lstl, (w, i) in zip(
-                dis, ("solid", "dashed", "dashdot"), wavis
+                xy, ("solid", "dashed", "dashdot"), wavis
             ):
                 eplt = {
                     "type": "pulse",
@@ -136,13 +147,14 @@ class StructAssume(Page):
                     "color": rec.get("clr", "red"),
                 }
                 if lstl == "solid":
-                    eplt["legend"] = rec.get("t", "nothing")
+                    eplt["legend"] = name
                 eplt["x1"] = x
                 eplt["y2"] = y * i
                 if annotations:
                     eplt["annotations"] = annotations
                     annotations = None
                 plt["plots"].append(eplt)
+        plt["Comment"] = "\n\n".join(comments)
         plot_name = _("Assumed")
         plot.add_plot(plot_name, plt)
         plot.draw(plot_name)
@@ -156,6 +168,7 @@ class StructAssume(Page):
             return
         mils = [i[2] for i in reflexes]
         dis = np.array([i[:2] for i in reflexes], "f").transpose()
+        d_hkl = dis[0]
         intens = dis[1]
         if not isinstance(wavel, (tuple, list)):
             wavel = (wavel,)
@@ -166,15 +179,15 @@ class StructAssume(Page):
         restore = np.seterr(invalid="ignore")
         for wave in wavel:
             if xtype == "sin(theta)":
-                abscisas.append(wave / 2.0 / dis[0])
+                abscisas.append(wave / 2.0 / d_hkl)
             elif xtype == "theta":
-                abscisas.append(np.arcsin(wave / 2.0 / dis[0]) / np.pi * 180.0)
+                abscisas.append(np.arcsin(wave / 2.0 / d_hkl) / np.pi * 180.0)
             elif xtype == "2theta":
-                abscisas.append(np.arcsin(wave / 2.0 / dis[0]) / np.pi * 360.0)
+                abscisas.append(np.arcsin(wave / 2.0 / d_hkl) / np.pi * 360.0)
         if xtype == "q":
-            abscisas.append((2.0 * np.pi) / dis[0])
+            abscisas.append((2.0 * np.pi) / d_hkl)
         elif not abscisas:
-            abscisas.append(dis[0])
+            abscisas.append(d_hkl)
         milshrink = True
         if between:
             res = []
@@ -185,12 +198,13 @@ class StructAssume(Page):
                 if milshrink:
                     milshrink = False
                     mils = [j for i, j in enumerate(mils) if b[i]]
+                    d_hkl = [j for i, j in enumerate(d_hkl) if b[i]]
         else:
             res = [(x, intens) for x in abscisas]
         np.seterr(**restore)
         if single:
-            return res[0], mils
-        return res, mils
+            return res[0], mils, d_hkl
+        return res, mils, d_hkl
 
     def calc_reflexes(self, record):
         mills = self._milgens[record["t"]](record.get("max", 4))
