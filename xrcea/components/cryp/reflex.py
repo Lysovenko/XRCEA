@@ -16,18 +16,22 @@
 """ """
 
 import numpy as np
-from scipy.optimize import fmin, curve_fit  # type: ignore
+from numpy.polynomial.chebyshev import chebfit, chebval
+from scipy.optimize import curve_fit, fmin  # type: ignore
 
 _SH_FUNCTIONS = {
     "Gauss": lambda the_x, x0, h, w: h * np.exp(-((the_x - x0) ** 2) / w),
     "Lorentz": lambda the_x, x0, h, w: h / (1.0 + (the_x - x0) ** 2 / w),
     "Voit": lambda the_x, x0, h, w: h / (1.0 + (the_x - x0) ** 2 / w) ** 2,
-    "GaussRad": lambda the_x, x0, h, w: h
-    * np.exp(-((np.arcsin(the_x) - np.arcsin(x0)) ** 2) / w),
-    "LorentzRad": lambda the_x, x0, h, w: h
-    / (1.0 + (np.arcsin(the_x) - np.arcsin(x0)) ** 2 / w),
-    "VoitRad": lambda the_x, x0, h, w: h
-    / (1.0 + (np.arcsin(the_x) - np.arcsin(x0)) ** 2 / w) ** 2,
+    "GaussRad": lambda the_x, x0, h, w: (
+        h * np.exp(-((np.arcsin(the_x) - np.arcsin(x0)) ** 2) / w)
+    ),
+    "LorentzRad": lambda the_x, x0, h, w: (
+        h / (1.0 + (np.arcsin(the_x) - np.arcsin(x0)) ** 2 / w)
+    ),
+    "VoitRad": lambda the_x, x0, h, w: (
+        h / (1.0 + (np.arcsin(the_x) - np.arcsin(x0)) ** 2 / w) ** 2
+    ),
 }
 
 
@@ -48,6 +52,29 @@ def calc_bg(sig_x, sig_y, deg, bf=3.0):
             len(pts[0]) - 1.0 - deg
         )
         tbg = pbg(sig_x)
+    return tbg, sigma2, coeffs
+
+
+def calc_bg_cheb(data_x, data_y, deg, bf=3.0):
+    x_min = min(data_x)
+    x_max = max(data_x)
+    x_scaled = 2.0 * (data_x - x_min) / (x_max - x_min) - 1.0
+    ch_coefs = chebfit(x_scaled, data_y, deg=deg)
+    tbg = chebval(x_scaled, ch_coefs)
+    sigma2 = ((data_y - tbg) ** 2).sum() / (len(tbg) - 1.0 - deg)
+    sigma2p = None
+    coeffs = None
+    while sigma2p != sigma2:
+        sigma2p = sigma2
+        sigma = sigma2**0.5 * bf
+        pts = zip(data_x, data_y, tbg)
+        pts = [(a, b) for a, b, c in pts if b - c < sigma]
+        pts = np.array(pts).transpose()
+        cur_x_scal = 2.0 * (pts[0] - x_min) / (x_max - x_min) - 1.0
+        coeffs = chebfit(cur_x_scal, pts[1], deg=deg)
+        pbg = chebval(cur_x_scal, coeffs)
+        sigma2 = ((pts[1] - pbg) ** 2).sum() / (len(pts[0]) - 1.0 - deg)
+        tbg = chebval(x_scaled, coeffs)
     return tbg, sigma2, coeffs
 
 

@@ -32,11 +32,12 @@ from .peakshape import PeaksShape
 from .positions import show_sheet
 from .preflex import show_assumed
 from .psipos import show_psi_plots, show_psi_sheet
-from .reflex import Cryplots, ReflexDedect, calc_bg, refl_sects
+from .reflex import Cryplots, ReflexDedect, calc_bg, calc_bg_cheb, refl_sects
 
 _DEFAULTS = {
     "bg_sigmul": 2.0,
     "bg_polrang": 2,
+    "bg_mode": 0,
     "refl_sigmin": 1e-3,
     "refl_consig": False,
     "refl_mbells": 10,
@@ -118,14 +119,19 @@ class Mcall:
         return self.__action()
 
     @staticmethod
-    def _calc_xrd_bg(xrd: XrayData, sigmul: float, deg: float):
+    def _calc_xrd_bg(xrd: XrayData, sigmul: float, deg: float, mode: int):
         if xrd.x_units != "q":
             x = np.sin(xrd.theta)
             y = xrd.corr_intens
         else:
             x = xrd.qrange
             y = xrd.y_data
-        xrd.extra_data["background"] = bgnd = calc_bg(x, y, deg, sigmul)[0]
+        if mode == 0:
+            xrd.extra_data["background"] = bgnd = calc_bg(x, y, deg, sigmul)[0]
+        elif mode == 1:
+            xrd.extra_data["background"] = bgnd = calc_bg_cheb(
+                x, y, deg, sigmul
+            )[0]
         xrd.extra_data["stripped"] = y - bgnd
         x_label = {
             "theta": "$\\theta$",
@@ -173,18 +179,24 @@ class Mcall:
             [
                 (_("Sigma multiplier:"), self.idat["bg_sigmul"]),
                 (_("Polynomial's degree:"), self.idat["bg_polrang"]),
+                (
+                    _("Mode:"),
+                    (_("Polinomial"), _("Chebyshev")),
+                    self.idat["bg_mode"],
+                ),
             ],
         )
         if dlgr is not None:
-            sigmul, deg = dlgr
+            sigmul, deg, mode = dlgr
             self.idat["bg_polrang"] = deg
             self.idat["bg_sigmul"] = sigmul
+            self.idat["bg_mode"] = mode
             if isinstance(dat, XrayData):
-                self._calc_xrd_bg(dat, sigmul, deg)
+                self._calc_xrd_bg(dat, sigmul, deg, mode)
                 dat.show_plot(d_("Background"))
             elif isinstance(dat, MultiXrCurve):
                 for xrd in dat.get_curves():
-                    self._calc_xrd_bg(xrd, sigmul, deg)
+                    self._calc_xrd_bg(xrd, sigmul, deg, mode)
 
     def calc_reflexes(self):
         "calculate reflexes"
