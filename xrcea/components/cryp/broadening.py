@@ -14,10 +14,12 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Analise peaks broadening"""
-from numpy import pi, log, sqrt, array, corrcoef, vstack, ones, linspace
+
+from numpy import array, corrcoef, linspace, log, ones, pi, sqrt, vstack
 from numpy.linalg import lstsq
 from scipy.optimize import fmin
-from xrcea.core.description import Table, Row, Cell
+
+from xrcea.core.description import Cell, Row, Table
 
 _GAUSS_RAD_C = 360.0 / pi * 2.0 * sqrt(log(2))
 _LORENTZ_RAD_C = 360.0 / pi * 2.0
@@ -100,7 +102,7 @@ class BroadAn:
         inst = y.mean() / 4.0
 
         def min_it(instr):
-            return -self.corr(instr[0], x, y, cos_t)
+            return 1 - self.corr(instr[0], x, y, cos_t) ** 2
 
         opt = fmin(min_it, [inst], initial_simplex=[[inst], [inst / 2.0]])
         return opt[0]
@@ -178,10 +180,10 @@ class BroadAn:
             y,
             rcond=None,
         )[:2]
-        comment = f"A = {a}\nB = {b}\nC = {c}\nChi^2 = {c[0]/len(x)}\n"
+        comment = f"A = {a}\nB = {b}\nC = {c}\nChi^2 = {c[0] / len(x)}\n"
         size, strain = self.size_strain(name, b_instr)
         comment += f"\nSize = {size}\nStrain = {strain}\n"
-        comment += f"debug chi2: {c[0] - ((a * x + b - y)**2).sum()}"
+        comment += f"debug chi2: {c[0] - ((a * x + b - y) ** 2).sum()}"
         lin_x = array([0.0, x.max()])
         lin_y = lin_x * a + b
         millers = ["(%d %d %d)" % tuple(i) for i in self.miller_indices[name]]
