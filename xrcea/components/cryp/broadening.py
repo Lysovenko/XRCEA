@@ -15,7 +15,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Analise peaks broadening"""
 
-from numpy import array, corrcoef, linspace, log, ones, pi, sqrt, vstack
+from numpy import array, corrcoef, linspace, log, ones, pi, sqrt, vstack, zeros
 from numpy.linalg import lstsq
 from scipy.optimize import fmin
 
@@ -64,14 +64,25 @@ class BroadAn:
             for name, v in indexed.items()
         }
 
-    def b_samp(self, b_instr, b_tot):
+    def b_samp(self, b_instr, b_tot, sin_t=None):
+        if isinstance(b_instr, float):
+            if self.shape == "GaussRad":
+                return sqrt(b_tot**2 - b_instr**2)
+            if self.shape == "LorentzRad":
+                return b_tot - b_instr
+        cos_t = sqrt(1 - sin_t**2)
+        tan_t = sin_t / cos_t
         if self.shape == "GaussRad":
-            return sqrt(b_tot**2 - b_instr**2)
+            cag_u, cag_v, cag_w, cag_p = b_instr
+            b2_g = cag_u * tan_t**2 + cag_v * tan_t + cag_w + cag_p / cos_t**2
+            return sqrt(b_tot**2 - b2_g)
         if self.shape == "LorentzRad":
-            return b_tot - b_instr
+            tch_x, tch_y = b_instr
+            b_l = tch_x * tan_t + tch_y / cos_t
+            return b_tot - b_l
 
     def corr(self, b_instr, x, y, cos_t):
-        return corrcoef(x, self.b_samp(b_instr, y) * cos_t)[0, 1]
+        return corrcoef(x, self.b_samp(b_instr, y, x) * cos_t)[0, 1]
 
     @staticmethod
     def _x_y_cos_t(cryb):
@@ -89,7 +100,7 @@ class BroadAn:
             x, y, cos_t = x_y_cos
         a, b = lstsq(
             vstack([x, ones(len(x))]).T,
-            self.b_samp(b_instr, y) * cos_t,
+            self.b_samp(b_instr, y, x) * cos_t,
             rcond=None,
         )[0]
         size = 0.9 * self._lambda / b
@@ -97,15 +108,27 @@ class BroadAn:
         return size, strain
 
     def opt_instrumental_cor(self, name):
+        shape_len = {"GaussRad": 4, "LorentzRad": 2}
         cryb = self.cryb[self.selected[name]]
         x, y, cos_t = self._x_y_cos_t(cryb)
-        inst = y.mean() / 4.0
+        x_0 = zeros(shape_len[self.shape])
 
         def min_it(instr):
-            return 1 - self.corr(instr[0], x, y, cos_t) ** 2
+            b_s = self.b_samp(instr, y, x)
+            if b_s.min() < 0.0:
+                return 2.0 - b_s.min()
+            b_sc = b_s * cos_t
+            a, b = lstsq(
+                vstack([x, ones(len(x))]).T,
+                b_sc,
+                rcond=None,
+            )[0]
+            if b < 0.0:
+                return 3.0 - b
+            return 1 - corrcoef(x, b_sc)[0, 1] ** 2
 
-        opt = fmin(min_it, [inst], initial_simplex=[[inst], [inst / 2.0]])
-        return opt[0]
+        opt = fmin(min_it, x_0)
+        return opt
 
     def opt_instrumental_size(self, name):
         cryb = self.cryb[self.selected[name]]
@@ -120,14 +143,17 @@ class BroadAn:
 
     def _params_to_display(self, name, b_instr):
         if b_instr is None or b_instr == "cor":
-            b_instr = self.opt_instrumental_cor(name)
+            try:
+                b_instr = self.opt_instrumental_cor(name)
+            except ValueError:
+                return (None,) * 4
         elif b_instr == "size":
             b_instr = self.opt_instrumental_size(name)
         size, strain = self.size_strain(name, b_instr)
         cor = self.corr(
             b_instr, *self._x_y_cos_t(self.cryb[self.selected[name]])
         )
-        return (size, strain, b_instr, cor)
+        return (size, strain, str(b_instr), cor)
 
     def plot_correlation(self, name, start, stop, points):
         x, y, c = self._x_y_cos_t(self.cryb[self.selected[name]])
@@ -142,7 +168,7 @@ class BroadAn:
 
         def ab_chi(b_instr):
             (a, b), c = lstsq(
-                xmat, self.b_samp(b_instr, y) * cos_t, rcond=None
+                xmat, self.b_samp(b_instr, y, x) * cos_t, rcond=None
             )[:2]
             return a, b, c[0]
 
@@ -174,7 +200,10 @@ class BroadAn:
     def plot_williamson_hall(self, name, b_instr):
         cryb = self.cryb[self.selected[name]]
         x, y, cos_t = self._x_y_cos_t(cryb)
-        y = self.b_samp(b_instr, y) * cos_t
+        if b_instr == 0.0:
+            b_instr = self.opt_instrumental_cor(name)
+            assert print(f"DEBUG: instr. broadening coefs: {b_instr}") is None
+        y = self.b_samp(b_instr, y, x) * cos_t
         (a, b), c = lstsq(
             vstack([x, ones(len(x))]).T,
             y,

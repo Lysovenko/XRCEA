@@ -16,6 +16,7 @@
 """View functional dependencies in plot"""
 
 from xrcea.core.vi import Plot
+
 from .broadening import BroadAn
 
 _calculate = _("Calculate")
