@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-from locale import atof
 import locale as loc
+from locale import atof
 
 
 class Value:
@@ -124,13 +124,11 @@ class Tabular:
         self._coltypes = coltypes
         self._colnames = colnames
         if coltypes is not None and type(coltypes) is not type(colnames):
-            raise RuntimeError(
-                "colnames and coltypes " "should be the same type"
-            )
+            raise RuntimeError("colnames and coltypes should be the same type")
         try:
             if len(colnames) != len(coltypes):
                 raise RuntimeError(
-                    "colnames and coltypes " "should be the same length"
+                    "colnames and coltypes should be the same length"
                 )
         except TypeError:
             pass
@@ -184,7 +182,9 @@ class Tabular:
             pass
 
     def insert_row(
-        self, index: int, row=None  # type: Optional[List[Any]]
+        self,
+        index: int,
+        row=None,  # type: Optional[List[Any]]
     ):
         if row is not None and len(row) != self.columns:
             raise RuntimeError(

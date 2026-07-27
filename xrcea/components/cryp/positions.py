@@ -202,7 +202,9 @@ class FoundBells(Spreadsheet):
                             for r in range(val.rows)
                         )
                     ),
-                )
+                ),
+                # TODO: (_("Remove row"), print),
+                (_("Remove column"), self._remove_column),
             ]
         )
 
@@ -378,6 +380,18 @@ class FoundBells(Spreadsheet):
             if name.startswith("auto") and self._uindex[name].get("auto"):
                 self._uindex.pop(name)
                 val.remove_column(i)
+
+    def _remove_column(self, t, r, c):
+        if c < 4:
+            return
+        val = self.value
+        name = val.colname(c)
+        if not self.ask_question(
+            _('Do remove "%s" Miller indices?') % (name,)
+        ):
+            return
+        self._uindex.pop(name)
+        val.remove_column(c)
 
     def load_miller_indices(self):
         for name in self._uindex:
