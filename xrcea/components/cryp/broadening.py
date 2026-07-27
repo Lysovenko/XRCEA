@@ -64,7 +64,7 @@ class BroadAn:
             for name, v in indexed.items()
         }
 
-    def b_samp(self, b_instr, b_tot, sin_t=None):
+    def b_samp(self, b_instr, b_tot, sin_t=None, err=False):
         if isinstance(b_instr, float):
             if self.shape == "GaussRad":
                 return sqrt(b_tot**2 - b_instr**2)
@@ -75,10 +75,19 @@ class BroadAn:
         if self.shape == "GaussRad":
             cag_u, cag_v, cag_w, cag_p = b_instr
             b2_g = cag_u * tan_t**2 + cag_v * tan_t + cag_w + cag_p / cos_t**2
-            return sqrt(b_tot**2 - b2_g)
+            root_of = b_tot**2 - b2_g
+            if err:
+                if b2_g.min() < 0.0:
+                    raise ValueError(b2_g.min())
+                if root_of.min() < 0.0:
+                    raise ValueError(root_of.min())
+            return sqrt(root_of)
         if self.shape == "LorentzRad":
             tch_x, tch_y = b_instr
             b_l = tch_x * tan_t + tch_y / cos_t
+            if err:
+                if b_l.min() < 0.0:
+                    raise ValueError(b_l.min())
             return b_tot - b_l
 
     def corr(self, b_instr, x, y, cos_t):
@@ -114,9 +123,13 @@ class BroadAn:
         x_0 = zeros(shape_len[self.shape])
 
         def min_it(instr):
-            b_s = self.b_samp(instr, y, x)
+            try:
+                b_s = self.b_samp(instr, y, x, err=True)
+            except ValueError as err:
+                return 2.0 - err.args[0]
             if b_s.min() < 0.0:
-                return 2.0 - b_s.min()
+                return 3.0 - b_s.min()
+            penalty = 0.0
             b_sc = b_s * cos_t
             a, b = lstsq(
                 vstack([x, ones(len(x))]).T,
@@ -124,8 +137,8 @@ class BroadAn:
                 rcond=None,
             )[0]
             if b < 0.0:
-                return 3.0 - b
-            return 1 - corrcoef(x, b_sc)[0, 1] ** 2
+                penalty += sqrt(-b)
+            return 1 - corrcoef(x, b_sc)[0, 1] ** 2 + penalty
 
         opt = fmin(min_it, x_0)
         return opt
