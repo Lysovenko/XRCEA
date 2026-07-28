@@ -240,7 +240,7 @@ class BroadAn:
     def _as_text(self, name):
         b_instr = self._instr_broad
         out = f"\n## Name: {name} ##\n"
-        if isinstance(b_instr, float):
+        if isinstance(b_instr, list):
             size, strain, b_instr, cor = self._params_to_display(name, b_instr)
             out += (
                 f"Predefined instrumental broadening: {b_instr}\n"
