@@ -37,6 +37,7 @@ CELL_TYPE_C, CELL_PARAMS, CELL_TYPE_N = zip(
         ("monoclinic", 4, _("Monoclinic")),
     )
 )
+INST_BROAD_VARS = {"GaussRad": ("U", "V", "W", "P"), "LorentzRad": ("X", "Y")}
 
 
 class IFloat(TabCell):
@@ -352,22 +353,38 @@ class FoundBells(Spreadsheet):
         )
 
     def set_instrumental_broadening(self):
+        shape = self._xrd.extra_data.get("crypShape")
+        if shape not in INST_BROAD_VARS:
+            self.print_error(_("Unknown peak shape: ") + str(shape))
+            return
         instrumental = self._xrd.extra_data.setdefault("crypInstrumental", {})
+        var_nams = INST_BROAD_VARS[shape]
+        var_vals = instrumental.get("Broadening")
+        if not isinstance(var_vals, list):
+            var_vals = [0.0] * len(var_nams)
+        if len(var_vals) < len(var_nams):
+            var_vals += [0.0] * (len(var_nams) - len(var_vals))
+        if len(var_vals) > len(var_nams):
+            var_vals = var_vals[: len(var_nams)]
         try:
-            broadening = float(instrumental.get("Broadening", 0.0))
+            var_vals = [
+                v if isinstance(v, float) else float(v) for v in var_vals
+            ]
         except (TypeError, ValueError):
-            broadening = 0.0
+            var_vals = [0.0] * len(var_nams)
+        var_fields = [(n + ":", v) for n, v in zip(var_nams, var_vals)]
         dlgr = self.input_dialog(
             _("Instrumental broadening"),
-            [(_("Broadening:"), broadening), (_("Drop:"), False)],
+            var_fields + [(_("Drop:"), False)],
         )
         if dlgr is None:
             return
-        (broadening, drop) = dlgr
+        var_vals = dlgr[:-1]
+        drop = dlgr[-1]
         if drop:
             instrumental.pop("Broadening")
         else:
-            instrumental["Broadening"] = broadening
+            instrumental["Broadening"] = var_vals
 
     def _clear_auto(self):
         if not self.ask_question(
