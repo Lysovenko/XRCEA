@@ -284,12 +284,10 @@ class FoundBells(Spreadsheet):
             curauto += 1
             name = "auto%d" % curauto
             hkl = list(map(list, zip(*group[2])))
-            indices = {}
-            p_hkl = 0
-            for i, j in enumerate(group[3]):
-                if j:
-                    indices[i] = hkl[p_hkl]
-                    p_hkl += 1
+            indices = {
+                i: v
+                for i, v in zip((i for i, j in enumerate(group[3]) if j), hkl)
+            }
             self._uindex[name] = {
                 "cell": CELL_TYPE_C[cs],
                 "indices": indices,
