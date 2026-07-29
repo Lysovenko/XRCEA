@@ -90,6 +90,17 @@ class BroadAn:
                     raise ValueError(b_l.min())
             return b_tot - b_l
 
+    def b_instr(self, sin_t, coefs):
+        cos_t = sqrt(1 - sin_t**2)
+        tan_t = sin_t / cos_t
+        if self.shape == "GaussRad":
+            cg_u, cg_v, cg_w, cg_p = coefs
+            b2_g = cg_u * tan_t**2 + cg_v * tan_t + cg_w + cg_p / cos_t**2
+            return sqrt(b2_g)
+        if self.shape == "LorentzRad":
+            tch_x, tch_y = coefs
+            return tch_x * tan_t + tch_y / cos_t
+
     def corr(self, b_instr, x, y, cos_t):
         return corrcoef(x, self.b_samp(b_instr, y, x) * cos_t)[0, 1]
 
@@ -215,9 +226,11 @@ class BroadAn:
     def plot_williamson_hall(self, name, b_instr):
         cryb = self.cryb[self.selected[name]]
         x, y, cos_t = self._x_y_cos_t(cryb)
+        if isinstance(self._instr_broad, list):
+            b_instr = self._instr_broad
         if b_instr == 0.0:
             b_instr = self.opt_instrumental_cor(name)
-            assert print(f"DEBUG: instr. broadening coefs: {b_instr}") is None
+        y_t = y * cos_t
         y = self.b_samp(b_instr, y, x) * cos_t
         (a, b), c = lstsq(
             vstack([x, ones(len(x))]).T,
@@ -228,12 +241,17 @@ class BroadAn:
         size, strain = self.size_strain(name, b_instr)
         comment += f"\nSize = {size}\nStrain = {strain}\n"
         comment += f"debug chi2: {c[0] - ((a * x + b - y) ** 2).sum()}"
+        comment += f"\nDEBUG: instr. broadening coefs: {b_instr}\n"
         lin_x = array([0.0, x.max()])
         lin_y = lin_x * a + b
         millers = ["(%d %d %d)" % tuple(i) for i in self.miller_indices[name]]
+        bi_x = linspace(0, x.max(), 100)
+        bi_y = self.b_instr(bi_x, b_instr) * sqrt(1.0 - bi_x**2)
         return {
             "plots": [
-                {"x1": x, "y1": y, "type": "o", "annotations": millers},
+                {"x1": x, "y1": y, "type": "+", "annotations": millers},
+                {"x1": x, "y1": y_t, "type": "o"},
+                {"x1": bi_x, "y1": bi_y, "type": "--", "color": "blue"},
                 {"x1": lin_x, "y1": lin_y, "type": "-", "color": "green"},
             ],
             "Comment": comment,
