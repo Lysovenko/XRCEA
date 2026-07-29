@@ -121,6 +121,8 @@ class BroadAn:
         cryb = self.cryb[self.selected[name]]
         x, y, cos_t = self._x_y_cos_t(cryb)
         x_0 = zeros(shape_len[self.shape])
+        if x.size == 0:
+            return x_0
 
         def min_it(instr):
             try:
@@ -278,6 +280,8 @@ class BroadAn:
             r.write(Cell(cn))
         tab.write(r)
         for name in sorted(self.selected.keys()):
+            if not any(self.selected[name]):
+                continue
             size, strain, br_instr, cor = self._params_to_display(
                 name, b_instr
             )
