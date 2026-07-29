@@ -24,6 +24,8 @@ _calculate = _("Calculate")
 
 class FuncView(Plot):
     def __init__(self, xrd):
+        from .positions import FoundBells
+
         self._xrd = xrd
         super().__init__(str(xrd.name) + _(" Visual Analyser"))
         self._default_instrumental_broadening_range = {
@@ -32,7 +34,8 @@ class FuncView(Plot):
             "points": 100,
             "name": 0,
         }
-        self._default_williamson = {"name": 0, "instr": 0.0}
+        self._default_williamson = {"name": 0, "do_opt": False}
+        self._cur_b_instr_coefs = None
         self._default_ang_instr = 0.0, 175.0, 100
         self.menu.append_item(
             (_calculate,),
@@ -62,6 +65,14 @@ class FuncView(Plot):
             (_calculate,),
             _("Draw instrumental broadening..."),
             self.plot_instr_broad,
+            None,
+        )
+        self.menu.append_item(
+            (_calculate,),
+            _("Accept instrumental broadening..."),
+            lambda: FoundBells.set_instrumental_broadening(
+                self, self._cur_b_instr_coefs
+            ),
             None,
         )
 
@@ -151,22 +162,23 @@ class FuncView(Plot):
                 _("Parameters for Williamson-Hall Plot"),
                 [
                     (_("Name:"), names, def_will["name"]),
-                    (_("Instrumental broadening:"), def_will["instr"]),
+                    (_("Optimize:"), def_will["do_opt"]),
                 ],
             )
         except (KeyError, AttributeError):
             return
         if dlgr is None:
             return
-        name, instr_broad = dlgr
-        def_will["name"], def_will["instr"] = dlgr
+        name, do_opt = dlgr
+        def_will["name"], def_will["do_opt"] = dlgr
         name = names[name]
         try:
             bro = BroadAn(self._xrd)
-            upd_plot = bro.plot_williamson_hall(name, instr_broad)
+            upd_plot, b_instr = bro.plot_williamson_hall(name, do_opt)
         except KeyError:
             self.print_error(_("Can not launch broadening analyser"))
             return
+        self._cur_b_instr_coefs = b_instr
         pname = _("Williamson-Hall Plot")
         plot = {
             "x1label": r"$\sin\theta$",

@@ -350,14 +350,14 @@ class FoundBells(Spreadsheet):
             self.value.columns, name, lambda x=indices: HklCell(x)
         )
 
-    def set_instrumental_broadening(self):
+    def set_instrumental_broadening(self, b_inst=None):
         shape = self._xrd.extra_data.get("crypShape")
         if shape not in INST_BROAD_VARS:
             self.print_error(_("Unknown peak shape: ") + str(shape))
             return
         instrumental = self._xrd.extra_data.setdefault("crypInstrumental", {})
         var_nams = INST_BROAD_VARS[shape]
-        var_vals = instrumental.get("Broadening")
+        var_vals = instrumental.get("Broadening") if b_inst is None else b_inst
         if not isinstance(var_vals, list):
             var_vals = [0.0] * len(var_nams)
         if len(var_vals) < len(var_nams):

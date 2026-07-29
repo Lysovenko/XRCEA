@@ -249,13 +249,14 @@ class BroadAn:
             },
         ]
 
-    def plot_williamson_hall(self, name, b_instr):
+    def plot_williamson_hall(self, name, do_opt):
         cryb = self.cryb[self.selected[name]]
         x, y, cos_t = self._x_y_cos_t(cryb)
-        if isinstance(self._instr_broad, list):
-            b_instr = self._instr_broad
-        if b_instr == 0.0:
-            b_instr = self.opt_instrumental_cor(name)
+        b_instr = (
+            self._instr_broad if isinstance(self._instr_broad, list) else None
+        )
+        if b_instr is None or do_opt:
+            b_instr = self.opt_instrumental_cor(name).tolist()
         y_t = y * cos_t
         y = self.b_samp(b_instr, y, x) * cos_t
         (a, b), c = lstsq(
@@ -281,7 +282,7 @@ class BroadAn:
                 {"x1": lin_x, "y1": lin_y, "type": "-", "color": "green"},
             ],
             "Comment": comment,
-        }
+        }, b_instr
 
     def _as_text(self, name):
         b_instr = self._instr_broad
