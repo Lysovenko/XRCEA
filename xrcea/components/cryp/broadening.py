@@ -15,7 +15,19 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Analise peaks broadening"""
 
-from numpy import array, corrcoef, linspace, log, ones, pi, sqrt, vstack, zeros
+from numpy import (
+    array,
+    corrcoef,
+    linspace,
+    log,
+    ones,
+    pi,
+    radians,
+    sin,
+    sqrt,
+    vstack,
+    zeros,
+)
 from numpy.linalg import lstsq
 from scipy.optimize import fmin
 
@@ -180,6 +192,20 @@ class BroadAn:
             b_instr, *self._x_y_cos_t(self.cryb[self.selected[name]])
         )
         return (size, strain, str(b_instr), cor)
+
+    def plot_instr_broad(self, start, stop, points):
+        coefs = self._instr_broad
+        if not isinstance(coefs, list):
+            return
+        if start < 0 or stop >= 180 or stop <= start:
+            return
+        angles = linspace(start, stop, points)
+        sin_t = sin(radians(angles) / 2)
+        try:
+            y = self.b_instr(sin_t, coefs)
+        except ValueError:
+            return
+        return [{"x1": angles, "y1": y, "type": "-"}]
 
     def plot_correlation(self, name, start, stop, points):
         x, y, c = self._x_y_cos_t(self.cryb[self.selected[name]])

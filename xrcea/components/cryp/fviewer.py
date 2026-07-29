@@ -33,6 +33,7 @@ class FuncView(Plot):
             "name": 0,
         }
         self._default_williamson = {"name": 0, "instr": 0.0}
+        self._default_ang_instr = 0.0, 175.0, 100
         self.menu.append_item(
             (_calculate,),
             _("Peak broadening Correlation..."),
@@ -55,6 +56,12 @@ class FuncView(Plot):
             (_calculate,),
             _("Draw Williamson-Hall Plot..."),
             self.williamson_hall_plot,
+            None,
+        )
+        self.menu.append_item(
+            (_calculate,),
+            _("Draw instrumental broadening..."),
+            self.plot_instr_broad,
             None,
         )
 
@@ -166,10 +173,35 @@ class FuncView(Plot):
             "y1label": r"$B\cos\theta$",
         }
         plot.update(upd_plot)
-        self.add_plot(
-            pname,
-            plot,
+        self.add_plot(pname, plot)
+        self.draw(pname)
+
+    def plot_instr_broad(self):
+        start, stop, points = self._default_ang_instr
+        dlgr = self.input_dialog(
+            _("Angle range"),
+            [(_("Start:"), start), (_("Stop:"), stop), (_("Points:"), points)],
         )
+        if dlgr is None:
+            return
+        start, stop, points = dlgr
+        try:
+            bro = BroadAn(self._xrd)
+            plts = bro.plot_instr_broad(start, stop, points)
+        except KeyError:
+            self.print_error(_("Can not launch broadening analyser"))
+            return
+        if plts is None:
+            self.print_error(_("Bad angle range or no broadening set"))
+            return
+        self._default_ang_instr = start, stop, points
+        pname = _("Instrumental broadening")
+        plot = {
+            "x1label": r"$2\theta$",
+            "y1label": r"$\beta_{inst}$",
+            "plots": plts,
+        }
+        self.add_plot(pname, plot)
         self.draw(pname)
 
     def plot_least_sqares(self):
