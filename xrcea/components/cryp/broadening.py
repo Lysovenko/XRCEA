@@ -98,7 +98,7 @@ class BroadAn:
                 if not iscomplexobj(roots([cag_u, cag_v, cag_w])):
                     x = -cag_v / 2.0 / cag_u
                     raise ValueError(
-                        sqrt(abs(cag_u * x**2 + cag_v * x + cag_w))
+                        -sqrt(abs(cag_u * x**2 + cag_v * x + cag_w))
                     )
             return sqrt(root_of)
         if self.shape == "LorentzRad":
