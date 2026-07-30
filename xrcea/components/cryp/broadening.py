@@ -18,11 +18,13 @@
 from numpy import (
     array,
     corrcoef,
+    iscomplexobj,
     linspace,
     log,
     ones,
     pi,
     radians,
+    roots,
     sin,
     sqrt,
     vstack,
@@ -85,14 +87,19 @@ class BroadAn:
         cos_t = sqrt(1 - sin_t**2)
         tan_t = sin_t / cos_t
         if self.shape == "GaussRad":
-            cag_u, cag_v, cag_w, cag_p = b_instr
-            b2_g = cag_u * tan_t**2 + cag_v * tan_t + cag_w + cag_p / cos_t**2
+            cag_u, cag_v, cag_w = b_instr
+            b2_g = cag_u * tan_t**2 + cag_v * tan_t + cag_w
             root_of = b_tot**2 - b2_g
             if err:
                 if b2_g.min() < 0.0:
                     raise ValueError(b2_g.min())
                 if root_of.min() < 0.0:
                     raise ValueError(root_of.min())
+                if not iscomplexobj(roots([cag_u, cag_v, cag_w])):
+                    x = -cag_v / 2.0 / cag_u
+                    raise ValueError(
+                        sqrt(abs(cag_u * x**2 + cag_v * x + cag_w))
+                    )
             return sqrt(root_of)
         if self.shape == "LorentzRad":
             tch_x, tch_y = b_instr
@@ -106,8 +113,8 @@ class BroadAn:
         cos_t = sqrt(1 - sin_t**2)
         tan_t = sin_t / cos_t
         if self.shape == "GaussRad":
-            cg_u, cg_v, cg_w, cg_p = coefs
-            b2_g = cg_u * tan_t**2 + cg_v * tan_t + cg_w + cg_p / cos_t**2
+            cg_u, cg_v, cg_w = coefs
+            b2_g = cg_u * tan_t**2 + cg_v * tan_t + cg_w
             return sqrt(b2_g)
         if self.shape == "LorentzRad":
             tch_x, tch_y = coefs
@@ -140,7 +147,7 @@ class BroadAn:
         return size, strain
 
     def opt_instrumental_cor(self, name):
-        shape_len = {"GaussRad": 4, "LorentzRad": 2}
+        shape_len = {"GaussRad": 3, "LorentzRad": 2}
         cryb = self.cryb[self.selected[name]]
         x, y, cos_t = self._x_y_cos_t(cryb)
         x_0 = zeros(shape_len[self.shape])

@@ -37,7 +37,7 @@ CELL_TYPE_C, CELL_PARAMS, CELL_TYPE_N = zip(
         ("monoclinic", 4, _("Monoclinic")),
     )
 )
-INST_BROAD_VARS = {"GaussRad": ("U", "V", "W", "P"), "LorentzRad": ("X", "Y")}
+INST_BROAD_VARS = {"GaussRad": ("U", "V", "W"), "LorentzRad": ("X", "Y")}
 
 
 class IFloat(TabCell):
