@@ -148,7 +148,10 @@ class BroadAn:
         shape_len = {"GaussRad": 3, "LorentzRad": 2}
         cryb = self.cryb[self.selected[name]]
         x, y, cos_t = self._x_y_cos_t(cryb)
-        x_0 = zeros(shape_len[self.shape])
+        if self._instr_broad is not None:
+            x_0 = self._instr_broad
+        else:
+            x_0 = zeros(shape_len[self.shape])
         if x.size == 0:
             return x_0
 
