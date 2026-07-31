@@ -357,7 +357,7 @@ class FoundBells(Spreadsheet):
             return
         instrumental = self._xrd.extra_data.setdefault("crypInstrumental", {})
         var_nams = INST_BROAD_VARS[shape]
-        var_vals = instrumental.get("Broadening") if b_inst is None else b_inst
+        var_vals = instrumental.get(shape) if b_inst is None else b_inst
         if not isinstance(var_vals, list):
             var_vals = [0.0] * len(var_nams)
         if len(var_vals) < len(var_nams):
@@ -380,9 +380,9 @@ class FoundBells(Spreadsheet):
         var_vals = dlgr[:-1]
         drop = dlgr[-1]
         if drop:
-            instrumental.pop("Broadening")
+            instrumental.pop(shape)
         else:
-            instrumental["Broadening"] = var_vals
+            instrumental[shape] = var_vals
 
     def _clear_auto(self):
         if not self.ask_question(

@@ -52,12 +52,10 @@ class BroadAn:
     def __init__(self, xrd):
         extra_data = xrd.extra_data
         self._lambda = xrd.lambda1
-        self._instr_broad = extra_data.get("crypInstrumental", {}).get(
-            "Broadening"
-        )
         cryb = extra_data["crypbells"]
         cryb = cryb.reshape(len(cryb) // 4, 4)
         self.shape = shape = extra_data["crypShape"]
+        self._instr_broad = extra_data.get("crypInstrumental", {}).get(shape)
         if self.shape not in ("GaussRad", "LorentzRad"):
             raise KeyError("Unsupported shape")
         cryb[:, 1] = CALCS_FWHM[shape](cryb[:, 2])
