@@ -100,8 +100,8 @@ class BroadAn:
                     )
             return sqrt(root_of)
         if self.shape == "LorentzRad":
-            tch_x, tch_y = b_instr
-            b_l = tch_x * tan_t + tch_y / cos_t
+            tch_x, tch_y, tch_z = b_instr
+            b_l = tch_x * tan_t + tch_y / cos_t + tch_z
             if err:
                 if b_l.min() < 0.0:
                     raise ValueError(b_l.min())
@@ -115,8 +115,8 @@ class BroadAn:
             b2_g = cg_u * tan_t**2 + cg_v * tan_t + cg_w
             return sqrt(b2_g)
         if self.shape == "LorentzRad":
-            tch_x, tch_y = coefs
-            return tch_x * tan_t + tch_y / cos_t
+            tch_x, tch_y, tch_z = coefs
+            return tch_x * tan_t + tch_y / cos_t + tch_z
 
     def corr(self, b_instr, x, y, cos_t):
         return corrcoef(x, self.b_samp(b_instr, y, x) * cos_t)[0, 1]
@@ -145,7 +145,7 @@ class BroadAn:
         return size, strain
 
     def opt_instrumental_cor(self, name):
-        shape_len = {"GaussRad": 3, "LorentzRad": 2}
+        shape_len = {"GaussRad": 3, "LorentzRad": 3}
         cryb = self.cryb[self.selected[name]]
         x, y, cos_t = self._x_y_cos_t(cryb)
         if self._instr_broad is not None:
