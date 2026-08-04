@@ -16,14 +16,24 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from importlib import import_module
-from os.path import join, dirname, realpath, splitext, normcase, isfile
+from os.path import dirname, isfile, join, normcase, realpath, splitext
+
 from .compman import CompMan
-from .settings import Settings
-from .vi.menu import DMenu
-from .vi import print_error
 from .project import (
-    Project, show_project, save_project_as, save_project, add_object,
-    get_objects, get_name, PreventExit, rename_project, open_project)
+    PreventExit,
+    Project,
+    add_object,
+    get_name,
+    get_objects,
+    open_project,
+    rename_project,
+    save_project,
+    save_project_as,
+    show_project,
+)
+from .settings import Settings
+from .vi import print_error
+from .vi.menu import DMenu
 
 _ACTUAL_INTERFACE = None
 
@@ -75,14 +85,16 @@ class Opener:
     @classmethod
     def register_opener(cls, ext, how, descr):
         cls._openers[ext] = how
-        cls._descriptions['*' + ext] = descr
+        cls._descriptions["*" + ext] = descr
 
     @classmethod
     def run_dialog(cls):
         fname = APPLICATION.visual.ask_open_filename(
-            _("Open file"), "", [
-                (" ".join(cls._descriptions.keys()),
-                 _("All known files"))] + sorted(cls._descriptions.items()))
+            _("Open file"),
+            "",
+            [(" ".join(cls._descriptions.keys()), _("All known files"))]
+            + sorted(cls._descriptions.items()),
+        )
         if fname is not None:
             ext = splitext(normcase(fname))[1]
             if ext not in cls._openers:
@@ -106,25 +118,28 @@ def icon_file(name):
     arguments:
     name - name of icon"""
     return join(
-        dirname(dirname(realpath(__file__))),
-        "data", "icons", name + ".png")
+        dirname(dirname(realpath(__file__))), "data", "icons", name + ".png"
+    )
 
 
 def _help():
-    from webbrowser import open_new
-    from os.path import abspath, isfile
     from locale import getlocale
+    from os.path import abspath, isfile
+    from webbrowser import open_new
+
     lang = {"uk": "ukr", "uk_UA": "ukr"}.get(getlocale()[0], "eng")
-    fname = abspath(join(dirname(dirname(
-        __file__)), "doc", lang, "html", "index.html"))
+    fname = abspath(
+        join(dirname(dirname(__file__)), "doc", lang, "html", "index.html")
+    )
     if not (isfile(fname) and open_new(fname)):
         print_error(_("Help window"), _("Unable to open help page."))
 
 
 def _introduce_menu():
-    from .sett_dialogs import edit_components
     from .idata import introduce_input
+    from .sett_dialogs import edit_components
     from .vi import gui_exit
+
     mappend = APPLICATION.menu.append_item
     _opts = _("&Options")
     _file = _("&File")
@@ -140,10 +155,10 @@ def _introduce_menu():
     mappend(prj_p, "separ", None, None)
     mappend(prj_p, _("Open..."), open_project, None)
     mappend((), _opts, {}, None)
-    mappend((_opts,), _("Components..."),
-            edit_components, None, None)
-    mappend((_file,), _("&Open"), Opener.run_dialog, None, None,
-            icon_file("open"))
+    mappend((_opts,), _("Components..."), edit_components, None, None)
+    mappend(
+        (_file,), _("&Open"), Opener.run_dialog, None, None, icon_file("open")
+    )
     APPLICATION.menu.insert_item((_file,), 99, _("&Quit"), gui_exit, None)
     APPLICATION.menu.insert_item((), 99, _hlp, {}, None)
     mappend((_hlp,), _("Contents"), _help, None)
@@ -152,5 +167,6 @@ def _introduce_menu():
 
 def main():
     from . import initialize
+
     initialize()
     start()
