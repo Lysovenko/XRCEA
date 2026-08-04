@@ -18,6 +18,8 @@
 from locale import format_string
 from math import asin, pi
 
+from xrcea.core.application import APPLICATION as APP
+from xrcea.core.idata import XrayData
 from xrcea.core.vi import copy_to_clipboard
 from xrcea.core.vi.spreadsheet import Spreadsheet
 from xrcea.core.vi.value import TabCell, Tabular, Value, lfloat
@@ -371,13 +373,33 @@ class FoundBells(Spreadsheet):
         except (TypeError, ValueError):
             var_vals = [0.0] * len(var_nams)
         var_fields = [(n + ":", v) for n, v in zip(var_nams, var_vals)]
+        holders = [
+            obj
+            for obj in APP.get_objects()
+            if isinstance(obj, XrayData)
+            and shape in obj.extra_data.get("crypInstrumental", ())
+        ]
+        h_names = tuple(str(h.name) for h in holders)
+
+        def h_setter(ind):
+            if ind == 0:
+                return ()
+            obj = holders[ind - 1]
+            coefs = obj.extra_data["crypInstrumental"][shape]
+            for i, c in enumerate(coefs):
+                yield "set", i, c
+
         dlgr = self.input_dialog(
             _("Instrumental broadening"),
-            var_fields + [(_("Drop:"), False)],
+            var_fields
+            + [
+                (_("Use from:"), ("--",) + h_names, h_setter),
+                (_("Drop:"), False),
+            ],
         )
         if dlgr is None:
             return
-        var_vals = dlgr[:-1]
+        var_vals = dlgr[:-2]
         drop = dlgr[-1]
         if drop:
             instrumental.pop(shape)
