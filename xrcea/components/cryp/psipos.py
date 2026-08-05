@@ -180,7 +180,7 @@ class PsiView(Plot):
             _("Correlation"),
             {
                 "plots": plots,
-                "x1label": _("$\\sin(\u03c8)^2$"),
+                "x1label": r"$\sin(\psi)^2$",
                 "y1label": _("Correlation"),
                 "Comment": f"md:\t{md}",
             },
