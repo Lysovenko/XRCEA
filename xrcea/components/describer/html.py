@@ -17,17 +17,18 @@
 Convert description to HTML
 """
 
-from xml.etree.ElementTree import tostring, Element, SubElement
+from xml.etree.ElementTree import Element, SubElement, tostring
+
 from xrcea.core.description import (
-    Paragraph,
-    DescItem,
-    Table,
-    Row,
     Cell,
-    Title,
+    DescItem,
+    Description,
+    Paragraph,
+    Row,
     SubScript,
     SuperScript,
-    Description,
+    Table,
+    Title,
 )
 
 
