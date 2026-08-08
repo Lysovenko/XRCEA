@@ -1,5 +1,5 @@
 """This is some interesting educational program"""
-# XRCEA (C) 2019 Serhii Lysovenko
+# XRCEA (C) 2019-2026 Serhii Lysovenko
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,21 +16,22 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import os
-from os.path import join, isdir, expanduser, normpath, isfile
 from configparser import RawConfigParser
+from os.path import expanduser, isdir, isfile, join, normpath
 
 
 class Settings:
     def __init__(self):
         self.__config = RawConfigParser()
+        self.__changed = False
         self.items = self.__config.items
-        if os.name == 'posix':
+        if os.name == "posix":
             aphom = expanduser("~/.config")
             if isdir(aphom):
                 self.__app_home = join(aphom, "XRCEA")
             else:
                 self.__app_home = expanduser("~/.XRCEA")
-        elif os.name == 'nt':
+        elif os.name == "nt":
             if isdir(expanduser("~/Application Data")):
                 self.__app_home = expanduser("~/Application Data/XRCEA")
             else:
@@ -48,8 +49,9 @@ class Settings:
     def declare_section(self, section):
         if not self.__config.has_section(section):
             self.__config.add_section(section)
+            self.__changed = True
 
-    def get(self, name, default=None, section='DEFAULT'):
+    def get(self, name, default=None, section="DEFAULT"):
         if not self.__config.has_option(section, name):
             return default
         if default is not None:
@@ -65,8 +67,11 @@ class Settings:
                 return self.__config.getboolean(section, name)
             return deft(self.__config.get(section, name))
         except ValueError:
-            print("Warning: cannot convert {} into {}".format(
-                repr(self.__config.get(section, name)), deft.__name__))
+            print(
+                "Warning: cannot convert {} into {}".format(
+                    repr(self.__config.get(section, name)), deft.__name__
+                )
+            )
             return default
 
     def get_color(self, name):
@@ -76,22 +81,31 @@ class Settings:
             return self.__default_colors.get(name)
         return self.__config.get("PALETTE", name)
 
-    def set(self, name, val, section='DEFAULT'):
+    def set(self, name, val, section="DEFAULT"):
+        if (
+            self.__config.has_option(section, name)
+            and self.get(name, val, section) == val
+        ):
+            return
         if not isinstance(val, str):
             val = repr(val)
         self.__config.set(section, name, val)
+        self.__changed = True
 
     def set_color(self, name, val):
         self.__config.set("PALETTE", name, val)
+        self.__changed = True
 
     def add_default_colors(self, colors):
         self.__default_colors.update(colors)
 
-    def get_home(self, name=''):
+    def get_home(self, name=""):
         if name:
             return join(self.__app_home, name)
         return self.__app_home
 
     def save(self):
+        if not self.__changed:
+            return
         with open(self.get_home("XRCEA.cfg"), "w") as fobj:
             self.__config.write(fobj)
