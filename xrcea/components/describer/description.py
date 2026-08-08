@@ -34,9 +34,8 @@ def get_description():
             res.append(Title(_("Comment"), 3))
             for c in obj.comment.splitlines():
                 res.append(Paragraph(c))
-        for Desc in APP.runtime_data.get("Describers", {}).values():
-            descr = Desc(obj)
-            descr.write(res)
+        for descr in APP.runtime_data.get("Describers", {}).values():
+            descr.write(obj, res)
     return res
 
 

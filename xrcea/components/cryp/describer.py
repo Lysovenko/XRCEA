@@ -34,29 +34,41 @@ CALCS_FWHM = {
 
 
 class Describer:
-    def __init__(self, xrd):
+    def __init__(self, sett):
+        self.name = _("Crystal peaks")
+        self.__sett = sett
+
+    def write(self, xrd, doc):
         if not isinstance(xrd, XrayData):
             return
-        self.xrd = xrd
+        if "crypbells" in xrd.extra_data:
+            self._write_peaks(xrd, doc)
 
-    def __bool__(self):
-        return hasattr(self, "xrd")
-
-    def write(self, doc):
-        if not self:
-            return
-        if "crypbells" in self.xrd.extra_data:
-            self._write_peaks(doc)
-
-    def _write_peaks(self, doc):
+    def _write_peaks(self, xrd, doc):
         doc.write(Title(_("Crystall peaks"), 3))
         try:
-            shape = self.xrd.extra_data["crypShape"]
+            shape = xrd.extra_data["crypShape"]
             doc.write(Paragraph(_("Peak shape: %s") % shape))
         except KeyError:
             shape = None
-        uindex = self.xrd.extra_data.get("UserIndexes", dict())
-        cryb = self.xrd.extra_data["crypbells"]
+        if self.__sett["show_cryps_tab"]:
+            tab = self._cryps_tab(xrd, shape)
+            doc.write(tab)
+        cp = CellParams(xrd)
+        if cp:
+            doc.write(Title(_("Cell params"), 4))
+            cp.to_doc(doc)
+        try:
+            bro = BroadAn(xrd)
+        except KeyError:
+            pass
+        else:
+            doc.write(Title(_("Broadening analysis"), 4))
+            bro.to_doc(doc)
+
+    def _cryps_tab(self, xrd, shape):
+        uindex = xrd.extra_data.get("UserIndexes", dict())
+        cryb = xrd.extra_data["crypbells"]
         cryb = sorted(map(tuple, cryb.reshape(len(cryb) // 4, 4)))
         tab = Table()
         heads = Row()
@@ -83,15 +95,13 @@ class Describer:
             for ind in indices:
                 r.write(Cell(ind.get(i - 1, ""), 5))
             tab.write(r)
-        doc.write(tab)
-        cp = CellParams(self.xrd)
-        if cp:
-            doc.write(Title(_("Cell params"), 4))
-            cp.to_doc(doc)
-        try:
-            bro = BroadAn(self.xrd)
-        except KeyError:
-            pass
-        else:
-            doc.write(Title(_("Broadening analysis"), 4))
-            bro.to_doc(doc)
+        return tab
+
+    def settings_dialog(self, caller):
+        dlgr = caller.input_dialog(
+            _("Describe peaks settings"),
+            [(_("Show shapes table:"), self.__sett["show_cryps_tab"])],
+        )
+        if dlgr is None:
+            return
+        self.__sett["show_cryps_tab"] = dlgr[0]

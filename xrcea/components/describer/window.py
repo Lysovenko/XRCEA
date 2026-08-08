@@ -22,6 +22,7 @@ from .description import get_description, save_description
 from .html import html_from_description
 
 _descr = _("Description")
+_sett = _("Settings")
 _DATA = {}
 
 
@@ -30,9 +31,21 @@ class DescriptionWindow(Page):
 
     def __init__(self):
         title = _("Description ") + APP.get_name()
+        self._describers = tuple(
+            APP.runtime_data.get("Describers", {}).values()
+        )
         super().__init__(title, None)
         self.menu.append_item((_descr,), _("Save description..."), self.m_save)
+        self.menu.append_item((_descr,), _("Update description"), self.update)
+        for des in self._describers:
+            print(des.name)
+            self.menu.append_item(
+                (_descr, _sett), des.name, lambda: des.settings_dialog(self)
+            )
         self.show()
+        self.update()
+
+    def update(self):
         self.description = get_description()
         self.set_text(html_from_description(self.description))
 

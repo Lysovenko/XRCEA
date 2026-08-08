@@ -45,6 +45,7 @@ _DEFAULTS = {
     "refl_ptm": 4,
     "refloc_sz": "(640,480)",
     "refl_bf": 2.0,
+    "show_cryps_tab": True,
 }
 _BELL_TYPES = ("Gauss", "Lorentz", "Voit", "GaussRad", "LorentzRad", "VoitRad")
 _BELL_NAMES = (
@@ -96,7 +97,7 @@ def introduce():
     _data["data"]["cell_calc"] = CALCULATORS
     _data["data"]["extra_calcs"] = []
     describers = APP.runtime_data.setdefault("Describers", {})
-    describers["cryp.Describer"] = Describer
+    describers["cryp.Describer"] = Describer(_data)
 
 
 def terminate():
